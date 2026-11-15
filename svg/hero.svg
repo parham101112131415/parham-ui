@@ -17,7 +17,7 @@
 <circle cx="173" cy="132" r="8" fill="#ff5a5a"/>
 <text x="222" y="123" fill="#f4f4f5" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="800">PARHAM PANEL</text>
 <text x="550" y="185" fill="#ff8585" font-family="Inter,Arial,sans-serif" font-size="22" font-weight="800" letter-spacing="4">XRAY · PANEL · TELEGRAM</text>
-<text x="550" y="245" fill="#ffffff" font-family="Inter,Arial,sans-serif" font-size="62" font-weight="900">WHITE</text>
+<text x="550" y="245" fill="#ffffff" font-family="Inter,Arial,sans-serif" font-size="62" font-weight="900">PARHAM</text>
 <text x="550" y="302" fill="#ffffff" font-family="Inter,Arial,sans-serif" font-size="34" font-weight="800">Control Panel</text>
 <text x="550" y="348" fill="#b6b6c4" font-family="Inter,Arial,sans-serif" font-size="20">Deploy. Manage. Scan. Sell. Subscribe.</text>
 <rect x="550" y="378" width="260" height="36" rx="18" fill="url(#g)" filter="url(#s)"/>

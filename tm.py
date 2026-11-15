@@ -302,27 +302,27 @@ def _cycle_path(edges: list, nodes: list) -> list | None:
     adjacency = {nid: [] for nid in nodes}
     for edge in edges:
         adjacency.setdefault(edge["from"], []).append(edge["to"])
-    WHITE, GREY, BLACK = 0, 1, 2
-    color = {nid: WHITE for nid in nodes}
+    UNVISITED, VISITING, DONE = 0, 1, 2
+    color = {nid: UNVISITED for nid in nodes}
     stack: list = []
 
     def visit(nid: str) -> list | None:
-        color[nid] = GREY
+        color[nid] = VISITING
         stack.append(nid)
         for nxt in adjacency.get(nid, []):
-            if color.get(nxt, WHITE) == GREY:
+            if color.get(nxt, UNVISITED) == VISITING:
                 idx = stack.index(nxt) if nxt in stack else 0
                 return stack[idx:] + [nxt]
-            if color.get(nxt, WHITE) == WHITE:
+            if color.get(nxt, UNVISITED) == UNVISITED:
                 found = visit(nxt)
                 if found:
                     return found
         stack.pop()
-        color[nid] = BLACK
+        color[nid] = DONE
         return None
 
     for nid in nodes:
-        if color.get(nid, WHITE) == WHITE:
+        if color.get(nid, UNVISITED) == UNVISITED:
             found = visit(nid)
             if found:
                 return found

@@ -110,7 +110,7 @@ body {
     50% { opacity: 0.85; transform: scale(1.02); }
 }
 
-/* کلمه عمودی WHITE روی مجسمه */
+/* کلمه عمودی PARHAM روی مجسمه */
 .hero-vertical-text {
     position: absolute;
     top: 50%;

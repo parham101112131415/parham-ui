@@ -938,12 +938,12 @@ ADMIN_PASSWORD=$password
 PORT=8080
 HOST=0.0.0.0
 DATA_DIR=$APP_DIR/data
-WHITE_DATA_DIR=$APP_DIR/data
+PARHAM_DATA_DIR=$APP_DIR/data
 XRAY_BIN=$XRAY
 MTPROTO_PROXY_BIN=$MTPROXY
 WORKER_SYNC_INTERVAL=3600
-WHITE_PANEL_PUBLIC_URL=
-WHITE_PANEL_PUBLIC_DOMAIN=
+PARHAM_PANEL_PUBLIC_URL=
+PARHAM_PANEL_PUBLIC_DOMAIN=
 PUBLIC_ENDPOINT_RETRY_SECONDS=5
 PUBLIC_ENDPOINT_REFRESH_SECONDS=60
 PYTHONUNBUFFERED=1
@@ -967,7 +967,7 @@ Listen Port:
 
 Public URL:
 The panel discovers the public domain automatically. You can also set
-WHITE_PANEL_PUBLIC_URL or WHITE_PANEL_PUBLIC_DOMAIN explicitly.
+PARHAM_PANEL_PUBLIC_URL or PARHAM_PANEL_PUBLIC_DOMAIN explicitly.
 
 Admin Password:
 $password
@@ -1547,19 +1547,19 @@ info_panel() {
     # Parham Panel always listens on 8080.
     local listen_port="8080"
 
-    echo "Local URL: http://127.0.0.1:${listen_port}/white"
+    echo "Local URL: http://127.0.0.1:${listen_port}/parham"
 
 
     if [[ -n "$local_ip" ]]; then
 
-        echo "LAN URL: http://${local_ip}:${listen_port}/white"
+        echo "LAN URL: http://${local_ip}:${listen_port}/parham"
 
     fi
 
 
     if [[ -n "$ip" ]]; then
 
-        echo "Public IP URL: http://${ip}:${listen_port}/white"
+        echo "Public IP URL: http://${ip}:${listen_port}/parham"
 
     fi
 
@@ -1570,7 +1570,7 @@ info_panel() {
 
         local domain="${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
 
-        echo "Codespace URL: https://${CODESPACE_NAME}-8080.${domain}/white"
+        echo "Codespace URL: https://${CODESPACE_NAME}-8080.${domain}/parham"
 
         echo "Forward port 8080 in Codespaces."
 

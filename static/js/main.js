@@ -34,7 +34,7 @@ Object.assign(I18N.fa, {
   'cancel': 'انصراف', 'submitUser': 'ایجاد کاربر', 'creatingUser': 'در حال ایجاد...', 'saving': 'در حال ذخیره...', 'userCreated': 'با موفقیت ایجاد شد',
   'volEdit': 'حجم (GB - ۰=نامحدود)', 'daysEdit': 'روز اعتبار (۰=نامحدود)', 'status': 'وضعیت', 'active': 'فعال', 'inactive': 'غیرفعال', 'resetTraffic': 'بازنشانی ترافیک', 'saveChanges': 'ذخیره تغییرات',
   'inboundName': 'نام اینباند', 'port': 'پورت', 'securityType': 'نوع امنیت', 'realitySettings': 'تنظیمات Reality', 'autoGen': 'تولید خودکار', 'genRealityKey': 'تولید کلید Reality (x25519)',
-  'shortIds': 'شناسه‌های کوتاه', 'hex8': 'هگز ۸ رقمی — خالی = تصادفی', 'generate': '+ تولید', 'whitex': 'ParhamX',
+  'shortIds': 'شناسه‌های کوتاه', 'hex8': 'هگز ۸ رقمی — خالی = تصادفی', 'generate': '+ تولید', 'parhamx': 'ParhamX',
   'extDomain': 'دامنه خارجی', 'extPortCfg': 'پورت خارجی', 'extDomainPlace': 'دامنه خارجی برای کانفیگ کلاینت',
   'network': 'شبکه', 'serviceName': 'نام سرویس', 'createInbound': 'ایجاد اینباند', 'editInbound': 'ویرایش اینباند',
   'config': 'کانفیگ', 'copy': 'کپی', 'close': 'بستن', 'copied': 'کانفیگ کپی شد', 'noCfg': 'کانفیگی موجود نیست', 'errCopy': 'خطا در کپی', 'delete': 'حذف', 'edit': 'ویرایش', 'unlimited': 'نامحدود', 'expired': 'منقضی', 'daysUnit': ' روز', 'usersCount': 'کاربران', 'secNetwork': 'شبکه', 'security': 'امنیت', 'expiry': 'انقضا', 'connTh': 'اتصال',
@@ -110,7 +110,7 @@ Object.assign(I18N.en, {
   'inboundsMulti': 'Inbounds (multi-select)', 'noInboundOpt': 'No inbounds available', 'inboundPickHint': 'Each inbound shows its own options.', 'workerCountries': 'Worker Countries', 'addCfIps': 'Add 10 configs with scanned Cloudflare IPs', 'addRailwayIps': 'Add 10 configs with scanned Railway IPs', 'realityNoExtra': 'Reality needs no extras.',
   'cancel': 'Cancel', 'submitUser': 'Create User', 'creatingUser': 'Creating...', 'saving': 'Saving...', 'userCreated': 'created successfully',
   'volEdit': 'Traffic (GB - 0=Unlimited)', 'daysEdit': 'Expiry days (0=Unlimited)', 'status': 'Status', 'active': 'Active', 'inactive': 'Inactive', 'resetTraffic': 'Reset traffic', 'saveChanges': 'Save Changes',
-  'inboundName': 'Inbound Name', 'port': 'Port', 'securityType': 'Security Type', 'realitySettings': 'Reality Settings', 'autoGen': 'Auto-generated', 'genRealityKey': 'Generate Reality Keys (x25519)', 'shortIds': 'Short IDs', 'hex8': '8-digit hex', 'generate': '+ Generate', 'whitex': 'ParhamX',
+  'inboundName': 'Inbound Name', 'port': 'Port', 'securityType': 'Security Type', 'realitySettings': 'Reality Settings', 'autoGen': 'Auto-generated', 'genRealityKey': 'Generate Reality Keys (x25519)', 'shortIds': 'Short IDs', 'hex8': '8-digit hex', 'generate': '+ Generate', 'parhamx': 'ParhamX',
   'extDomain': 'External Domain', 'extPortCfg': 'External Port', 'extDomainPlace': 'External domain shown in the client config', 'network': 'Network', 'serviceName': 'Service Name', 'createInbound': 'Create Inbound', 'editInbound': 'Edit Inbound',
   'config': 'Config', 'copy': 'Copy', 'close': 'Close', 'copied': 'Config copied', 'noCfg': 'No config available', 'errCopy': 'Copy failed', 'delete': 'Delete', 'edit': 'Edit', 'unlimited': 'Unlimited', 'expired': 'Expired', 'daysUnit': ' days', 'usersCount': 'Users', 'secNetwork': 'Network', 'security': 'Security', 'expiry': 'Expiry', 'connTh': 'Conn',
   'confirmDeleteUser': 'Are you sure?', 'confirmDeleteInbound': 'Are you sure?', 'keysGenerated': 'Reality keys generated', 'errKeyGen': 'Key generation failed', 'shortIdGen': 'Short ID generated', 'shortIdNew': 'New Short ID generated',
@@ -821,7 +821,7 @@ function openCreateInbound() {
   $id('ib-id').value = ''; $id('ib-title').textContent = t('newInbound');
   $id('ib-name').value = ''; $id('ib-inbound-type').value = 'config'; $id('ib-port').value = '443'; $id('ib-security').value = 'tls'; $id('ib-network').value = 'ws';
   $id('ib-extdomain').value = ''; $id('ib-extport').value = '443'; $id('ib-sni').value = ''; $id('ib-privkey').value = ''; $id('ib-pubkey').value = '';
-  $id('ib-shortids').value = ''; $id('ib-whitex').value = '/'; $id('ib-wspath').value = '/'; $id('ib-xhttppath').value = '/'; $id('ib-xhttp-mode').value = 'auto'; $id('ib-grpc-svc').value = 'grpc';
+  $id('ib-shortids').value = ''; $id('ib-parhamx').value = '/'; $id('ib-wspath').value = '/'; $id('ib-xhttppath').value = '/'; $id('ib-xhttp-mode').value = 'auto'; $id('ib-grpc-svc').value = 'grpc';
   _ibSet('ib-fingerprint', 'chrome'); _ibSet('ib-nameprefix', ''); _ibSet('ib-host', ''); _ibSet('ib-alpn', ''); _ibSet('ib-flow', ''); _ibSet('ib-packetencoding', ''); _ibSet('ib-advanced', '');
   if ($id('ib-allowinsecure')) $id('ib-allowinsecure').checked = false;
   $id('ib-submit').textContent = t('createInbound');
@@ -863,7 +863,7 @@ async function editInbound(iid) {
   _ibSet('ib-pubkey', rs.public_key);
   var sid = rs.short_id; if (Array.isArray(sid)) sid = sid[0] || '';
   _ibSet('ib-shortids', sid);
-  _ibSet('ib-whitex', rs.rx_path || '/');
+  _ibSet('ib-parhamx', rs.rx_path || '/');
   var ws = ib.ws_settings || {}; _ibSet('ib-wspath', ws.path || '/');
   var xs = ib.xhttp_settings || {}; _ibSet('ib-xhttppath', xs.path || '/'); _ibSet('ib-xhttp-mode', xs.mode || 'auto');
   var gr = ib.grpc_settings || {}; _ibSet('ib-grpc-svc', gr.serviceName || gr.service_name || 'grpc');
@@ -922,7 +922,7 @@ async function submitInbound(e) {
       rs.public_key = $id('ib-pubkey').value.trim();
       rs.short_id = $id('ib-shortids').value.trim();
       rs.sni = payload.sni;
-      rs.rx_path = $id('ib-whitex').value.trim() || '/';
+      rs.rx_path = $id('ib-parhamx').value.trim() || '/';
       payload.reality_settings = rs;
     }
     if (net === 'ws') { var ws = Object.assign({}, (EDIT_IB && EDIT_IB.ws_settings) || {}); ws.path = $id('ib-wspath').value.trim() || '/'; payload.ws_settings = ws; payload.path = ws.path; }
