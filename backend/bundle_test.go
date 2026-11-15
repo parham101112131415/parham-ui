@@ -35,7 +35,7 @@ func TestBundleProducesRealMultiProtocolConfigs(t *testing.T) {
 		"vless://", "ss://",
 		"example.com:8443", "example.com:8388",
 		"path=%2Fws%2F11111111-2222-3333-4444-555555555555",
-		"path=%2Fxhttp-siz10%2Fstream-up%2F11111111-2222-3333-4444-555555555555",
+		"path=%2Fxhttp-siz10%2Fpacket-up%2F11111111-2222-3333-4444-555555555555",
 		"security=reality", "pbk=",
 	} {
 		if !strings.Contains(joined, want) {
@@ -52,10 +52,10 @@ func TestBundleProducesRealMultiProtocolConfigs(t *testing.T) {
 		}
 	}
 	for _, want := range []string{
-		"parham | VLESS · WS · TLS",
-		"parham | VLESS · XHTTP · TLS",
-		"parham | VLESS · Reality",
-		"parham | Shadowsocks",
+		"parham VLESS WS TLS",
+		"parham VLESS XHTTP TLS",
+		"parham VLESS Reality",
+		"parham Shadowsocks",
 	} {
 		if !names[want] {
 			t.Fatalf("missing config name %q in %v", want, names)

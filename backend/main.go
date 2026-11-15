@@ -2308,12 +2308,18 @@ var bundleInboundIDs = []string{
 	"bundle-shadowsocks",
 }
 
+// escRemark escapes a config name for a URI fragment: spaces must be %20,
+// not '+' (QueryEscape's form style renders literally in client apps).
+func escRemark(s string) string {
+	return strings.ReplaceAll(url.QueryEscape(s), "+", "%20")
+}
+
 func configTypeLabel(ib *Inbound) string {
 	proto := strings.ToLower(ib.Protocol)
 	sec := strings.ToLower(ib.Security)
 	switch {
 	case proto == "worker":
-		return "VLESS · WS · TLS"
+		return "VLESS WS TLS"
 	case proto == "telegram":
 		return "MTProxy"
 	case proto == "shadowsocks":
@@ -2322,19 +2328,19 @@ func configTypeLabel(ib *Inbound) string {
 		return "WireGuard"
 	case proto == "reality" || sec == "reality":
 		if strings.ToLower(ib.Network) == "xhttp" {
-			return "VLESS · XHTTP · Reality"
+			return "VLESS XHTTP Reality"
 		}
-		return "VLESS · Reality"
+		return "VLESS Reality"
 	}
 	switch strings.ToLower(ib.Network) {
 	case "xhttp":
-		return "VLESS · XHTTP · TLS"
+		return "VLESS XHTTP TLS"
 	case "grpc":
-		return "VLESS · gRPC · TLS"
+		return "VLESS gRPC TLS"
 	case "tcp":
-		return "VLESS · TCP · TLS"
+		return "VLESS TCP TLS"
 	default:
-		return "VLESS · WS · TLS"
+		return "VLESS WS TLS"
 	}
 }
 
@@ -2348,7 +2354,7 @@ func ensureBundleInbounds() {
 		now := time.Now().Format(time.RFC3339)
 		seed := []*Inbound{
 			{InboundID: "bundle-vless-ws", Name: "VLESS · WS · TLS", Protocol: "vless", InboundType: "transport", Port: 443, Network: "ws", Security: "tls", Fingerprint: "chrome", WSSettings: map[string]any{"path": "/ws/{uuid}"}, CreatedAt: now},
-			{InboundID: "bundle-vless-xhttp", Name: "VLESS · XHTTP · TLS", Protocol: "vless", InboundType: "transport", Port: 443, Network: "xhttp", Security: "tls", Fingerprint: "chrome", XHTTPSettings: map[string]any{"mode": "stream-up"}, CreatedAt: now},
+			{InboundID: "bundle-vless-xhttp", Name: "VLESS · XHTTP · TLS", Protocol: "vless", InboundType: "transport", Port: 443, Network: "xhttp", Security: "tls", Fingerprint: "chrome", XHTTPSettings: map[string]any{"mode": "packet-up"}, CreatedAt: now},
 			{InboundID: "bundle-vless-reality", Name: "VLESS · Reality", Protocol: "reality", InboundType: "transport", Port: 8443, Network: "tcp", Security: "reality", SNI: "is1-ssl.mzstatic.com", Fingerprint: "chrome", RealitySettings: realityDefaults(nil), CreatedAt: now},
 			{InboundID: "bundle-shadowsocks", Name: "Shadowsocks", Protocol: "shadowsocks", InboundType: "transport", Port: 8388, Network: "tcp", Security: "none", ShadowsocksSettings: map[string]any{"method": "aes-256-gcm", "network": "tcp,udp"}, CreatedAt: now},
 		}
@@ -2358,6 +2364,13 @@ func ensureBundleInbounds() {
 			}
 		}
 		State.Settings["bundle_seeded"] = true
+		changed = true
+	}
+	if done, _ := State.Settings["bundle_xhttp_packetup"].(bool); !done {
+		if ib, ok := State.Inbounds["bundle-vless-xhttp"]; ok && ib.XHTTPSettings != nil {
+			ib.XHTTPSettings["mode"] = "packet-up"
+		}
+		State.Settings["bundle_xhttp_packetup"] = true
 		changed = true
 	}
 	existing := make([]string, 0, len(bundleInboundIDs))
@@ -2476,7 +2489,7 @@ func generateUserConfig(r *http.Request, u *User, inboundID string) string {
 	proto := strings.ToLower(ib.Protocol)
 	sec := strings.ToLower(ib.Security)
 	cfgUUID := u.ConfigUUID
-	remark := configNamePrefix(ib) + u.Username + " | " + configTypeLabel(ib)
+	remark := configNamePrefix(ib) + u.Username + " " + configTypeLabel(ib)
 
 	if proto == "worker" {
 		wdom := ib.ExternalDomain
@@ -2498,7 +2511,7 @@ func generateUserConfig(r *http.Request, u *User, inboundID string) string {
 		q.Set("alpn", "http/1.1")
 		q = applyInboundQuery(q, ib)
 		return fmt.Sprintf("vless://%s@%s:443?%s#%s",
-			cfgUUID, wdom, q.Encode(), url.QueryEscape(remark))
+			cfgUUID, wdom, q.Encode(), escRemark(remark))
 	}
 
 	if proto == "telegram" {
@@ -2607,7 +2620,7 @@ func generateUserConfig(r *http.Request, u *User, inboundID string) string {
 			q.Set("extra", extraJSON)
 			q = applyInboundQuery(q, ib)
 			return fmt.Sprintf("vless://%s@%s:%d?%s#%s",
-				cfgUUID, extDomain, extPort, q.Encode(), url.QueryEscape(remark))
+				cfgUUID, extDomain, extPort, q.Encode(), escRemark(remark))
 		}
 		q := url.Values{}
 		q.Set("encryption", "none")
@@ -2623,7 +2636,7 @@ func generateUserConfig(r *http.Request, u *User, inboundID string) string {
 		}
 		q = applyInboundQuery(q, ib)
 		return fmt.Sprintf("vless://%s@%s:%d?%s#%s",
-			cfgUUID, extDomain, extPort, q.Encode(), url.QueryEscape(remark))
+			cfgUUID, extDomain, extPort, q.Encode(), escRemark(remark))
 	}
 
 	if proto == "shadowsocks" {
@@ -2662,7 +2675,7 @@ func generateUserConfig(r *http.Request, u *User, inboundID string) string {
 		}
 		userinfo := base64.StdEncoding.EncodeToString([]byte(method + ":" + clientPwd))
 		return fmt.Sprintf("ss://%s@%s:%d#%s",
-			userinfo, extDomain, extPort, url.QueryEscape(remark))
+			userinfo, extDomain, extPort, escRemark(remark))
 	}
 
 	if proto == "wireguard" {
@@ -2751,7 +2764,7 @@ PersistentKeepalive = 25`,
 		q.Set("alpn", "h2,http/1.1")
 		q = applyInboundQuery(q, ib)
 		return fmt.Sprintf("vless://%s@%s:%d?%s#%s",
-			cfgUUID, addr, port, q.Encode(), url.QueryEscape(remark))
+			cfgUUID, addr, port, q.Encode(), escRemark(remark))
 	}
 
 	if network == "grpc" {
@@ -2773,7 +2786,7 @@ PersistentKeepalive = 25`,
 		q.Set("alpn", "h2,http/1.1")
 		q = applyInboundQuery(q, ib)
 		return fmt.Sprintf("vless://%s@%s:%d?%s#%s",
-			cfgUUID, addr, port, q.Encode(), url.QueryEscape(remark))
+			cfgUUID, addr, port, q.Encode(), escRemark(remark))
 	}
 
 	if network == "tcp" {
@@ -2786,7 +2799,7 @@ PersistentKeepalive = 25`,
 		q.Set("alpn", "h2,http/1.1")
 		q = applyInboundQuery(q, ib)
 		return fmt.Sprintf("vless://%s@%s:%d?%s#%s",
-			cfgUUID, addr, port, q.Encode(), url.QueryEscape(remark))
+			cfgUUID, addr, port, q.Encode(), escRemark(remark))
 	}
 
 	wsPath := "/ws/" + cfgUUID
@@ -2806,7 +2819,7 @@ PersistentKeepalive = 25`,
 	q.Set("alpn", "http/1.1")
 	q = applyInboundQuery(q, ib)
 	return fmt.Sprintf("vless://%s@%s:%d?%s#%s",
-		cfgUUID, addr, port, q.Encode(), url.QueryEscape(remark))
+		cfgUUID, addr, port, q.Encode(), escRemark(remark))
 }
 
 func generateUserConfigs(r *http.Request, u *User) []string {
