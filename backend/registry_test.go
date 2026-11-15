@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"encoding/json"
+	"testing"
+)
 
 func TestRegistryOnlineLogic(t *testing.T) {
 	const id = "zz-test-uuid"
@@ -49,5 +52,27 @@ func TestRegistryOnlineLogic(t *testing.T) {
 	regMu.Unlock()
 	if userOnline(id) {
 		t.Fatal("cleanup failed")
+	}
+}
+
+func TestOnlineEventJSONShape(t *testing.T) {
+	const id = "zz-test-uuid-2"
+	b := onlineEventJSON(id)
+	if len(b) == 0 {
+		t.Fatal("empty event")
+	}
+	var m map[string]any
+	if err := json.Unmarshal(b, &m); err != nil {
+		t.Fatalf("event is not JSON: %v", err)
+	}
+	if m["config_uuid"] != id {
+		t.Fatalf("config_uuid = %v, want %v", m["config_uuid"], id)
+	}
+	if _, ok := m["online"]; !ok {
+		t.Fatal("missing online field")
+	}
+	snap := onlineSnapshotJSON()
+	if len(snap) == 0 {
+		t.Fatal("empty snapshot")
 	}
 }

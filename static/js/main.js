@@ -513,26 +513,44 @@ function _userExp(u) {
 }
 function _userStatus(u) { return u.status === 'active' ? '<span class="badge badge-g">' + t('active') + '</span>' : '<span class="badge badge-r">' + t('inactive') + '</span>'; }
 function _userOnlineBadge(u) {
-  return u.online ? '<span class="badge badge-g" data-online-badge="' + u.user_id + '">● ' + t('onlineNow') + (u.live_connections ? ' · ' + u.live_connections : '') + '</span>' : '<span class="badge" data-online-badge="' + u.user_id + '">○ ' + t('offlineNow') + '</span>';
+  return u.online ? '<span class="badge badge-g" data-online-badge="' + u.config_uuid + '">● ' + t('onlineNow') + (u.live_connections ? ' · ' + u.live_connections : '') + '</span>' : '<span class="badge" data-online-badge="' + u.config_uuid + '">○ ' + t('offlineNow') + '</span>';
 }
 function _userAccHead(u, idx) {
-  return '<button type="button" class="spd-acc-head" onclick="spdToggleAcc(\'ua-' + u.user_id + '\',this)" aria-expanded="false"><span class="spd-acc-title"><span class="online-dot ' + (u.online ? 'on' : 'off') + '" data-online-dot="' + u.user_id + '"></span><strong>' + esc(u.username) + '</strong></span><span class="spd-acc-badges">' + _userOnlineBadge(u) + _userStatus(u) + '</span><span class="material-symbols-outlined spd-acc-arrow">expand_more</span></button>';
+  return '<button type="button" class="spd-acc-head" onclick="spdToggleAcc(\'ua-' + u.user_id + '\',this)" aria-expanded="false"><span class="spd-acc-title"><span class="online-dot ' + (u.online ? 'on' : 'off') + '" data-online-dot="' + u.config_uuid + '"></span><strong>' + esc(u.username) + '</strong></span><span class="spd-acc-badges">' + _userOnlineBadge(u) + _userStatus(u) + '</span><span class="material-symbols-outlined spd-acc-arrow">expand_more</span></button>';
+}
+function applyOnlineState(m) {
+  if (!m || !m.config_uuid) return;
+  document.querySelectorAll('[data-online-dot="' + m.config_uuid + '"]').forEach(function (dot) {
+    dot.className = 'online-dot ' + (m.online ? 'on' : 'off');
+  });
+  document.querySelectorAll('[data-online-badge="' + m.config_uuid + '"]').forEach(function (b) {
+    b.className = 'badge ' + (m.online ? 'badge-g' : '');
+    b.textContent = m.online ? ('● ' + t('onlineNow') + (m.live_connections ? ' · ' + m.live_connections : '')) : ('○ ' + t('offlineNow'));
+  });
 }
 async function refreshOnlineDots() {
   if (!$id('users-list')) return;
   try {
     var d = await api('/api/users');
-    var byId = {};
-    (d.users || []).forEach(function (u) { byId[u.user_id] = u; });
-    document.querySelectorAll('[data-online-dot]').forEach(function (dot) {
-      var u = byId[dot.getAttribute('data-online-dot')]; if (!u) return;
-      dot.className = 'online-dot ' + (u.online ? 'on' : 'off');
-      var b = document.querySelector('[data-online-badge="' + u.user_id + '"]');
-      if (b) { b.className = 'badge ' + (u.online ? 'badge-g' : ''); b.textContent = u.online ? ('● ' + t('onlineNow') + (u.live_connections ? ' · ' + u.live_connections : '')) : ('○ ' + t('offlineNow')); }
-    });
+    (d.users || []).forEach(applyOnlineState);
   } catch (e) {}
 }
-setInterval(refreshOnlineDots, 15000);
+var _onlineStreamStarted = false;
+function startOnlineStream() {
+  if (_onlineStreamStarted || typeof EventSource === 'undefined') return;
+  _onlineStreamStarted = true;
+  try {
+    var es = new EventSource('/api/users/online-stream');
+    es.onmessage = function (ev) {
+      try {
+        var m = JSON.parse(ev.data);
+        if (m.snapshot) { m.snapshot.forEach(applyOnlineState); } else { applyOnlineState(m); }
+      } catch (e) {}
+    };
+  } catch (e) {}
+}
+startOnlineStream();
+setInterval(refreshOnlineDots, 30000);
 function _userAccBody(u) {
   var connTxt = u.concurrent_connections ? u.concurrent_connections : t('unlimited');
   var speedVal = parseFloat(u.speed_limit_mbps) || 0;

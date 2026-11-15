@@ -204,6 +204,7 @@ func connOpened(uuid string) {
 	liveConns[uuid]++
 	userLastActivity[uuid] = time.Now()
 	regMu.Unlock()
+	go broadcastOnline(uuid)
 }
 
 func connClosed(uuid string) {
@@ -214,12 +215,22 @@ func connClosed(uuid string) {
 		liveConns[uuid]--
 	}
 	regMu.Unlock()
+	go broadcastOnline(uuid)
 }
 
 func noteUserActivity(uuid string) {
 	regMu.Lock()
+	wasOnline := liveConns[uuid] > 0
+	if !wasOnline {
+		if t, ok := userLastActivity[uuid]; ok && time.Since(t) < onlineWindow {
+			wasOnline = true
+		}
+	}
 	userLastActivity[uuid] = time.Now()
 	regMu.Unlock()
+	if !wasOnline {
+		go broadcastOnline(uuid)
+	}
 }
 
 func userLiveConns(uuid string) int {
@@ -266,6 +277,134 @@ func activeConnectionTotal() int {
 	}
 	return total
 }
+
+// ---------------------------------------------------------------------------
+// Online-status push (SSE). Subscribers receive a user's state the moment it
+// changes — connection opened/closed, first activity after being offline,
+// or activity expiry noticed by the 1s sweep — so the panel updates in well
+// under a second with no polling.
+// ---------------------------------------------------------------------------
+var (
+	onlineSubsMu sync.Mutex
+	onlineSubs   = make(map[chan []byte]struct{})
+	publishedMu  sync.Mutex
+	publishedOn  = make(map[string]bool)
+)
+
+func onlineEventJSON(uuid string) []byte {
+	online := userOnline(uuid)
+	conns := userLiveConns(uuid)
+	userID := ""
+	State.mu.RLock()
+	for _, u := range State.Users {
+		if u.ConfigUUID == uuid {
+			userID = u.UserID
+			break
+		}
+	}
+	State.mu.RUnlock()
+	publishedMu.Lock()
+	publishedOn[uuid] = online
+	publishedMu.Unlock()
+	b, _ := json.Marshal(map[string]any{
+		"config_uuid": uuid, "user_id": userID,
+		"online": online, "live_connections": conns,
+	})
+	return b
+}
+
+func broadcastOnline(uuid string) {
+	msg := onlineEventJSON(uuid)
+	onlineSubsMu.Lock()
+	defer onlineSubsMu.Unlock()
+	for ch := range onlineSubs {
+		select {
+		case ch <- msg:
+		default: // slow subscriber drops the frame; it reconciles on reconnect
+		}
+	}
+}
+
+func onlineSnapshotJSON() []byte {
+	State.mu.RLock()
+	ids := make(map[string]string, len(State.Users))
+	for _, u := range State.Users {
+		ids[u.ConfigUUID] = u.UserID
+	}
+	State.mu.RUnlock()
+	events := make([]map[string]any, 0, len(ids))
+	publishedMu.Lock()
+	for uuid, uid := range ids {
+		on := userOnline(uuid)
+		publishedOn[uuid] = on
+		events = append(events, map[string]any{
+			"config_uuid": uuid, "user_id": uid,
+			"online": on, "live_connections": userLiveConns(uuid),
+		})
+	}
+	publishedMu.Unlock()
+	b, _ := json.Marshal(map[string]any{"snapshot": events})
+	return b
+}
+
+func handleOnlineStream(w http.ResponseWriter, r *http.Request) {
+	fl, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "stream unsupported", http.StatusInternalServerError)
+		return
+	}
+	ch := make(chan []byte, 32)
+	onlineSubsMu.Lock()
+	onlineSubs[ch] = struct{}{}
+	onlineSubsMu.Unlock()
+	defer func() {
+		onlineSubsMu.Lock()
+		delete(onlineSubs, ch)
+		onlineSubsMu.Unlock()
+	}()
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	fmt.Fprintf(w, "data: %s\n\n", onlineSnapshotJSON())
+	fl.Flush()
+	keepalive := time.NewTicker(15 * time.Second)
+	defer keepalive.Stop()
+	for {
+		select {
+		case <-r.Context().Done():
+			return
+		case msg := <-ch:
+			fmt.Fprintf(w, "data: %s\n\n", msg)
+			fl.Flush()
+		case <-keepalive.C:
+			fmt.Fprint(w, ": ping\n\n")
+			fl.Flush()
+		}
+	}
+}
+
+// onlineSweepLoop pushes the offline transition when a user's activity
+// window lapses without a live connection.
+func onlineSweepLoop() {
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+	for range ticker.C {
+		publishedMu.Lock()
+		candidates := make([]string, 0, len(publishedOn))
+		for uuid, on := range publishedOn {
+			if on {
+				candidates = append(candidates, uuid)
+			}
+		}
+		publishedMu.Unlock()
+		for _, uuid := range candidates {
+			if !userOnline(uuid) {
+				broadcastOnline(uuid)
+			}
+		}
+	}
+}
+
 
 func getMaxIPPerUser() int {
 	State.mu.RLock()
@@ -4841,6 +4980,7 @@ func main() {
 	mux.HandleFunc("/stats", requireAuth(handleStats))
 	mux.HandleFunc("/api/server/stats", requireAuth(handleStats))
 
+	mux.HandleFunc("/api/users/online-stream", requireAuth(handleOnlineStream))
 	mux.HandleFunc("/api/users", requireAuth(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -5047,6 +5187,7 @@ func main() {
 	}
 
 	go enforcementLoop(context.Background())
+	go onlineSweepLoop()
 
 	go startAllMTProxies(context.Background())
 
