@@ -1,13 +1,13 @@
 /* --- Modern Cyber/Glass Minimalist Upgrade --- */
 :root {
-  --primary-glow: rgba(0, 225, 193, 0.35);
+  --primary-glow: rgba(238, 58, 58, 0.35);
   --glass-bg: rgba(15, 17, 23, 0.78);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --card-hover-border: rgba(0, 225, 193, 0.45);
+  --card-hover-border: rgba(238, 58, 58, 0.45);
 }
 
 body {
-  background: radial-gradient(circle at 50% 0%, #0d1522 0%, #06070a 100%) !important;
+  background: radial-gradient(circle at 50% 0%, #16161d 0%, #0b0b0f 100%) !important;
   font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif !important;
   letter-spacing: -0.2px;
 }
@@ -17,28 +17,28 @@ body {
   background: var(--glass-bg) !important;
   backdrop-filter: blur(16px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-  border: 1px solid var(--glass-border) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
-  border-radius: 16px !important;
+  border: 2px solid #000 !important;
+  box-shadow: 4px 4px 0 #000 !important;
+  border-radius: 10px !important;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
 
 .card:hover, .stat-card:hover, .item-card:hover {
   border-color: var(--card-hover-border) !important;
   transform: translateY(-2px);
-  box-shadow: 0 12px 35px 0 rgba(0, 225, 193, 0.15) !important;
+  box-shadow: 0 12px 35px 0 rgba(238, 58, 58, 0.15) !important;
 }
 
 /* Modern Cyber Buttons */
 button, .btn, .btn-primary {
-  border-radius: 12px !important;
+  border-radius: 8px !important;
   font-weight: 600 !important;
   transition: all 0.25s ease !important;
 }
 
 button:hover, .btn:hover {
   transform: translateY(-1.5px) !important;
-  box-shadow: 0 6px 20px rgba(0, 225, 193, 0.35) !important;
+  box-shadow: 0 6px 20px rgba(238, 58, 58, 0.35) !important;
   filter: brightness(1.1);
 }
 
@@ -57,8 +57,8 @@ input[type="text"], input[type="password"], input[type="number"], select, textar
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: #00e1c1 !important;
-  box-shadow: 0 0 0 3px rgba(0, 225, 193, 0.2) !important;
+  border-color: #ee3a3a !important;
+  box-shadow: 0 0 0 3px rgba(238, 58, 58, 0.2) !important;
   outline: none !important;
 }
 
@@ -75,7 +75,7 @@ input:focus, select:focus, textarea:focus {
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00e1c1;
+  background: #ee3a3a;
 }
 
 /* Badges & Tags */

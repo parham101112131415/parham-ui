@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   WHITE PANEL ULTRA — Complete Design System
+   PARHAM — Complete Design System
    ALL base components, tokens, layout, states, and feature containers.
    Rebuilt clean — no `!important` wars, single source of truth.
    ═══════════════════════════════════════════════════════════════════════ */
@@ -7,26 +7,26 @@
 /* ═══ 1. TOKENS ═══════════════════════════════════════════════════════ */
 :root {
   /* Surfaces — dark */
-  --bg-0:#06080d; --bg-1:#0a0e17; --bg-2:#0f141f; --bg-3:#141a28;
-  --surface:#0f141f; --surface-2:#141b2a; --surface-hover:#1a2333;
-  --glass-bg:rgba(15,20,31,.72); --glass-hi:rgba(20,27,42,.85);
+  --bg-0:#0b0b0f; --bg-1:#0e0e13; --bg-2:#121218; --bg-3:#16161d;
+  --surface:#16161d; --surface-2:#1b1b23; --surface-hover:#22222c;
+  --glass-bg:rgba(22,22,29,.82); --glass-hi:rgba(27,27,35,.92);
 
   /* Accent */
-  --accent:#00e1c1; --accent-2:#2ef2d6;
-  --accent-soft:rgba(0,225,193,.10);
-  --accent-medium:rgba(0,225,193,.20);
-  --accent-glow:rgba(0,225,193,.35);
-  --accent-grad:linear-gradient(135deg,#00e1c1 0%,#2ef2d6 100%);
-  --accent-contrast:#06131a;
+  --accent:#ee3a3a; --accent-2:#ff5a5a;
+  --accent-soft:rgba(238,58,58,.10);
+  --accent-medium:rgba(238,58,58,.20);
+  --accent-glow:rgba(238,58,58,.35);
+  --accent-grad:linear-gradient(135deg,#ee3a3a 0%,#ff5a5a 100%);
+  --accent-contrast:#ffffff;
 
   /* Text */
   --text:#e8eef8; --text-2:#a4afc2; --text-3:#6b7688;
 
   /* Lines */
-  --line:rgba(255,255,255,.06);
-  --line-2:rgba(255,255,255,.10);
-  --line-strong:rgba(255,255,255,.18);
-  --line-accent:rgba(0,225,193,.40);
+  --line:rgba(255,255,255,.13);
+  --line-2:rgba(255,255,255,.20);
+  --line-strong:rgba(255,255,255,.32);
+  --line-accent:rgba(238,58,58,.45);
 
   /* Status */
   --ok:#22c55e; --warn:#f59e0b; --err:#ef4444; --info:#3b82f6;
@@ -34,18 +34,18 @@
   --danger:#ef4444; --success:#22c55e; --warning:#f59e0b;
 
   /* Radii / spacing */
-  --r-xs:6px; --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:20px; --r-full:999px;
-  --radius:12px; --radius-lg:16px; --radius-xl:20px;
+  --r-xs:2px; --r-sm:4px; --r-md:6px; --r-lg:8px; --r-xl:10px; --r-full:999px;
+  --radius:6px; --radius-lg:8px; --radius-xl:10px;
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px;
   --sp-5:20px; --sp-6:24px; --sp-8:32px;
 
   /* Shadows */
-  --sh-xs:0 1px 2px rgba(0,0,0,.20);
-  --sh-sm:0 2px 8px rgba(0,0,0,.24);
-  --sh-md:0 8px 24px rgba(0,0,0,.32);
-  --sh-lg:0 20px 60px rgba(0,0,0,.45);
-  --sh-glow:0 0 32px rgba(0,225,193,.15);
-  --sh-accent:0 4px 24px rgba(0,225,193,.25);
+  --sh-xs:2px 2px 0 #000;
+  --sh-sm:3px 3px 0 #000;
+  --sh-md:4px 4px 0 #000;
+  --sh-lg:6px 6px 0 #000;
+  --sh-glow:0 0 32px rgba(238,58,58,.15);
+  --sh-accent:4px 4px 0 #000;
 
   /* Motion */
   --ease-out:cubic-bezier(.16,1,.3,1);
@@ -62,17 +62,17 @@
   --sidebar-w:268px;
 
   /* Aliases used by some JS-generated content */
-  --neon:#00e1c1; --neon2:#2ef2d6;
-  --teal:#00e1c1; --blue:#9db4ff; --purple:#b9a6ff; --gold:#00e1c1;
-  --grad1:#00e1c1; --grad2:#2ef2d6; --grad:linear-gradient(135deg,#00e1c1,#2ef2d6);
-  --gradient:linear-gradient(90deg,#00e1c1,#2ef2d6);
-  --input-bg:#121216; --input-glow:rgba(0,225,193,.14);
+  --neon:#ee3a3a; --neon2:#ff5a5a;
+  --teal:#ee3a3a; --blue:#9db4ff; --purple:#b9a6ff; --gold:#ee3a3a;
+  --grad1:#ee3a3a; --grad2:#ff5a5a; --grad:linear-gradient(135deg,#ee3a3a,#ff5a5a);
+  --gradient:linear-gradient(90deg,#ee3a3a,#ff5a5a);
+  --input-bg:#121216; --input-glow:rgba(238,58,58,.14);
   --border:var(--line); --txt:var(--text); --txt2:var(--text-2);
   --orb1:rgba(255,255,255,.05); --orb2:rgba(255,255,255,.03);
   --surface-glass:#0a0a0d; --glass:#0a0a0d;
-  --logo-shadow:none; --tab-bg:#00e1c1; --tab-color:#06131a;
-  --nav-bg:rgba(0,225,193,.14); --nav-color:#00e1c1;
-  --border-glow:rgba(0,225,193,.4);
+  --logo-shadow:none; --tab-bg:#ee3a3a; --tab-color:#ffffff;
+  --nav-bg:rgba(238,58,58,.14); --nav-color:#ff5a5a;
+  --border-glow:rgba(238,58,58,.4);
   --shadow-sm:var(--sh-sm); --shadow-md:var(--sh-md);
   --shadow-lg:var(--sh-lg); --shadow-hover:var(--sh-md);
   --text-primary:var(--text); --text-secondary:var(--text-2);
@@ -84,11 +84,11 @@
   --surface:#ffffff; --surface-2:#f8fafc; --surface-hover:#f1f5f9;
   --glass-bg:rgba(255,255,255,.86); --glass-hi:rgba(255,255,255,.96);
 
-  --accent:#0891b2; --accent-2:#06b6d4;
-  --accent-soft:rgba(8,145,178,.08);
-  --accent-medium:rgba(8,145,178,.16);
-  --accent-glow:rgba(8,145,178,.28);
-  --accent-grad:linear-gradient(135deg,#0891b2 0%,#06b6d4 100%);
+  --accent:#ee3a3a; --accent-2:#ff5a5a;
+  --accent-soft:rgba(238,58,58,.08);
+  --accent-medium:rgba(238,58,58,.16);
+  --accent-glow:rgba(238,58,58,.28);
+  --accent-grad:linear-gradient(135deg,#ee3a3a 0%,#ff5a5a 100%);
   --accent-contrast:#ffffff;
 
   --text:#0f172a; --text-2:#475569; --text-3:#94a3b8;
@@ -96,19 +96,19 @@
   --line:rgba(15,23,42,.07);
   --line-2:rgba(15,23,42,.12);
   --line-strong:rgba(15,23,42,.22);
-  --line-accent:rgba(8,145,178,.40);
+  --line-accent:rgba(238,58,58,.40);
 
-  --sh-sm:0 2px 8px rgba(15,23,42,.06);
-  --sh-md:0 8px 24px rgba(15,23,42,.08);
-  --sh-lg:0 20px 60px rgba(15,23,42,.12);
-  --sh-glow:0 0 32px rgba(8,145,178,.10);
-  --sh-accent:0 4px 24px rgba(8,145,178,.20);
+  --sh-sm:3px 3px 0 #000;
+  --sh-md:4px 4px 0 #000;
+  --sh-lg:6px 6px 0 #000;
+  --sh-glow:0 0 32px rgba(238,58,58,.10);
+  --sh-accent:4px 4px 0 #000;
 
-  --neon:#0891b2; --neon2:#06b6d4;
-  --input-bg:#ffffff; --input-glow:rgba(8,145,178,.08);
-  --tab-bg:#0891b2; --tab-color:#ffffff;
-  --nav-bg:rgba(8,145,178,.10); --nav-color:#0891b2;
-  --border-glow:rgba(8,145,178,.35);
+  --neon:#ee3a3a; --neon2:#ff5a5a;
+  --input-bg:#ffffff; --input-glow:rgba(238,58,58,.08);
+  --tab-bg:#ee3a3a; --tab-color:#ffffff;
+  --nav-bg:rgba(238,58,58,.10); --nav-color:#dc2626;
+  --border-glow:rgba(238,58,58,.35);
   --surface-glass:#ffffff; --glass:#ffffff;
 }
 
@@ -124,8 +124,8 @@ body {
   color: var(--text);
   background-color: var(--bg-0);
   background-image:
-    radial-gradient(ellipse at 12% -10%, rgba(0,225,193,.08) 0%, transparent 45%),
-    radial-gradient(ellipse at 88% 110%, rgba(99,102,241,.06) 0%, transparent 45%);
+    radial-gradient(ellipse at 12% -10%, rgba(238,58,58,.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 88% 110%, rgba(238,58,58,.04) 0%, transparent 45%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -137,8 +137,8 @@ body {
 }
 [data-theme="light"] body {
   background-image:
-    radial-gradient(ellipse at 12% -10%, rgba(8,145,178,.05) 0%, transparent 45%),
-    radial-gradient(ellipse at 88% 110%, rgba(99,102,241,.04) 0%, transparent 45%);
+    radial-gradient(ellipse at 12% -10%, rgba(238,58,58,.05) 0%, transparent 45%),
+    radial-gradient(ellipse at 88% 110%, rgba(238,58,58,.03) 0%, transparent 45%);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -2049,7 +2049,7 @@ tr:last-child td { border-bottom: none; }
 }
 .ech-preset-option:active { transform: scale(.99); }
 .ech-preset-option.selected {
-  border-color: var(--accent); background: rgba(0,225,193,.09);
+  border-color: var(--accent); background: rgba(238,58,58,.09);
 }
 .ech-preset-main {
   display: flex; flex: 1; flex-direction: column;
@@ -2359,4 +2359,35 @@ html, body, button, a, input, select, textarea, summary,
 .lang-btn, .login-btn, .ios-switch {
   -webkit-tap-highlight-color: transparent !important;
   -webkit-touch-callout: none;
+}
+
+/* ═══ PARHAM NEO OVERRIDES (parham-railway identity) ═══ */
+.panel, .modal, .bot-plan-card, .bot-status-card, .adv-inbound-card {
+  border: 2px solid #000 !important;
+  box-shadow: 4px 4px 0 #000 !important;
+}
+.sidebar {
+  border-inline-end: 2px solid #000 !important;
+  box-shadow: 4px 0 0 #000 !important;
+}
+.topbar {
+  border-bottom: 2px solid #000 !important;
+}
+.btn, .btn-p, .btn-b, .btn-g, .btn-gr, .btn-glass, .btn-icon {
+  border: 2px solid #000 !important;
+  box-shadow: 3px 3px 0 #000 !important;
+}
+.btn:active, .btn-p:active, .btn-b:active, .btn-g:active, .btn-gr:active, .btn-glass:active, .btn-icon:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0 #000 !important;
+}
+input, select, textarea {
+  border: 2px solid #000 !important;
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 0 !important;
+}
+.badge, .badge-b, .badge-g, .badge-p, .badge-r {
+  border: 2px solid #000 !important;
 }

@@ -1,4 +1,4 @@
-// Made By KILLMASTER https://github.com/Itskillmaster
+// Made by Parham https://github.com/parham101112131415/parham-ui
 
 package main
 
@@ -172,7 +172,7 @@ var State = &AppState{
 		"country":            "IR",
 		"country_code":       "IR",
 		"country_flag":       "🇮🇷",
-		"config_name_prefix": "White-",
+		"config_name_prefix": "",
 	},
 	DataDir: "./data",
 }
@@ -2050,7 +2050,7 @@ func configNamePrefix(ib *Inbound) string {
 	State.mu.RUnlock()
 	p = strings.TrimSpace(p)
 	if p == "" {
-		p = "White-"
+		p = ""
 	}
 	return p
 }
@@ -4487,8 +4487,8 @@ func handleNotifications(w http.ResponseWriter, r *http.Request) {
 
 func handleUpdateCheck(w http.ResponseWriter, r *http.Request) {
 	currentVer := "4.0.0"
-	repoURL := "https://github.com/Itskillmaster/WhitePanel-UI"
-	rawJSONURL := "https://raw.githubusercontent.com/Itskillmaster/WhitePanel-UI/main/version.json"
+	repoURL := "https://github.com/parham101112131415/parham-ui"
+	rawJSONURL := "https://raw.githubusercontent.com/parham101112131415/parham-ui/main/version.json"
 
 	client := &http.Client{Timeout: 6 * time.Second}
 	resp, err := client.Get(rawJSONURL)
@@ -4921,7 +4921,7 @@ func main() {
 	mux.HandleFunc("/api/tools/my-ip", requireAuth(handleToolsMyIP))
 
 	log.Printf("==================================================")
-	log.Printf("  White Panel Go Engine v8.2 + Xray-core")
+	log.Printf("  Parham Go Engine v8.2 + Xray-core")
 	log.Printf("  Listening on :%s", port)
 	log.Printf("  Admin:  http://localhost:%s/", port)
 	log.Printf("  Login:  http://localhost:%s/login", port)

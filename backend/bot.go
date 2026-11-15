@@ -1200,7 +1200,7 @@ func (bm *TelegramBotManager) sendWelcomeMenu(token string, chatID int64, name s
 	State.mu.RUnlock()
 
 	if welcome == "" {
-		welcome = fmt.Sprintf("سلام <b>%s</b> عزیز! 🌟\nبه ربات رسمی White Panel خوش آمدید.\nجهت شروع یکی از گزینه‌های زیر را انتخاب فرمایید:", name)
+		welcome = fmt.Sprintf("سلام <b>%s</b> عزیز! 🌟\nبه ربات رسمی Parham خوش آمدید.\nجهت شروع یکی از گزینه‌های زیر را انتخاب فرمایید:", name)
 	}
 
 	rows := [][]map[string]any{
@@ -1539,7 +1539,7 @@ func (bm *TelegramBotManager) handleAdminApprovalAction(token string, adminChatI
 	order.Status = "approved"
 	order.ApprovedBy = adminUser
 
-	// Create user in White Panel
+	// Create user in Parham
 	uname := fmt.Sprintf("wp_%d_%s", order.ChatID%10000, generateShortID()[:4])
 	trafficBytes := int64(order.TrafficGB * 1024 * 1024 * 1024)
 	expireDays := order.ExpireDays
@@ -1643,7 +1643,7 @@ func (bm *TelegramBotManager) handleAdminApprovalAction(token string, adminChatI
 // ----------------- Dedicated Admin Panel in Telegram -----------------
 
 func (bm *TelegramBotManager) sendAdminPanelMenu(token string, chatID int64) {
-	text := "👑 <b>پنل مدیریت هوشمند White Panel</b>\n\n" +
+	text := "👑 <b>پنل مدیریت هوشمند Parham</b>\n\n" +
 		"شما به عنوان ادمین مجاز وارد شدید. لطفاً یکی از بخش‌های زیر را انتخاب فرمایید:"
 
 	markup := map[string]any{
@@ -2015,7 +2015,7 @@ func (bm *TelegramBotManager) sendSupportInfo(token string, chatID int64) {
 		supportText = "💬 جهت هرگونه سوال، مشاوره یا راهنمایی در اتصال با پشتیبانی تماس بگیرید:"
 	}
 
-	msg := fmt.Sprintf("📞 <b>پشتیبانی White Panel:</b>\n\n%s\n", supportText)
+	msg := fmt.Sprintf("📞 <b>پشتیبانی Parham:</b>\n\n%s\n", supportText)
 	if supportUser != "" {
 		if !strings.HasPrefix(supportUser, "@") {
 			supportUser = "@" + supportUser

@@ -255,3 +255,38 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
+
+
+/* ═══ PARHAM NEO (parham-railway identity) ═══ */
+.glass-card {
+  border: 2px solid #000 !important;
+  box-shadow: 6px 6px 0 #000 !important;
+  border-radius: 10px !important;
+}
+.btn-submit {
+  background-color: #ee3a3a !important;
+  color: #ffffff !important;
+  border: 2px solid #000 !important;
+  box-shadow: 4px 4px 0 #000 !important;
+  border-radius: 8px !important;
+}
+.btn-submit:hover { background-color: #ff5a5a !important; }
+.btn-submit:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0 #000 !important;
+}
+.input-glass {
+  border: 2px solid #000 !important;
+  border-radius: 8px !important;
+}
+.input-glass:focus {
+  outline: 2px solid #ee3a3a !important;
+}
+.badge-item {
+  border: 2px solid #000 !important;
+  box-shadow: 3px 3px 0 #000 !important;
+  background: #ee3a3a !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+}
+.hero-vertical-text { color: #ee3a3a !important; }

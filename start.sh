@@ -2,14 +2,14 @@
 set -Eeuo pipefail
 
 # ============================================================
-# White Panel Universal Installer / Manager
+# Parham Universal Installer / Manager
 # ============================================================
 
 APP_DIR="${WHITE_APP_DIR:-/opt/WhitePanel}"
-REPO="${WHITE_REPO:-https://github.com/Itskillmaster/WhitePanel-Ui/WhitePanel.git}"
+REPO="${WHITE_REPO:-https://github.com/parham101112131415/parham-ui.git}"
 BRANCH="${WHITE_BRANCH:-main}"
 
-INSTALLER_URL="${WHITE_INSTALLER_URL:-https://raw.githubusercontent.com/Itskillmaster/WhitePanel-Ui/main/start.sh}"
+INSTALLER_URL="${WHITE_INSTALLER_URL:-https://raw.githubusercontent.com/parham101112131415/parham-ui/main/start.sh}"
 
 ENV_FILE="/etc/white-panel.env"
 SERVICE="white-panel"
@@ -47,7 +47,7 @@ IS_CODESPACE=0
 # ============================================================
 
 log() {
-    printf '[White Panel] %s\n' "$*"
+    printf '[Parham] %s\n' "$*"
 }
 
 ok() {
@@ -387,7 +387,7 @@ download_repo() {
 
     TMP_ROOT="$(mktemp -d /tmp/whitepanel.XXXXXX)"
 
-    log "Downloading White Panel..."
+    log "Downloading Parham..."
 
     git clone \
         --depth 1 \
@@ -1217,7 +1217,7 @@ create_service() {
 
     cat > "/etc/systemd/system/$SERVICE.service" <<EOF
 [Unit]
-Description=White Panel
+Description=Parham
 After=network-online.target
 Wants=network-online.target
 
@@ -1303,7 +1303,7 @@ start_panel() {
 
         if running; then
 
-            ok "White Panel already running."
+            ok "Parham already running."
 
             return 0
         fi
@@ -1332,13 +1332,13 @@ start_panel() {
 
     if running; then
 
-        ok "White Panel is running."
+        ok "Parham is running."
 
         return 0
     fi
 
 
-    printf '[ERROR] White Panel failed to start.\n' >&2
+    printf '[ERROR] Parham failed to start.\n' >&2
 
 
     if systemd_ok; then
@@ -1408,7 +1408,7 @@ stop_panel() {
     fi
 
 
-    ok "White Panel stopped."
+    ok "Parham stopped."
 }
 
 
@@ -1420,7 +1420,7 @@ status_panel() {
 
     echo
 
-    echo "White Panel status"
+    echo "Parham status"
     echo "------------------"
 
     echo "OS: $OS_NAME"
@@ -1676,7 +1676,7 @@ uninstall_panel() {
 
     echo
 
-    echo "This will remove White Panel."
+    echo "This will remove Parham."
 
     echo
 
@@ -1724,7 +1724,7 @@ uninstall_panel() {
     rm -rf "$APP_DIR"
 
 
-    ok "White Panel removed."
+    ok "Parham removed."
 }
 
 
@@ -1742,7 +1742,7 @@ set -e
 APP="/opt/WhitePanel"
 
 if [[ ! -f "$APP/start.sh" ]]; then
-    echo "White Panel is not installed."
+    echo "Parham is not installed."
     exit 1
 fi
 
@@ -1870,7 +1870,7 @@ install_panel() {
 
     echo
 
-    log "Installing White Panel..."
+    log "Installing Parham..."
 
     log "OS: $OS_NAME"
 
@@ -2029,7 +2029,7 @@ main() {
         *)
 
             echo
-            echo "White Panel Universal Installer"
+            echo "Parham Universal Installer"
             echo
             echo "Usage:"
             echo

@@ -1,0 +1,27 @@
+/* ── Parham FX: click sparks (ported from parham's panel theme) ──
+   UI sounds: Kenney "Interface Sounds" (CC0) — see /static/sfx/LICENSE-kenney.txt */
+
+.px-spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 6;
+  background: radial-gradient(circle, #fff 0%, rgba(255, 110, 80, 0.95) 40%, rgba(238, 58, 58, 0) 70%);
+  animation: px-spark 0.55s cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes px-spark {
+  from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.15); opacity: 0; }
+}
+
+.px-needs-spark {
+  position: relative;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px-spark { display: none !important; }
+}

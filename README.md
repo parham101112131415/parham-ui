@@ -1,21 +1,27 @@
 <div align="center">
-  <img src="svg/hero.svg" alt="White Panel — modern control panel and network operations" width="100%" />
 
-  <p>
-    <a href="https://github.com/Itskillmaster"><img alt="GitHub repository" src="https://img.shields.io/badge/GitHub-WhitePanel-171018?style=for-the-badge&logo=github&logoColor=white"></a>
-    <img alt="Version" src="https://img.shields.io/badge/Version-4.0.0-171018?style=for-the-badge&logo=semver&logoColor=75e3f7">
-    <img alt="Python" src="https://img.shields.io/badge/Python-3.10+-171018?style=for-the-badge&logo=python&logoColor=ff697b">
-    <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-Framework-171018?style=for-the-badge&logo=fastapi&logoColor=75e3f7">
-    <img alt="Panel port" src="https://img.shields.io/badge/PANEL_PORT-8080-171018?style=for-the-badge&labelColor=171018&color=ed3854">
-    <a href="https://t.me/The_killmaster"><img alt="Telegram Channel" src="https://img.shields.io/badge/Telegram-Channel-171018?style=for-the-badge&logo=telegram&logoColor=2CA5E0"></a>
-    <a href="https://www.youtube.com/watch?v=pgGy_bN65Pk"><img alt="YouTube Tutorial" src="https://img.shields.io/badge/YouTube-Video%20Guide-171018?style=for-the-badge&logo=youtube&logoColor=FF0000"></a>
-  </p>
+<img src="svg/hero.svg" width="100%" alt="Parham" />
 
-  <h3>⚡ Ultimate All-in-One Proxy & Subscription Management System</h3>
-  <p><b>Manage users, subscriptions, nodes, scanners, Vercel relays, and Telegram bots from a single unified panel.</b></p>
-  <p>VPS · Railway · Docker-ready · Responsive Glassmorphism UI</p>
+<br/>
+<br/>
 
-  <br />
+<p>
+  <a href="https://github.com/parham101112131415/parham-ui"><img src="https://img.shields.io/github/stars/parham101112131415/parham-ui?style=for-the-badge&logo=github&logoColor=white&labelColor=0b0b0f&color=ee3a3a" alt="Stars" /></a>
+  &nbsp;
+  <img src="https://img.shields.io/badge/Version-4.0.1-ee3a3a?style=for-the-badge&logo=semver&logoColor=white&labelColor=0b0b0f" alt="Version" />
+  &nbsp;
+  <img src="https://img.shields.io/badge/Go-1.23-ee3a3a?style=for-the-badge&logo=go&logoColor=white&labelColor=0b0b0f" alt="Go" />
+  &nbsp;
+  <img src="https://img.shields.io/badge/PANEL_PORT-8080-ee3a3a?style=for-the-badge&labelColor=0b0b0f" alt="Panel port" />
+  &nbsp;
+  <a href="https://t.me/par1234mehr"><img src="https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0b0b0f" alt="Telegram Support" /></a>
+</p>
+
+<h3>⚡ Ultimate All-in-One Proxy & Subscription Management System</h3>
+<p><b>Manage users, subscriptions, nodes, scanners, Vercel relays, and Telegram bots from a single unified panel.</b></p>
+<p>VPS · Railway · Docker-ready · Parham red/black neobrutalist UI — click sound effects &amp; sparks included</p>
+
+<br/>
 
   <!-- Language Switcher Bar -->
   <table align="center">
@@ -36,26 +42,6 @@
 
 ---
 
-<div align="center">
-
-### 📺 🎬 Official Video Tutorial / ویدیوی آموزشی / فيديو الشرح / Видеоурок
-
-<a href="https://www.youtube.com/watch?v=pgGy_bN65Pk">
-  <img src="https://img.youtube.com/vi/pgGy_bN65Pk/maxresdefault.jpg" alt="White Panel Setup Tutorial on YouTube" width="85%" style="border-radius: 12px; margin: 12px 0;" />
-</a>
-
-<p>
-  <a href="https://www.youtube.com/watch?v=pgGy_bN65Pk"><img alt="Watch on YouTube" src="https://img.shields.io/badge/YouTube-Watch%20Full%20Setup%20Guide-FF0000?style=for-the-badge&logo=youtube&logoColor=white"></a>
-</p>
-
-> 💡 **Watch the step-by-step setup guide on YouTube:**  
-> Learn how to deploy White Panel on VPS & Railway, connect Telegram Sales Bot, configure Vercel WebSocket relays, and use the built-in scanner.  
-> 🔗 **Direct YouTube Link:** [https://www.youtube.com/watch?v=pgGy_bN65Pk](https://www.youtube.com/watch?v=pgGy_bN65Pk)
-
-</div>
-
----
-
 ## 📚 Quick Navigation
 
 - [🇬🇧 English](#-english)
@@ -67,21 +53,21 @@
   - [Vercel Domain Relay](#vercel-domain-tls--websocket-relay)
   - [Scanner & Nodes](#-scanner)
 - [🇮🇷 فارسی](#-فارسی)
-  - [معرفی White Panel](#-white-panel-چیست)
-  - [ویدیوی آموزش در یوتیوب](#-ویدیوی-آموزش-کامل-در-یوتیوب)
+  - [معرفی Parham](#-white-panel-چیست)
+  - [پشتیبانی و آموزش](#-پشتیبانی-و-آموزش)
   - [نصب سریع در لینوکس و ریلوی](#-نصب-سریع-روی-vps)
   - [ربات فروش تلگرام](#-ربات-فروش-و-اتوماسیون-تلگرام)
   - [رله ورسل و وب‌پروکسی](#-وبپروکسی-داخلی-و-رله-vercel)
 - [🇸🇦 العربية](#-العربية)
-  - [نبذة عن White Panel](#-ما-هو-white-panel)
+  - [نبذة عن Parham](#-ما-هو-white-panel)
   - [شرح التثبيت السريع](#-طريقة-التثبيت)
   - [بوت تيليجرام والمبيعات](#-أتمتة-تيليجرام-وبوت-المبيعات)
-  - [فيديو يوتيوب والروابط](#-فيديو-الشرح-على-youtube)
+  - [الدعم والشرح](#-الدعم-والشرح)
 - [🇷🇺 Русский](#-русский)
-  - [Что такое White Panel?](#-что-такое-white-panel)
+  - [Что такое Parham?](#-что-такое-white-panel)
   - [Установка (VPS и Railway)](#-развертывание)
   - [Telegram бот и продажи](#-автоматизация-telegram)
-  - [Видеоинструкция на YouTube](#-видео-руководство-на-youtube)
+  - [Поддержка](#-поддержка)
 
 ---
 
@@ -91,12 +77,12 @@
   <img src="svg/network-map.svg" alt="Animated network map" width="100%" />
 </div>
 
-## ✦ Why White Panel?
+## ✦ Why Parham?
 
-**White Panel** unifies all the operational pieces of modern proxy infrastructure into a high-performance, single-dashboard command center: users, subscriptions, generated links, dynamic QR codes, nodes, scanners, and automated Telegram bots.
+**Parham** unifies all the operational pieces of modern proxy infrastructure into a high-performance, single-dashboard command center: users, subscriptions, generated links, dynamic QR codes, nodes, scanners, and automated Telegram bots.
 
 <div align="center">
-  <img src="svg/features.svg" alt="White Panel feature overview" width="100%" />
+  <img src="svg/features.svg" alt="Parham feature overview" width="100%" />
 </div>
 
 ### Core Capabilities
@@ -114,7 +100,7 @@
 
 ### License
 
-White Panel is **free to use, copy, redistribute and fork — as long as it stays unmodified**. **Modifying the code or selling the software itself is not permitted.** Using the panel to run your own service is allowed. See the [`LICENSE`](LICENSE) file for the full terms.
+Parham is **free to use, copy, redistribute and fork — as long as it stays unmodified**. **Modifying the code or selling the software itself is not permitted.** Using the panel to run your own service is allowed. See the [`LICENSE`](LICENSE) file for the full terms.
 
 ---
 
@@ -129,7 +115,7 @@ White Panel is **free to use, copy, redistribute and fork — as long as it stay
 Run the automated installer on any clean Ubuntu/Debian VPS:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Itskillmaster/WhitePanel-Ui/main/start.sh | bash
+curl -fsSL https://raw.githubusercontent.com/parham101112131415/parham-ui/main/start.sh | bash
 ```
 
 The installer configures dependencies, `uv`, `Xray-core`, service daemons, and starts the panel on **port `8080`**.
@@ -138,7 +124,7 @@ The installer configures dependencies, `uv`, `Xray-core`, service daemons, and s
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `WHITE_APP_DIR` | `/opt/WhitePanel` | Root directory for application files |
+| `WHITE_APP_DIR` | `/opt/Parham` | Root directory for application files |
 | `WHITE_REPO` | Project Git Repository | Git source URL |
 | `WHITE_BRANCH` | `main` | Branch to clone and maintain |
 | `WHITE_UV_VERSION` | `0.12.9` | uv release package |
@@ -159,7 +145,7 @@ The installer configures dependencies, `uv`, `Xray-core`, service daemons, and s
 
 ## 🧭 Public Endpoint & Subscription Flow
 
-White Panel dynamically resolves public endpoints so you never have to hard-code changing IP addresses:
+Parham dynamically resolves public endpoints so you never have to hard-code changing IP addresses:
 
 ```text
 Panel Architecture
@@ -213,20 +199,19 @@ Deploys a Node.js WebSocket bridge onto Vercel Edge compute:
 
 <div dir="rtl">
 
-## ✦ White Panel چیست؟
+## ✦ Parham چیست؟
 
-**White Panel (وایت پنل)** یک پنل جامع، مدرن و قدرتمند برای مدیریت کامل زیرساخت‌های پروکسی، کاربران، اشتراک‌ها، نودها، اسکنرها و ربات‌های اتوماسیون تلگرام است. این نسخه با رابط کاربری شیشه‌ای (Glassmorphism)، بهینه‌سازی شده برای موبایل و دسکتاپ، و با پشتیبانی کامل از داکر، ریلوی و VPS اختصاصی ارائه شده است.
+**Parham (وایت پنل)** یک پنل جامع، مدرن و قدرتمند برای مدیریت کامل زیرساخت‌های پروکسی، کاربران، اشتراک‌ها، نودها، اسکنرها و ربات‌های اتوماسیون تلگرام است. این نسخه با رابط کاربری شیشه‌ای (Glassmorphism)، بهینه‌سازی شده برای موبایل و دسکتاپ، و با پشتیبانی کامل از داکر، ریلوی و VPS اختصاصی ارائه شده است.
 
 ---
 
-### 📺 ویدیوی آموزش کامل در یوتیوب
+### 📺 پشتیبانی و آموزش
 
-برای یادگیری گام‌به‌گام نحوه نصب، تنظیم ربات فروش تلگرام، اتصال دامنه‌های Vercel و کار با اسکنر قدرتمند، ویدیوی زیر را در یوتیوب مشاهده کنید:
+برای آموزش گام‌به‌گام نحوه نصب، تنظیم ربات فروش تلگرام، اتصال دامنه‌های Vercel و کار با اسکنر قدرتمند، در تلگرام پیام بده:
 
-[![مشاهده ویدیوی آموزشی در یوتیوب](https://img.shields.io/badge/YouTube-%D9%85%D8%B4%D8%A7%D9%87%D8%AF%D9%87%20%D9%88%DB%8C%D8%AF%DB%8C%D9%88%DB%8C%20%D8%A2%D9%85%D9%88%D8%B2%D8%B4%DB%8C-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=pgGy_bN65Pk)
+[![Telegram](https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0b0b0f)](https://t.me/par1234mehr)
 
-> 🔗 **لینک مستقیم آموزش در یوتیوب:** [https://www.youtube.com/watch?v=pgGy_bN65Pk](https://www.youtube.com/watch?v=pgGy_bN65Pk)  
-> *(همچنین برای اطلاع از آخرین آپدیت‌ها در [کانال تلگرام](https://t.me/The_killmaster) عضو شوید)*
+> 🔗 **پشتیبانی تلگرام:** [t.me/par1234mehr](https://t.me/par1234mehr)
 
 ---
 
@@ -256,7 +241,7 @@ Deploys a Node.js WebSocket bridge onto Vercel Edge compute:
 تنها با اجرای یک دستور ساده در ترمینال لینوکس (اوبونتو / دبیان):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Itskillmaster/WhitePanel-Ui/main/start.sh | bash
+curl -fsSL https://raw.githubusercontent.com/parham101112131415/parham-ui/main/start.sh | bash
 ```
 
 پنل روی پورت پیش‌فرض **8080** بالا می‌آید. پس از اتمام نصب، پنل از طریق آدرس زیر در دسترس خواهد بود:
@@ -309,19 +294,19 @@ http://YOUR_SERVER_IP:8080/white
 
 <div dir="rtl">
 
-## ✦ ما هو White Panel؟
+## ✦ ما هو Parham؟
 
-**White Panel** هي لوحة تحكم سحابية متقدمة وشاملة لإدارة خدمات البروكسي والشبكات الافتراضية، إدارة المشتركين، إنشاء روابط الاشتراكات الذكية ورموز QR، فحص الخوادم وعناوين IP، والتشغيل الآلي الكامل عبر بوتات تيليجرام.
+**Parham** هي لوحة تحكم سحابية متقدمة وشاملة لإدارة خدمات البروكسي والشبكات الافتراضية، إدارة المشتركين، إنشاء روابط الاشتراكات الذكية ورموز QR، فحص الخوادم وعناوين IP، والتشغيل الآلي الكامل عبر بوتات تيليجرام.
 
 ---
 
-### 📺 فيديو الشرح على YouTube
+### 📺 الدعم والشرح
 
-شاهد دليل الإعداد والتثبيت خطوة بخطوة على يوتيوب، بما في ذلك إعدادات البوت والربط مع Vercel و Railway:
+للحصول على شرح الإعداد والتثبيت خطوة بخطوة، بما في ذلك إعدادات البوت والربط مع Vercel و Railway، تواصل عبر تيليجرام:
 
-[![مشاهدة الفيديو على يوتيوب](https://img.shields.io/badge/YouTube-%D9%85%D8%B4%D8%A7%D9%87%D8%AF%D8%A9%20%D8%A7%D9%84%D8%B4%D8%B1%D8%AD%20%D8%B9%D9%84%D9%89%20%D9%8A%D9%88%D8%AA%D9%8A%D9%88%D8%A8-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=pgGy_bN65Pk)
+[![Telegram](https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0b0b0f)](https://t.me/par1234mehr)
 
-> 🔗 **رابط يوتيوب المباشر:** [https://www.youtube.com/watch?v=pgGy_bN65Pk](https://www.youtube.com/watch?v=pgGy_bN65Pk)
+> 🔗 **دعم تيليجرام:** [t.me/par1234mehr](https://t.me/par1234mehr)
 
 ---
 
@@ -345,7 +330,7 @@ http://YOUR_SERVER_IP:8080/white
 قم بتشغيل هذا الأمر في سطر أوامر السيرفر:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Itskillmaster/WhitePanel-Ui/main/start.sh | bash
+curl -fsSL https://raw.githubusercontent.com/parham101112131415/parham-ui/main/start.sh | bash
 ```
 
 المنفذ الافتراضي للوحة هو **8080**. يمكنك الدخول للوحة عبر المتصفح:
@@ -367,22 +352,22 @@ http://YOUR_SERVER_IP:8080/white
 # 🇷🇺 Русский
 
 <div align="center">
-  <img src="svg/architecture.svg" alt="Архитектура White Panel" width="100%" />
+  <img src="svg/architecture.svg" alt="Архитектура Parham" width="100%" />
 </div>
 
-## ✦ Что такое White Panel?
+## ✦ Что такое Parham?
 
-**White Panel** — это современная, высокопроизводительная панель управления для прокси-серверов, управления пользователями, динамическими подписками, мониторингом нод, сканером подсетей и полной автоматизацией через Telegram-ботов.
+**Parham** — это современная, высокопроизводительная панель управления для прокси-серверов, управления пользователями, динамическими подписками, мониторингом нод, сканером подсетей и полной автоматизацией через Telegram-ботов.
 
 ---
 
-### 📺 Видео руководство на YouTube
+### 📺 Поддержка
 
-Подробная видеоинструкция по установке, настройке бота продаж, подключению Vercel Relay и работе со сканером:
+Поддержка по установке, настройке бота продаж, подключению Vercel Relay и работе со сканером — в Telegram:
 
-[![Смотреть видео на YouTube](https://img.shields.io/badge/YouTube-%D0%A1%D0%BC%D0%BE%D1%82%D1%80%D0%B5%D1%82%D1%8C%20%D0%B2%D0%B8%D0%B4%D0%B5%D0%BE%D1%83%D1%80%D0%BE%D0%BA-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=pgGy_bN65Pk)
+[![Telegram](https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0b0b0f)](https://t.me/par1234mehr)
 
-> 🔗 **Прямая ссылка на YouTube:** [https://www.youtube.com/watch?v=pgGy_bN65Pk](https://www.youtube.com/watch?v=pgGy_bN65Pk)
+> 🔗 **Поддержка в Telegram:** [t.me/par1234mehr](https://t.me/par1234mehr)
 
 ---
 
@@ -405,7 +390,7 @@ http://YOUR_SERVER_IP:8080/white
 #### Быстрая установка на VPS (Linux Ubuntu/Debian) в одну команду:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Itskillmaster/WhitePanel-Ui/main/start.sh | bash
+curl -fsSL https://raw.githubusercontent.com/parham101112131415/parham-ui/main/start.sh | bash
 ```
 
 Панель запускается на порту **8080**. Откройте в браузере:
@@ -446,15 +431,13 @@ http://IP_ВАШЕГО_СЕРВЕРА:8080/white
 ---
 
 <div align="center">
-  <img src="svg/logo.svg" alt="White Panel Logo" width="300" />
+  <img src="svg/logo.svg" alt="Parham Logo" width="300" />
 
   <h3>WHITE PANEL 4.0</h3>
   <p><i>Modern · Fast · Resilient · Open Source</i></p>
 
   <p>
-    <a href="https://github.com/Itskillmaster">GitHub</a> •
-    <a href="https://t.me/the_killmaster">Developer Telegram</a> •
-    <a href="https://t.me/The_killmaster">Telegram Channel</a> •
-    <a href="https://www.youtube.com/watch?v=pgGy_bN65Pk">YouTube Tutorial</a>
+    <a href="https://github.com/parham101112131415/parham-ui">GitHub</a> •
+    <a href="https://t.me/par1234mehr">Telegram Support</a>
   </p>
 </div>

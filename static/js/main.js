@@ -43,7 +43,7 @@ Object.assign(I18N.fa, {
   'toast.userCreated': 'کاربر ایجاد شد', 'toast.userUpdated': 'کاربر بروزرسانی شد', 'toast.userDeleted': 'کاربر حذف شد', 'toast.userToggled': 'وضعیت کاربر تغییر کرد', 'toast.passChanged': 'رمز تغییر کرد', 'toast.err': 'خطا',
   'backupDownloaded': 'بکاپ دانلود شد', 'restoreDone': 'بازیابی انجام شد', 'restoreFailed': 'بازیابی ناموفق', 'restoreUploading': 'در حال آپلود و بازیابی...',
   'panelUpdate': 'بروزرسانی پنل', 'updatePanel': 'بروزرسانی', 'confirmUpdate': 'پنل از GitHub بروزرسانی شود؟', 'updateStarted': 'بروزرسانی شروع شد...', 'updateDone': 'بروزرسانی کامل شد — پنل را ری‌استارت کنید', 'updateFailed': 'بروزرسانی ناموفق بود', 'updateRunning': 'در حال بروزرسانی...',
-  'panelUpdateHint': 'با زدن این دکمه، آخرین نسخه ریپو از GitHub دریافت و روی سرور نصب می‌شود (Itskillmaster). بعد از اتمام، پنل را در Railway ری‌استارت کنید تا نسخه جدید اعمال شود.',
+  'panelUpdateHint': 'با زدن این دکمه، آخرین نسخه ریپو از GitHub دریافت و روی سرور نصب می‌شود (Parham). بعد از اتمام، پنل را در Railway ری‌استارت کنید تا نسخه جدید اعمال شود.',
   'backupRestore': 'بکاپ و بازیابی', 'backup': 'بکاپ', 'restore': 'ریستور', 'backupRestoreHint': 'بکاپ کامل شامل: کاربران، لینک‌ها، اینباندها، اسکن‌ها، تنظیمات، رمز، گروه‌ها و تنظیمات Worker.',
   'autoconfig': 'پیکربندی خودکار', 'tunnel': 'تونل', 'qrCode': 'کد QR',
   'acAutoBtn': 'خودکار', 'acHint': 'اسکن کامل خودکار: پینگ دامنه‌ها → انتخاب Railway/Cloudflare → اسکن IP → تست دامنه‌های TCP → اسکن SNI → پینگ نهایی پنل.',
@@ -118,7 +118,7 @@ Object.assign(I18N.en, {
   'toast.userCreated': 'User created', 'toast.userUpdated': 'User updated', 'toast.userDeleted': 'User deleted', 'toast.userToggled': 'User status changed', 'toast.passChanged': 'Password changed', 'toast.err': 'Error',
   'backupDownloaded': 'Backup downloaded', 'restoreDone': 'Restore completed', 'restoreFailed': 'Restore failed', 'restoreUploading': 'Uploading...',
   'panelUpdate': 'Panel Update', 'updatePanel': 'Update', 'confirmUpdate': 'Update from GitHub?', 'updateStarted': 'Update started...', 'updateDone': 'Update finished', 'updateFailed': 'Update failed', 'updateRunning': 'Updating...',
-  'panelUpdateHint': 'Pulls the latest repo from GitHub and installs it on the server (Itskillmaster). Restart the panel on Railway after completion.',
+  'panelUpdateHint': 'Pulls the latest repo from GitHub and installs it on the server (Parham). Restart the panel on Railway after completion.',
   'backupRestore': 'Backup & Restore', 'backup': 'Backup', 'restore': 'Restore', 'backupRestoreHint': 'Full backup includes users, links, inbounds, scans, settings, password, groups, and Worker config.',
   'autoconfig': 'Auto Config', 'tunnel': 'Tunnel', 'qrCode': 'QR Code',
   'acAutoBtn': 'Auto', 'acHint': 'Full automatic scan: ping domains → pick Railway/Cloudflare → IP scan → TCP test → SNI scan → final panel ping.', 'acEnterDomain': 'Please enter the panel domain', 'acPingingDomains': 'Pinging domains...', 'acYourDomain': 'Your domain', 'acPickDomain': 'Pick a domain:', 'acScanningRailway': 'Scanning Railway IPs...', 'acScanningCf': 'Scanning Cloudflare IPs...', 'acTcpTesting': 'Testing TCP domains...', 'acSniTesting': 'Testing SNIs...', 'acFinalPing': 'Final ping...', 'acDone': 'Auto scan complete ✓',
@@ -946,14 +946,14 @@ function loadSettings() {
   try {
     api('/api/settings').then(function(s) {
       var el = $id('set-config-prefix');
-      if (el) el.value = (s && s.config_name_prefix) ? s.config_name_prefix : 'White-';
+      if (el) el.value = (s && s.config_name_prefix) ? s.config_name_prefix : '';
     }).catch(function() {});
   } catch(e) {}
   checkPanelUpdate();
 }
 async function saveConfigPrefix() {
   var el = $id('set-config-prefix');
-  var v = (el && el.value || '').trim() || 'White-';
+  var v = (el && el.value || '').trim();
   try {
     await api('/api/settings', {method: 'POST', body: {config_name_prefix: v}});
     if (el) el.value = v;
@@ -1064,7 +1064,7 @@ async function runPanelUpdate() {
   await checkPanelUpdate();
   var conf = confirm('آیا می‌خواهید به مخزن گیت‌هاب هدایت شوید؟');
   if (conf) {
-    window.open('https://github.com/Itskillmaster/WhitePanel-UI', '_blank');
+    window.open('https://github.com/parham101112131415/parham-ui', '_blank');
   }
 }
 async function downloadBackup() {
