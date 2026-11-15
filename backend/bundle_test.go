@@ -1,20 +1,30 @@
 package main
 
 import (
-	"encoding/json"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 )
 
-func TestBundleProducesRealMultiProtocolConfigs(t *testing.T) {
+// The multi-config bundle was reverted at the owner's request: a state
+// polluted by the bundle build (seeded inbounds attached to the user)
+// must clean itself up and go back to exactly one config named exactly
+// after the username.
+func TestBundleRevertRestoresSingleConfig(t *testing.T) {
 	State.mu.Lock()
 	oldUsers, oldInbounds, oldSettings := State.Users, State.Inbounds, State.Settings
 	State.Users = map[string]*User{}
-	State.Inbounds = map[string]*Inbound{}
-	State.Settings = map[string]any{"domain": "example.com", "config_name_prefix": ""}
-	u := &User{UserID: "bu1", Username: "parham", ConfigUUID: "11111111-2222-3333-4444-555555555555", Status: "active"}
+	State.Inbounds = map[string]*Inbound{
+		"default":             {InboundID: "default", Name: "Default", Protocol: "vless", Network: "ws", Security: "tls", Port: 443},
+		"bundle-vless-ws":     {InboundID: "bundle-vless-ws", Protocol: "vless", Network: "ws", Security: "tls", Port: 443},
+		"bundle-vless-xhttp":  {InboundID: "bundle-vless-xhttp", Protocol: "vless", Network: "xhttp", Security: "tls", Port: 443},
+		"bundle-vless-reality": {InboundID: "bundle-vless-reality", Protocol: "reality", Network: "tcp", Security: "reality", Port: 8443},
+		"bundle-shadowsocks":  {InboundID: "bundle-shadowsocks", Protocol: "shadowsocks", Port: 8388},
+	}
+	State.Settings = map[string]any{"domain": "example.com", "config_name_prefix": "", "bundle_seeded": true}
+	u := &User{UserID: "bu1", Username: "parham", ConfigUUID: "11111111-2222-3333-4444-555555555555", Status: "active",
+		InboundIDs: []string{"default", "bundle-vless-ws", "bundle-vless-xhttp", "bundle-vless-reality", "bundle-shadowsocks"}}
 	State.Users[u.UserID] = u
 	State.mu.Unlock()
 	defer func() {
@@ -23,88 +33,27 @@ func TestBundleProducesRealMultiProtocolConfigs(t *testing.T) {
 		State.mu.Unlock()
 	}()
 
-	ensureBundleInbounds()
-
 	r := httptest.NewRequest("GET", "https://example.com/sub/x", nil)
 	cfgs := generateUserConfigs(r, u)
-	if len(cfgs) < 4 {
-		t.Fatalf("expected >=4 bundle configs, got %d: %v", len(cfgs), cfgs)
+	if len(cfgs) != 1 {
+		t.Fatalf("expected exactly 1 config after revert, got %d: %v", len(cfgs), cfgs)
 	}
-	joined := strings.Join(cfgs, "\n")
-	for _, want := range []string{
-		"vless://", "ss://",
-		"example.com:8443", "example.com:8388",
-		"path=%2Fws%2F11111111-2222-3333-4444-555555555555",
-		"path=%2Fxhttp-siz10%2Fpacket-up%2F11111111-2222-3333-4444-555555555555",
-		"security=reality", "pbk=",
-	} {
-		if !strings.Contains(joined, want) {
-			t.Fatalf("bundle configs missing %q\n---\n%s", want, joined)
+	i := strings.Index(cfgs[0], "#")
+	if i < 0 {
+		t.Fatalf("config has no name fragment: %s", cfgs[0])
+	}
+	name, err := url.QueryUnescape(cfgs[0][i+1:])
+	if err != nil || name != "parham" {
+		t.Fatalf("config name = %q (err %v), want exactly \"parham\"", name, err)
+	}
+	State.mu.RLock()
+	defer State.mu.RUnlock()
+	for _, bid := range bundleInboundIDs {
+		if _, ok := State.Inbounds[bid]; ok {
+			t.Fatalf("bundle inbound %s still in state", bid)
 		}
 	}
-	// names (URL-unescaped fragments) must carry the per-type labels, all distinct
-	names := map[string]bool{}
-	for _, c := range cfgs {
-		if i := strings.Index(c, "#"); i >= 0 {
-			if dec, err := url.QueryUnescape(c[i+1:]); err == nil {
-				names[dec] = true
-			}
-		}
+	if len(u.InboundIDs) != 1 || u.InboundIDs[0] != "default" {
+		t.Fatalf("user inbound_ids = %v, want [default]", u.InboundIDs)
 	}
-	for _, want := range []string{
-		"parham VLESS WS TLS",
-		"parham VLESS XHTTP TLS",
-		"parham VLESS Reality",
-		"parham Shadowsocks",
-	} {
-		if !names[want] {
-			t.Fatalf("missing config name %q in %v", want, names)
-		}
-	}
-	if len(names) != len(cfgs) {
-		t.Fatalf("config names not all distinct: %v", names)
-	}
-	// The Xray side must really serve the direct-port bundle inbounds:
-	// reality :8443 carrying this user as a client, shadowsocks :8388
-	// carrying this user's own password.
-	raw, err := generateXrayConfig()
-	if err != nil {
-		t.Fatalf("generateXrayConfig: %v", err)
-	}
-	var xc struct {
-		Inbounds []struct {
-			Port     int            `json:"port"`
-			Protocol string         `json:"protocol"`
-			Settings map[string]any `json:"settings"`
-		} `json:"inbounds"`
-	}
-	if err := json.Unmarshal(raw, &xc); err != nil {
-		t.Fatalf("xray config JSON: %v", err)
-	}
-	var sawReality, sawSS bool
-	for _, ib := range xc.Inbounds {
-		if ib.Port == 8443 && ib.Protocol == "vless" {
-			if cl, ok := ib.Settings["clients"].([]any); ok && len(cl) > 0 {
-				if m, ok := cl[0].(map[string]any); ok && m["id"] == u.ConfigUUID {
-					sawReality = true
-				}
-			}
-		}
-		if ib.Port == 8388 && ib.Protocol == "shadowsocks" {
-			if us, ok := ib.Settings["users"].([]any); ok {
-				for _, it := range us {
-					if m, ok := it.(map[string]any); ok && m["password"] == u.ShadowsocksPassword && u.ShadowsocksPassword != "" {
-						sawSS = true
-					}
-				}
-			}
-		}
-	}
-	if !sawReality {
-		t.Fatal("xray config has no reality :8443 inbound with the user as client")
-	}
-	if !sawSS {
-		t.Fatal("xray config has no shadowsocks :8388 inbound with the user password")
-	}
-	t.Logf("configs:\n%s", joined)
 }

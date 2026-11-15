@@ -2295,11 +2295,18 @@ func configNamePrefix(ib *Inbound) string {
 	return p
 }
 
+// escRemark escapes a config name for a URI fragment: spaces must be %20,
+// not '+' (QueryEscape's form style renders literally in client apps).
+func escRemark(s string) string {
+	return strings.ReplaceAll(url.QueryEscape(s), "+", "%20")
+}
+
 // ---------------------------------------------------------------------------
-// Multi-config bundle: a standard set of inbounds every user receives, so a
-// subscription always carries several working configs across protocols and
-// transports. Seeded once (settings flag); afterwards they are ordinary
-// inbounds — deleting one in the panel removes its configs for good.
+// The short-lived multi-config bundle was reverted at the owner's request
+// (2026-11-15): subscriptions carry only the user's own inbound again and
+// config names are just the username. This one-time cleanup removes the
+// bundle inbounds an earlier build seeded into existing installs and
+// detaches them from every user.
 // ---------------------------------------------------------------------------
 var bundleInboundIDs = []string{
 	"bundle-vless-ws",
@@ -2308,102 +2315,39 @@ var bundleInboundIDs = []string{
 	"bundle-shadowsocks",
 }
 
-// escRemark escapes a config name for a URI fragment: spaces must be %20,
-// not '+' (QueryEscape's form style renders literally in client apps).
-func escRemark(s string) string {
-	return strings.ReplaceAll(url.QueryEscape(s), "+", "%20")
-}
-
-func configTypeLabel(ib *Inbound) string {
-	proto := strings.ToLower(ib.Protocol)
-	sec := strings.ToLower(ib.Security)
-	switch {
-	case proto == "worker":
-		return "VLESS WS TLS"
-	case proto == "telegram":
-		return "MTProxy"
-	case proto == "shadowsocks":
-		return "Shadowsocks"
-	case proto == "wireguard":
-		return "WireGuard"
-	case proto == "reality" || sec == "reality":
-		if strings.ToLower(ib.Network) == "xhttp" {
-			return "VLESS XHTTP Reality"
-		}
-		return "VLESS Reality"
-	}
-	switch strings.ToLower(ib.Network) {
-	case "xhttp":
-		return "VLESS XHTTP TLS"
-	case "grpc":
-		return "VLESS gRPC TLS"
-	case "tcp":
-		return "VLESS TCP TLS"
-	default:
-		return "VLESS WS TLS"
-	}
-}
-
-func ensureBundleInbounds() {
+func removeBundleInbounds() {
 	State.mu.Lock()
-	changed := false
-	if State.Inbounds == nil {
-		State.Inbounds = map[string]*Inbound{}
+	if done, _ := State.Settings["bundle_removed"].(bool); done {
+		State.mu.Unlock()
+		return
 	}
-	if seeded, _ := State.Settings["bundle_seeded"].(bool); !seeded {
-		now := time.Now().Format(time.RFC3339)
-		seed := []*Inbound{
-			{InboundID: "bundle-vless-ws", Name: "VLESS · WS · TLS", Protocol: "vless", InboundType: "transport", Port: 443, Network: "ws", Security: "tls", Fingerprint: "chrome", WSSettings: map[string]any{"path": "/ws/{uuid}"}, CreatedAt: now},
-			{InboundID: "bundle-vless-xhttp", Name: "VLESS · XHTTP · TLS", Protocol: "vless", InboundType: "transport", Port: 443, Network: "xhttp", Security: "tls", Fingerprint: "chrome", XHTTPSettings: map[string]any{"mode": "packet-up"}, CreatedAt: now},
-			{InboundID: "bundle-vless-reality", Name: "VLESS · Reality", Protocol: "reality", InboundType: "transport", Port: 8443, Network: "tcp", Security: "reality", SNI: "is1-ssl.mzstatic.com", Fingerprint: "chrome", RealitySettings: realityDefaults(nil), CreatedAt: now},
-			{InboundID: "bundle-shadowsocks", Name: "Shadowsocks", Protocol: "shadowsocks", InboundType: "transport", Port: 8388, Network: "tcp", Security: "none", ShadowsocksSettings: map[string]any{"method": "aes-256-gcm", "network": "tcp,udp"}, CreatedAt: now},
-		}
-		for _, ib := range seed {
-			if _, ok := State.Inbounds[ib.InboundID]; !ok {
-				State.Inbounds[ib.InboundID] = ib
-			}
-		}
-		State.Settings["bundle_seeded"] = true
-		changed = true
-	}
-	if done, _ := State.Settings["bundle_xhttp_packetup"].(bool); !done {
-		if ib, ok := State.Inbounds["bundle-vless-xhttp"]; ok && ib.XHTTPSettings != nil {
-			ib.XHTTPSettings["mode"] = "packet-up"
-		}
-		State.Settings["bundle_xhttp_packetup"] = true
-		changed = true
-	}
-	existing := make([]string, 0, len(bundleInboundIDs))
 	for _, bid := range bundleInboundIDs {
-		if _, ok := State.Inbounds[bid]; ok {
-			existing = append(existing, bid)
-		}
+		delete(State.Inbounds, bid)
 	}
 	for _, u := range State.Users {
-		for _, bid := range existing {
-			found := false
-			for _, iid := range u.InboundIDs {
+		kept := u.InboundIDs[:0]
+		for _, iid := range u.InboundIDs {
+			bundled := false
+			for _, bid := range bundleInboundIDs {
 				if iid == bid {
-					found = true
+					bundled = true
 					break
 				}
 			}
-			if !found {
-				u.InboundIDs = append(u.InboundIDs, bid)
-				changed = true
+			if !bundled {
+				kept = append(kept, iid)
 			}
 		}
-		if u.ShadowsocksPassword == "" {
-			u.ShadowsocksPassword = generateToken(16)
-			changed = true
-		}
+		u.InboundIDs = kept
 	}
+	delete(State.Settings, "bundle_seeded")
+	delete(State.Settings, "bundle_xhttp_packetup")
+	State.Settings["bundle_removed"] = true
 	State.mu.Unlock()
-	if changed {
-		_ = saveState()
-		scheduleXrayApply()
-	}
+	_ = saveState()
+	scheduleXrayApply()
 }
+
 
 
 // applyInboundQuery layers the inbound's advanced/optional client parameters on
@@ -2489,7 +2433,7 @@ func generateUserConfig(r *http.Request, u *User, inboundID string) string {
 	proto := strings.ToLower(ib.Protocol)
 	sec := strings.ToLower(ib.Security)
 	cfgUUID := u.ConfigUUID
-	remark := configNamePrefix(ib) + u.Username + " " + configTypeLabel(ib)
+	remark := configNamePrefix(ib) + u.Username
 
 	if proto == "worker" {
 		wdom := ib.ExternalDomain
@@ -2823,7 +2767,7 @@ PersistentKeepalive = 25`,
 }
 
 func generateUserConfigs(r *http.Request, u *User) []string {
-	ensureBundleInbounds()
+	removeBundleInbounds()
 	out := []string{}
 	seen := map[string]bool{}
 	for _, iid := range u.InboundIDs {
@@ -4919,7 +4863,7 @@ func handleToolsMyIP(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	initStorage()
-	ensureBundleInbounds()
+	removeBundleInbounds()
 
 	port := os.Getenv("PANEL_PORT")
 	if port == "" {
