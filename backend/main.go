@@ -295,8 +295,6 @@ const sessionTTL = 7 * 24 * time.Hour
 func initStorage() {
 	if env := os.Getenv("PARHAM_DATA_DIR"); env != "" {
 		State.DataDir = env
-	} else if env := os.Getenv("WHITE_DATA_DIR"); env != "" {
-		State.DataDir = env
 	}
 	_ = os.MkdirAll(State.DataDir, 0755)
 	seedScannerFiles()
@@ -309,11 +307,6 @@ func loadState() {
 
 	file := filepath.Join(State.DataDir, "parham_state.json")
 	f, err := os.Open(file)
-	if err != nil {
-		if lf, lerr := os.Open(filepath.Join(State.DataDir, "white_state.json")); lerr == nil {
-			f, err = lf, nil
-		}
-	}
 	if err != nil {
 		State.Password = hashPassword("admin")
 		State.Settings["panel_api_key"] = generateToken(24)
@@ -409,7 +402,7 @@ func saveState() error {
 // ============================================================================
 
 func hashPassword(pwd string) string {
-	h := sha256.Sum256([]byte(pwd + "white-panel-secret-key-v2"))
+	h := sha256.Sum256([]byte(pwd + "parham-panel-secret-key-v2"))
 	return hex.EncodeToString(h[:])
 }
 
@@ -2421,7 +2414,7 @@ PersistentKeepalive = 25`,
 		}
 		svc, _ := gsm["serviceName"].(string)
 		if svc == "" {
-			svc = "white"
+			svc = "parham"
 		}
 		q := url.Values{}
 		q.Set("encryption", "none")
@@ -3188,7 +3181,7 @@ func handleUserCreate(w http.ResponseWriter, r *http.Request) {
 		}
 		switch ib.Protocol {
 		case "telegram":
-			u.TelegramSecret = sha256Hex(fmt.Sprintf("white-tg-proxy:%s", cfgUUID))[:32]
+			u.TelegramSecret = sha256Hex(fmt.Sprintf("parham-tg-proxy:%s", cfgUUID))[:32]
 		case "shadowsocks":
 			u.ShadowsocksPassword = generateToken(16)
 		case "wireguard":
@@ -3598,7 +3591,7 @@ func handleUserTestConfigs(w http.ResponseWriter, r *http.Request, id string) {
 // ============================================================================
 
 func findStaticDir() string {
-	candidates := []string{"./static", "../static", "/opt/parham/static", "/opt/whitepanel/static"}
+	candidates := []string{"./static", "../static", "/opt/parham/static"}
 	for _, c := range candidates {
 		if st, err := os.Stat(filepath.Join(c, "sub.html")); err == nil && !st.IsDir() {
 			return c
@@ -4227,7 +4220,7 @@ func handleSettingsBackup(w http.ResponseWriter, r *http.Request) {
 
 	now := time.Now()
 	payload := map[string]any{
-		"backup_format":  "WhitePanel",
+		"backup_format":  "ParhamPanel",
 		"backup_version": 3,
 		"panel_version":  "4.0.0",
 		"created_at":     now.Format(time.RFC3339),
@@ -4587,7 +4580,7 @@ func main() {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
 		switch r.URL.Path {
-		case "/", "/parham", "/white", "/dashboard":
+		case "/", "/parham", "/dashboard":
 			http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
 			return
 		case "/login":
@@ -4656,7 +4649,7 @@ func main() {
 
 		writeJSON(w, http.StatusOK, map[string]any{
 			"status":         overallStatus,
-			"service":        "WhitePanel",
+			"service":        "ParhamPanel",
 			"uptime_seconds": int(time.Since(serverStartTime).Seconds()),
 			"services": map[string]any{
 				"panel": map[string]any{

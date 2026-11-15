@@ -1,4 +1,3 @@
-(function(){ try { ['lang','theme-v2'].forEach(function(k){ if (localStorage.getItem('parham-'+k) === null) { var ov = localStorage.getItem('white-'+k); if (ov !== null) localStorage.setItem('parham-'+k, ov); } }); } catch(e) {} })();
 /* تم قبل از اولین رندر اعمال می‌شود: پیش‌فرض روشن، بدون فلش شب→روز هنگام رفرش */
 (function(){
   try{

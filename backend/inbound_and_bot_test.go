@@ -244,7 +244,7 @@ func TestHealthzNoConfidentialData(t *testing.T) {
 
 		writeJSON(w, http.StatusOK, map[string]any{
 			"status":         overallStatus,
-			"service":        "WhitePanel",
+			"service":        "ParhamPanel",
 			"uptime_seconds": int(time.Since(serverStartTime).Seconds()),
 			"services": map[string]any{
 				"panel": map[string]any{
@@ -588,8 +588,8 @@ func TestBackupAndRestore(t *testing.T) {
 	if err := json.Unmarshal(backupJSON, &bkpMap); err != nil {
 		t.Fatalf("Invalid JSON produced by backup: %v", err)
 	}
-	if bkpMap["backup_format"] != "WhitePanel" {
-		t.Errorf("Expected backup_format WhitePanel, got %v", bkpMap["backup_format"])
+	if bkpMap["backup_format"] != "ParhamPanel" {
+		t.Errorf("Expected backup_format ParhamPanel, got %v", bkpMap["backup_format"])
 	}
 
 	// 3. Clear State to simulate empty panel / fresh install

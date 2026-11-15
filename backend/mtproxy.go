@@ -274,7 +274,7 @@ func startMTProxyForInbound(ctx context.Context, inboundID string, ib *Inbound) 
 			if iid == inboundID {
 				secret := strings.ToLower(u.TelegramSecret)
 				if !mtproxySecretRegex.MatchString(secret) {
-					secret = sha256Hex("white-tg-proxy:" + u.ConfigUUID)[:32]
+					secret = sha256Hex("parham-tg-proxy:" + u.ConfigUUID)[:32]
 					State.mu.RUnlock()
 					State.mu.Lock()
 					u.TelegramSecret = secret

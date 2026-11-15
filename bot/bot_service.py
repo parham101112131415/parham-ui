@@ -21,9 +21,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger("ParhamBot")
 
-PANEL_API_URL = os.environ.get("PARHAM_PANEL_API_URL", os.environ.get("WHITE_PANEL_API_URL", "http://127.0.0.1:8080")).rstrip("/")
-BOT_TOKEN = os.environ.get("PARHAM_BOT_TOKEN", os.environ.get("WHITE_BOT_TOKEN", ""))
-ADMIN_ID = os.environ.get("PARHAM_ADMIN_ID", os.environ.get("WHITE_ADMIN_ID", ""))
+PANEL_API_URL = os.environ.get("PARHAM_PANEL_API_URL", "http://127.0.0.1:8080").rstrip("/")
+BOT_TOKEN = os.environ.get("PARHAM_BOT_TOKEN", "")
+ADMIN_ID = os.environ.get("PARHAM_ADMIN_ID", "")
 TG_API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
 # In-memory orders and states

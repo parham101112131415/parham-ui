@@ -1,5 +1,3 @@
-/* One-time storage key migration: white-* -> parham-* (values preserved) */
-(function(){ try { ['lang','theme','accent','theme-v2'].forEach(function(k){ if (localStorage.getItem('parham-'+k) === null) { var ov = localStorage.getItem('white-'+k); if (ov !== null) localStorage.setItem('parham-'+k, ov); } }); if (localStorage.getItem('parham_audio') === null) { var oa = localStorage.getItem('white_audio'); if (oa !== null) localStorage.setItem('parham_audio', oa); } } catch(e) {} })();
 // ─── State ───
 var $ = qs => document.querySelector(qs);
 var $id = id => document.getElementById(id);
@@ -2189,7 +2187,7 @@ async function pingVercelDomain() {
     try {
       // Measure HTTPS reachability to the production relay from THIS browser.
       // The health handler does not need CORS access because no-cors timing is enough.
-      await fetch(base + '/_white-health?cb=' + Date.now() + '-' + i, {
+      await fetch(base + '/_parham-health?cb=' + Date.now() + '-' + i, {
         method: 'GET', mode: 'no-cors', cache: 'no-store', signal: controller.signal
       });
       samples.push(Math.round(performance.now() - start));
@@ -3613,7 +3611,7 @@ function tmMeasureOnce(url) {
       return r.text().then(function (txt) {
         var now = (window.performance && performance.now) ? performance.now() : Date.now();
         var ok = false;
-        try { var j = JSON.parse(txt); ok = !!(j && j.service === 'white-tm'); } catch (e) { ok = false; }
+        try { var j = JSON.parse(txt); ok = !!(j && j.service === 'spider-tm'); } catch (e) { ok = false; }
         // Only a real TM panel answers with this marker — a captive portal or a
         // random host that returns 200 must never look like a successful ping.
         finish((r.ok && ok) ? (now - started) : null);

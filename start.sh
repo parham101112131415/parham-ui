@@ -5,11 +5,11 @@ set -Eeuo pipefail
 # Parham Panel Universal Installer / Manager
 # ============================================================
 
-APP_DIR="${PARHAM_APP_DIR:-${WHITE_APP_DIR:-/opt/Parham}}"
-REPO="${PARHAM_REPO:-${WHITE_REPO:-https://github.com/parham101112131415/parham-ui.git}}"
-BRANCH="${PARHAM_BRANCH:-${WHITE_BRANCH:-main}}"
+APP_DIR="${PARHAM_APP_DIR:-/opt/Parham}"
+REPO="${PARHAM_REPO:-https://github.com/parham101112131415/parham-ui.git}"
+BRANCH="${PARHAM_BRANCH:-main}"
 
-INSTALLER_URL="${PARHAM_INSTALLER_URL:-${WHITE_INSTALLER_URL:-https://raw.githubusercontent.com/parham101112131415/parham-ui/main/start.sh}}"
+INSTALLER_URL="${PARHAM_INSTALLER_URL:-https://raw.githubusercontent.com/parham101112131415/parham-ui/main/start.sh}"
 
 ENV_FILE="/etc/parham-panel.env"
 SERVICE="parham-panel"
@@ -28,10 +28,10 @@ MTPROXY="/usr/local/bin/mtproto-proxy"
 UV="/usr/local/bin/uv"
 
 # Pin uv to a known release.
-UV_VERSION="${PARHAM_UV_VERSION:-${WHITE_UV_VERSION:-0.12.9}}"
+UV_VERSION="${PARHAM_UV_VERSION:-0.12.9}"
 
 # Xray version.
-XRAY_VERSION="${PARHAM_XRAY_VERSION:-${WHITE_XRAY_VERSION:-26.3.27}}"
+XRAY_VERSION="${PARHAM_XRAY_VERSION:-26.3.27}"
 
 TMP_ROOT=""
 

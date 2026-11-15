@@ -25,17 +25,16 @@ Three functions cover most use cases:
 
 - Create a PNG image with custom colors and write to file:
 
-	err := qrcode.WriteColorFile("https://example.org", qrcode.Medium, 256, color.Black, color.White, "qr.png")
+	err := qrcode.WriteColorFile("https://example.org", qrcode.Medium, 256, color.Black, color.RGBA{255, 255, 255, 255}, "qr.png")
 
 All examples use the qrcode.Medium error Recovery Level and create a fixed
-256x256px size QR Code. The last function creates a white on black instead of black
-on white QR Code.
+256x256px size QR Code. The last function creates a light-on-dark instead of dark-on-light QR Code.
 
 To generate a variable sized image instead, specify a negative size (in place of
 the 256 above), such as -4 or -5. Larger negative numbers create larger images:
 A size of -5 sets each module (QR Code "pixel") to be 5px wide/high.
 
-- Create a PNG image (variable size, with minimum white padding) and write to a file:
+- Create a PNG image (variable size, with minimum light padding) and write to a file:
 
 	err := qrcode.WriteFile("https://example.org", qrcode.Medium, -5, "qr.png")
 
@@ -190,7 +189,7 @@ func New(content string, level RecoveryLevel) (*QRCode, error) {
 		VersionNumber: chosenVersion.version,
 
 		ForegroundColor: color.Black,
-		BackgroundColor: color.White,
+		BackgroundColor: color.RGBA{255, 255, 255, 255},
 
 		encoder: encoder,
 		data:    encoded,
@@ -247,7 +246,7 @@ func NewWithForcedVersion(content string, version int, level RecoveryLevel) (*QR
 		VersionNumber: chosenVersion.version,
 
 		ForegroundColor: color.Black,
-		BackgroundColor: color.White,
+		BackgroundColor: color.RGBA{255, 255, 255, 255},
 
 		encoder: encoder,
 		data:    encoded,
@@ -276,7 +275,7 @@ func (q *QRCode) Bitmap() [][]bool {
 // 256x256px image).
 //
 // Depending on the amount of data encoded, fixed size images can have different
-// amounts of padding (white space around the QR Code). As an alternative, a
+// amounts of padding (quiet-zone space around the QR Code). As an alternative, a
 // variable sized image can be generated instead:
 //
 // A negative size causes a variable sized image to be returned. The image

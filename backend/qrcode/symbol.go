@@ -6,7 +6,7 @@ package qrcode
 // symbol is a 2D array of bits representing a QR Code symbol.
 //
 // A symbol consists of size*size modules, with each module normally drawn as a
-// black or white square. The symbol also has a border of quietZoneSize modules.
+// dark or light square. The symbol also has a border of quietZoneSize modules.
 //
 // A (fictional) size=2, quietZoneSize=1 QR Code looks like:
 //

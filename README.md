@@ -6,15 +6,15 @@
 <br/>
 
 <p>
-  <a href="https://github.com/parham101112131415/parham-ui"><img src="https://img.shields.io/github/stars/parham101112131415/parham-ui?style=for-the-badge&logo=github&logoColor=white&labelColor=0b0b0f&color=ee3a3a" alt="Stars" /></a>
+  <a href="https://github.com/parham101112131415/parham-ui"><img src="https://img.shields.io/github/stars/parham101112131415/parham-ui?style=for-the-badge&logo=github&logoColor=f4f4f5&labelColor=0b0b0f&color=ee3a3a" alt="Stars" /></a>
   &nbsp;
-  <img src="https://img.shields.io/badge/Version-4.0.1-ee3a3a?style=for-the-badge&logo=semver&logoColor=white&labelColor=0b0b0f" alt="Version" />
+  <img src="https://img.shields.io/badge/Version-4.0.1-ee3a3a?style=for-the-badge&logo=semver&logoColor=f4f4f5&labelColor=0b0b0f" alt="Version" />
   &nbsp;
-  <img src="https://img.shields.io/badge/Go-1.23-ee3a3a?style=for-the-badge&logo=go&logoColor=white&labelColor=0b0b0f" alt="Go" />
+  <img src="https://img.shields.io/badge/Go-1.23-ee3a3a?style=for-the-badge&logo=go&logoColor=f4f4f5&labelColor=0b0b0f" alt="Go" />
   &nbsp;
   <img src="https://img.shields.io/badge/PANEL_PORT-8080-ee3a3a?style=for-the-badge&labelColor=0b0b0f" alt="Panel port" />
   &nbsp;
-  <a href="https://t.me/par1234mehr"><img src="https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0b0b0f" alt="Telegram Support" /></a>
+  <a href="https://t.me/par1234mehr"><img src="https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=f4f4f5&labelColor=0b0b0f" alt="Telegram Support" /></a>
 </p>
 
 <h3>⚡ Ultimate All-in-One Proxy & Subscription Management System</h3>
@@ -209,7 +209,7 @@ Deploys a Node.js WebSocket bridge onto Vercel Edge compute:
 
 برای آموزش گام‌به‌گام نحوه نصب، تنظیم ربات فروش تلگرام، اتصال دامنه‌های Vercel و کار با اسکنر قدرتمند، در تلگرام پیام بده:
 
-[![Telegram](https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0b0b0f)](https://t.me/par1234mehr)
+[![Telegram](https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=f4f4f5&labelColor=0b0b0f)](https://t.me/par1234mehr)
 
 > 🔗 **پشتیبانی تلگرام:** [t.me/par1234mehr](https://t.me/par1234mehr)
 
@@ -304,7 +304,7 @@ http://YOUR_SERVER_IP:8080/parham
 
 للحصول على شرح الإعداد والتثبيت خطوة بخطوة، بما في ذلك إعدادات البوت والربط مع Vercel و Railway، تواصل عبر تيليجرام:
 
-[![Telegram](https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0b0b0f)](https://t.me/par1234mehr)
+[![Telegram](https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=f4f4f5&labelColor=0b0b0f)](https://t.me/par1234mehr)
 
 > 🔗 **دعم تيليجرام:** [t.me/par1234mehr](https://t.me/par1234mehr)
 
@@ -365,7 +365,7 @@ http://YOUR_SERVER_IP:8080/parham
 
 Поддержка по установке, настройке бота продаж, подключению Vercel Relay и работе со сканером — в Telegram:
 
-[![Telegram](https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0b0b0f)](https://t.me/par1234mehr)
+[![Telegram](https://img.shields.io/badge/Telegram-Support-ee3a3a?style=for-the-badge&logo=telegram&logoColor=f4f4f5&labelColor=0b0b0f)](https://t.me/par1234mehr)
 
 > 🔗 **Поддержка в Telegram:** [t.me/par1234mehr](https://t.me/par1234mehr)
 
