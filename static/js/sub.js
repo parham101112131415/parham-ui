@@ -18,7 +18,7 @@
       subLabel:"لینک سابسکریپشن", copyLink:"کپی لینک", accountTitle:"اطلاعات اکانت",
       sId:"شناسه اشتراک", dlExact:"دانلود", ulExact:"آپلود", totalLimit:"حجم سرویس",
       usernameLbl:"نام کاربری", connLimit:"اتصال مجاز", connActive:"اتصال فعلی",
-      usage:"مصرف شده", remain:"حجم باقی‌مانده", used:"حجم مصرفی", unlimited:"∞ نامحدود",
+      usage:"مصرف شده", remain:"حجم باقی‌مانده", usageChart:"نمودار مصرف روزانه", todayUsage:"امروز", used:"حجم مصرفی", unlimited:"∞ نامحدود",
       noExpire:"بدون تاریخ انقضا", min:"دقیقه", hour:"ساعت", day:"روز",
       yourConfigs:"کانفیگ‌های شما", copyAllShort:"کپی همه کانفیگ‌ها", copySubText:"کپی متن ساب", all:"همه", search:"جستجو در کانفیگ‌ها...",
       qrHint:"اسکن کنید تا کانفیگ اضافه شود", close:"بستن",
@@ -35,7 +35,7 @@
       subLabel:"Subscription Link", copyLink:"Copy Link", accountTitle:"Account Info",
       sId:"Subscription ID", dlExact:"Download", ulExact:"Upload", totalLimit:"Service Limit",
       usernameLbl:"Username", connLimit:"Allowed Connections", connActive:"Active Connections",
-      usage:"Used", remain:"Remaining", used:"Used", unlimited:"∞ Unlimited",
+      usage:"Used", remain:"Remaining", usageChart:"Daily usage chart", todayUsage:"Today", used:"Used", unlimited:"∞ Unlimited",
       noExpire:"No expiration date", min:"Min", hour:"Hour", day:"Day",
       yourConfigs:"Your Configs", copyAllShort:"Copy All Configs", copySubText:"Copy Sub Text", all:"All", search:"Search configs...",
       qrHint:"Scan to add the config", close:"Close",
@@ -456,6 +456,10 @@
   var uV2box    = function(s,n){ return "v2box://install-sub?url=" + encodeURIComponent(s) + "&name=" + encodeURIComponent(n); };
   var uStreis   = function(s,n){ return "streisand://import/" + s + "#" + encodeURIComponent(n); };
   var uShadow   = function(s){ return "sub://" + btoa(s); };
+  var uKaring   = function(s,n){ return "karing://install-config?url=" + encodeURIComponent(s) + "&name=" + encodeURIComponent(n); };
+  var uNeko     = function(s,n){ return "sn://subscription?url=" + encodeURIComponent(s) + "&name=" + encodeURIComponent(n); };
+  var uFoxray   = function(s,n){ return "foxray://yiguo.dev/sub/add/?url=" + encodeURIComponent(s) + "#" + encodeURIComponent(n); };
+  /* MahsaNG و PattNG فورک v2rayNG هستن و اسکیم خودشون رو ندارن؛ همون لینک v2rayNG رو می‌گیرن. */
 
   /* i: آیکن، g: گرادیان رنگ، u: دیپ‌لینک، dl: لینک دانلود (در صورت نیاز لینک دقیق استور را جایگزین کنید) */
   var QC_APPS = {
@@ -463,17 +467,24 @@
       { n:"v2rayNG", i:"fa-shield-halved",        g:["#3b82f6","#1d4ed8"], u:uV2rayng, dl:"https://play.google.com/store/apps/details?id=com.v2ray.ang" },
       { n:"Happ",    i:"fa-bolt",                 g:["#a855f7","#6d28d9"], u:uHapp,    dl:"https://play.google.com/store/apps/details?id=com.happproxy" },
       { n:"Hiddify", i:"fa-wand-magic-sparkles",  g:["#f59e0b","#d97706"], u:uHiddify, dl:"https://play.google.com/store/apps/details?id=app.hiddify.com" },
-      { n:"V2Box",   i:"fa-cube",                 g:["#14b8a6","#0f766e"], u:uV2box,   dl:"https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box" }
+      { n:"V2Box",   i:"fa-cube",                 g:["#14b8a6","#0f766e"], u:uV2box,   dl:"https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box" },
+      { n:"Karing",  i:"fa-globe",                g:["#f43f5e","#881337"], u:uKaring,  dl:qcPlay("Karing") },
+      { n:"MahsaNG", i:"fa-star",                 g:["#06b6d4","#155e75"], u:uV2rayng, dl:qcPlay("MahsaNG") },
+      { n:"PattNG",  i:"fa-layer-group",          g:["#84cc16","#3f6212"], u:uV2rayng, dl:"https://github.com/patterniha/PattNG/releases/latest" },
+      { n:"NekoBox", i:"fa-cat",                  g:["#f97316","#7c2d12"], u:uNeko,    dl:"https://play.google.com/store/apps/details?id=moe.nb4a" }
     ],
     ios: [
       { n:"Streisand",    i:"fa-wind",   g:["#38bdf8","#0369a1"], u:uStreis, dl:"https://apps.apple.com/app/id6450534064" },
       { n:"Happ",         i:"fa-bolt",   g:["#a855f7","#6d28d9"], u:uHapp,   dl:"https://apps.apple.com/app/id6504287215" },
       { n:"V2Box",        i:"fa-cube",   g:["#14b8a6","#0f766e"], u:uV2box,  dl:"https://apps.apple.com/app/id6446814690" },
-      { n:"Shadowrocket", i:"fa-rocket", g:["#fb7185","#be123c"], u:uShadow, dl:"https://apps.apple.com/app/id932747118" }
+      { n:"Shadowrocket", i:"fa-rocket", g:["#fb7185","#be123c"], u:uShadow, dl:"https://apps.apple.com/app/id932747118" },
+      { n:"Karing",       i:"fa-globe",  g:["#f43f5e","#881337"], u:uKaring, dl:qcIos("Karing") },
+      { n:"FoxRay",       i:"fa-fire",   g:["#f97316","#7c2d12"], u:uFoxray, dl:qcIos("FoxRay") }
     ],
     windows: [
       { n:"Hiddify", i:"fa-wand-magic-sparkles", g:["#f59e0b","#d97706"], u:uHiddify, dl:"https://github.com/hiddify/hiddify-app/releases/latest" },
       { n:"Happ",    i:"fa-bolt",                g:["#a855f7","#6d28d9"], u:uHapp,    dl:"https://www.happ.su/main" },
+      { n:"Karing",  i:"fa-globe",                 g:["#f43f5e","#881337"], u:uKaring,  dl:"https://github.com/KaringX/karing/releases/latest" },
       { n:"v2rayN",  i:"fa-paper-plane",         g:["#22c55e","#15803d"], u:null,     dl:"https://github.com/2dust/v2rayN/releases/latest" }
     ]
   };
@@ -484,7 +495,7 @@
       steps:[["نصب برنامه","اگه داری، رد شو"],["روی برنامه بزن","ساب خودکار اضافه می‌شه"],["وصل شو","یه کانفیگ بزن و اتصال"]],
       rec:"پیشنهادی", copy:"کپی لینک اشتراک", qr:"کد QR", guideTitle:"راهنمای کامل", dlAria:"دانلود برنامه",
       desc:{ v2rayNG:"محبوب‌ترین و پایدار", Happ:"ساده، سریع و خوش‌دست", Hiddify:"هوشمند؛ بهترین کانفیگ رو خودش انتخاب می‌کنه",
-             V2Box:"سبک و روان", Streisand:"رایگان و سریع", Shadowrocket:"پولی ولی حرفه‌ای", v2rayN:"نسخه‌ی دسکتاپ؛ افزودن دستی" },
+             V2Box:"سبک و روان", Streisand:"رایگان و سریع", Shadowrocket:"پولی ولی حرفه‌ای", v2rayN:"نسخه‌ی دسکتاپ؛ افزودن دستی", Karing:"مدرن و چندسکویی", MahsaNG:"فورک v2rayNG از مهسا", PattNG:"فورک سبک v2rayNG", NekoBox:"متن‌باز و کامل", FoxRay:"سریع و ساده برای iOS" },
       missT:"برنامه باز نشد؟",
       missP:"احتمالاً {app} نصب نیست. اول نصبش کن و بعد دوباره روی کارتش بزن. لینک اشتراکت هم کپی شده و آماده‌ی استفاده‌ست.",
       manT:"لینک کپی شد، حالا داخل برنامه اضافه کن",
@@ -520,7 +531,7 @@
       steps:[["Install the app","Skip if you have it"],["Tap your app","Sub is added for you"],["Connect","Pick a config & go"]],
       rec:"Recommended", copy:"Copy subscription link", qr:"QR code", guideTitle:"Full guide", dlAria:"Download app",
       desc:{ v2rayNG:"Most popular and stable", Happ:"Clean, simple and fast", Hiddify:"Smart: auto-picks the best config",
-             V2Box:"Light and smooth", Streisand:"Free and fast", Shadowrocket:"Paid, advanced", v2rayN:"Desktop client, manual import" },
+             V2Box:"Light and smooth", Streisand:"Free and fast", Shadowrocket:"Paid, advanced", v2rayN:"Desktop client, manual import", Karing:"Modern, cross-platform", MahsaNG:"v2rayNG fork by Mahsa", PattNG:"Lightweight v2rayNG fork", NekoBox:"Open-source, full-featured", FoxRay:"Fast and simple on iOS" },
       missT:"App didn't open?",
       missP:"{app} is probably not installed. Install it first, then tap its card again. Your subscription link is already copied.",
       manT:"Link copied. Now add it inside the app",
@@ -824,6 +835,51 @@
 
     var ringFill = document.querySelector(".fluffy-ring-fill");
     if (ringFill) ringFill.setAttribute("stroke-dashoffset", String(263.9 * (1 - (unlimited ? 1 : pct / 100))));
+  }
+
+  function renderDaysBar(d){
+    var wrap = document.getElementById('daysBarWrap');
+    if (!wrap) return;
+    if (!d.expire_at_ts || !d.created_at_ts || d.expire_at_ts <= d.created_at_ts) { wrap.hidden = true; return; }
+    var total = d.expire_at_ts - d.created_at_ts;
+    var remain = Math.max(0, d.expire_at_ts - Math.floor(Date.now() / 1000));
+    var pct = Math.min(100, Math.max(0, remain / total * 100));
+    wrap.hidden = false;
+    document.getElementById('daysBarFill').style.width = pct.toFixed(1) + '%';
+    document.getElementById('daysBarPct').textContent = faDigits(Math.round(pct)) + '٪';
+  }
+
+  function renderUsageChart(series){
+    var cv = document.getElementById('usageChart');
+    if (!cv || !series || !series.length) return;
+    var dpr = window.devicePixelRatio || 1;
+    var W = cv.clientWidth || 320, H = 120;
+    cv.width = W * dpr; cv.height = H * dpr;
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var max = 0;
+    series.forEach(function(p){ if ((p.bytes || 0) > max) max = p.bytes; });
+    var n = series.length, gap = 3, bw = (W - gap * (n + 1)) / n, base = H - 16;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(128,128,128,.35)';
+    ctx.fillRect(0, base, W, 1);
+    series.forEach(function(p, i){
+      var b = p.bytes || 0;
+      var h = max > 0 && b > 0 ? Math.max(3, (b / max) * (base - 18)) : 0;
+      var x = gap + i * (bw + gap), y = base - h;
+      if (b > 0) {
+        ctx.fillStyle = i === n - 1 ? '#ee3a3a' : 'rgba(238,58,58,.45)';
+        if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, bw, h, 2); ctx.fill(); }
+        else ctx.fillRect(x, y, bw, h);
+      }
+      if (i % 2 === 0 || i === n - 1) {
+        ctx.fillStyle = 'rgba(140,140,150,.9)';
+        ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(String(p.date || '').slice(8), x + bw / 2, H - 4);
+      }
+    });
+    var lbl = document.getElementById('chartTodayVal');
+    if (lbl) lbl.textContent = fmtBytes(series[n - 1].bytes || 0);
   }
 
   /* ---------- کارت انتخاب زبان ---------- */
@@ -1246,6 +1302,8 @@
     var days = d.expire_days;
     EXPIRE_DAYS = (days !== null && days !== undefined) ? days : null;
     applyTraffic();
+    renderDaysBar(d);
+    renderUsageChart(d.usage_history || []);
 
     setText('usernameVal', d.username || uname);
     var maxConn = parseInt(d.max_ip_per_user, 10);

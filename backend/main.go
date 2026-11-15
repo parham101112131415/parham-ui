@@ -95,6 +95,10 @@ type User struct {
 	ExpireAt              string              `json:"expire_at"`
 	ConcurrentConnections int                 `json:"concurrent_connections"`
 	SpeedLimitMbps        float64             `json:"speed_limit_mbps"`
+	UsageHistory          map[string]int64    `json:"usage_history,omitempty"`
+	UsageSampledBytes     int64               `json:"usage_sampled_bytes"`
+	AlertedExhaustedKey   string              `json:"alerted_exhausted_key,omitempty"`
+	AlertedExpiredKey     string              `json:"alerted_expired_key,omitempty"`
 	Status                string              `json:"status"`
 	Server                string              `json:"server"`
 	SNI                   string              `json:"sni,omitempty"`
@@ -1939,6 +1943,7 @@ func handleWSRelay(w http.ResponseWriter, r *http.Request, uuid string) {
 			if !checkAndUse(uuid, int64(len(data))) {
 				return
 			}
+			throttleUser(uuid, len(data))
 			if _, err := target.Write(data); err != nil {
 				return
 			}
@@ -1961,6 +1966,7 @@ func handleWSRelay(w http.ResponseWriter, r *http.Request, uuid string) {
 				if !checkAndUse(uuid, int64(n)) {
 					return
 				}
+				throttleUser(uuid, n)
 				chunk := buf[:n]
 				if firstChunk {
 					out := make([]byte, 2+n)
@@ -2064,6 +2070,7 @@ func (s *xhttpSession) pumpDownstream() {
 				s.close()
 				return
 			}
+			throttleUser(s.uuid, n)
 			chunk := make([]byte, n)
 			copy(chunk, buf[:n])
 			if first {
@@ -2100,6 +2107,10 @@ func getOrCreateXHTTPSession(sessionID, uuid string) *xhttpSession {
 }
 
 func handleXHTTPDownlink(w http.ResponseWriter, r *http.Request, mode, uuid, sessionID string) {
+	if !ipLimitAllowed(r, uuid) {
+		http.Error(w, "ip limit", http.StatusForbidden)
+		return
+	}
 	if mode != "packet-up" && mode != "stream-up" {
 		http.Error(w, "unknown mode", 404)
 		return
@@ -2134,6 +2145,10 @@ func handleXHTTPDownlink(w http.ResponseWriter, r *http.Request, mode, uuid, ses
 }
 
 func handleXHTTPStreamUp(w http.ResponseWriter, r *http.Request, uuid, sessionID string) {
+	if !ipLimitAllowed(r, uuid) {
+		http.Error(w, "ip limit", http.StatusForbidden)
+		return
+	}
 	sess := getOrCreateXHTTPSession(sessionID, uuid)
 	defer r.Body.Close()
 	buf := make([]byte, 32*1024)
@@ -2178,6 +2193,7 @@ func handleXHTTPStreamUp(w http.ResponseWriter, r *http.Request, uuid, sessionID
 					sess.close()
 					return
 				}
+				throttleUser(uuid, n)
 				sess.mu.Lock()
 				if sess.tcpConn != nil {
 					sess.tcpConn.Write(chunk)
@@ -2197,6 +2213,10 @@ func handleXHTTPPacketUp(w http.ResponseWriter, r *http.Request, uuid, sessionID
 		http.Error(w, "bad seq", 400)
 		return
 	}
+	if !ipLimitAllowed(r, uuid) {
+		http.Error(w, "ip limit", http.StatusForbidden)
+		return
+	}
 	sess := getOrCreateXHTTPSession(sessionID, uuid)
 	body, _ := io.ReadAll(r.Body)
 	if len(body) == 0 {
@@ -2208,6 +2228,7 @@ func handleXHTTPPacketUp(w http.ResponseWriter, r *http.Request, uuid, sessionID
 		writeJSON(w, 403, map[string]any{"ok": false})
 		return
 	}
+	throttleUser(uuid, len(body))
 	sess.mu.Lock()
 	defer sess.mu.Unlock()
 
@@ -3378,6 +3399,7 @@ func handleUsersList(w http.ResponseWriter, r *http.Request) {
 			"online":                 userOnline(u.ConfigUUID),
 			"live_connections":       userLiveConns(u.ConfigUUID),
 			"last_seen":              userLastSeen(u.ConfigUUID),
+			"ips":                    userCurrentIPs(u.ConfigUUID),
 			"inbound_id": u.InboundID, "inbound_ids": u.InboundIDs,
 			"proxy_ips": u.ProxyIPs, "proxy_ip_enabled": u.ProxyIPEnabled,
 			"custom_ip_type": u.CustomIPType, "created_at": u.CreatedAt,
@@ -3966,6 +3988,10 @@ func handleAPISub(w http.ResponseWriter, r *http.Request, rawUUID string) {
 	if maxIP == 0 {
 		maxIP = getMaxIPPerUser()
 	}
+	var createdTS int64
+	if t, err := time.Parse(time.RFC3339, cp.CreatedAt); err == nil {
+		createdTS = t.Unix()
+	}
 
 	writeJSON(w, http.StatusOK, map[string]any{
 		"ok": true, "config_uuid": cp.ConfigUUID, "username": cp.Username,
@@ -3973,7 +3999,8 @@ func handleAPISub(w http.ResponseWriter, r *http.Request, rawUUID string) {
 		"traffic_used_bytes": cp.TrafficUsedBytes, "traffic_limit_bytes": cp.TrafficLimitBytes,
 		"download_bytes": cp.TrafficUsedBytes, "upload_bytes": 0,
 		"expire_days": expireDays, "expire_at_ts": expireAtTs,
-		"max_ip_per_user": maxIP, "used_ips": 0,
+		"max_ip_per_user": maxIP, "used_ips": len(userCurrentIPs(cp.ConfigUUID)),
+		"usage_history": usageHistorySeries(cp.UsageHistory, 14), "created_at_ts": createdTS,
 		"configs": configs, "subscription_url": "/sub/" + cp.ConfigUUID,
 		"protocol": cp.Protocol, "transport_type": cp.TransportType, "path": cp.Path,
 	})
@@ -5254,6 +5281,7 @@ func main() {
 
 	go enforcementLoop(context.Background())
 	go onlineSweepLoop()
+	go panelJobsLoop()
 
 	go startAllMTProxies(context.Background())
 

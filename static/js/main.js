@@ -30,7 +30,7 @@ Object.assign(I18N.fa, {
   'inboundsMulti': 'اینباندها (چندتایی)', 'noInboundOpt': 'اینباندی وجود ندارد', 'inboundPickHint': 'برای هر اینباند، گزینه‌های مخصوصش نمایش داده می‌شود.',
   'workerCountries': 'کشورهای چندمنطقه‌ای', 'addCfIps': 'افزودن ۱۰ کانفیگ با IPهای Cloudflare اسکن‌شده', 'addRailwayIps': 'افزودن ۱۰ کانفیگ با IPهای Railway اسکن‌شده', 'realityNoExtra': 'Reality گزینه اضافه‌ای ندارد — فقط کانفیگ اصلی Reality.',
   'cancel': 'انصراف', 'submitUser': 'ایجاد کاربر', 'creatingUser': 'در حال ایجاد...', 'saving': 'در حال ذخیره...', 'userCreated': 'با موفقیت ایجاد شد',
-  'volEdit': 'حجم (GB - ۰=نامحدود)', 'daysEdit': 'روز اعتبار (۰=نامحدود)', 'status': 'وضعیت', 'active': 'فعال', 'inactive': 'غیرفعال', 'onlineNow': 'آنلاین', 'offlineNow': 'آفلاین', 'resetTraffic': 'بازنشانی ترافیک', 'saveChanges': 'ذخیره تغییرات',
+  'volEdit': 'حجم (GB - ۰=نامحدود)', 'daysEdit': 'روز اعتبار (۰=نامحدود)', 'status': 'وضعیت', 'active': 'فعال', 'inactive': 'غیرفعال', 'onlineNow': 'آنلاین', 'offlineNow': 'آفلاین', 'onlineNowTitle': 'الان آنلاین‌ها', 'nobodyOnline': 'کسی آنلاین نیست', 'resetTraffic': 'بازنشانی ترافیک', 'saveChanges': 'ذخیره تغییرات',
   'inboundName': 'نام اینباند', 'port': 'پورت', 'securityType': 'نوع امنیت', 'realitySettings': 'تنظیمات Reality', 'autoGen': 'تولید خودکار', 'genRealityKey': 'تولید کلید Reality (x25519)',
   'shortIds': 'شناسه‌های کوتاه', 'hex8': 'هگز ۸ رقمی — خالی = تصادفی', 'generate': '+ تولید', 'parhamx': 'ParhamX',
   'extDomain': 'دامنه خارجی', 'extPortCfg': 'پورت خارجی', 'extDomainPlace': 'دامنه خارجی برای کانفیگ کلاینت',
@@ -107,7 +107,7 @@ Object.assign(I18N.en, {
   'contactSub': 'Get in touch with me', 'createUser': 'Create New User', 'editUser': 'Edit User', 'username': 'Username', 'conn': 'Concurrent Connections', 'speedLimit': 'Speed limit (Mbps)', 'speedLimitHint': 'Combined WebSocket/XHTTP relay cap; 0 means unlimited.', 'volume': 'Traffic', 'unit': 'Unit', 'expire': 'Expiry', 'day': 'Day', 'month': 'Month',
   'inboundsMulti': 'Inbounds (multi-select)', 'noInboundOpt': 'No inbounds available', 'inboundPickHint': 'Each inbound shows its own options.', 'workerCountries': 'Worker Countries', 'addCfIps': 'Add 10 configs with scanned Cloudflare IPs', 'addRailwayIps': 'Add 10 configs with scanned Railway IPs', 'realityNoExtra': 'Reality needs no extras.',
   'cancel': 'Cancel', 'submitUser': 'Create User', 'creatingUser': 'Creating...', 'saving': 'Saving...', 'userCreated': 'created successfully',
-  'volEdit': 'Traffic (GB - 0=Unlimited)', 'daysEdit': 'Expiry days (0=Unlimited)', 'status': 'Status', 'active': 'Active', 'inactive': 'Inactive', 'onlineNow': 'Online', 'offlineNow': 'Offline', 'resetTraffic': 'Reset traffic', 'saveChanges': 'Save Changes',
+  'volEdit': 'Traffic (GB - 0=Unlimited)', 'daysEdit': 'Expiry days (0=Unlimited)', 'status': 'Status', 'active': 'Active', 'inactive': 'Inactive', 'onlineNow': 'Online', 'offlineNow': 'Offline', 'onlineNowTitle': 'Online now', 'nobodyOnline': 'Nobody is online', 'resetTraffic': 'Reset traffic', 'saveChanges': 'Save Changes',
   'inboundName': 'Inbound Name', 'port': 'Port', 'securityType': 'Security Type', 'realitySettings': 'Reality Settings', 'autoGen': 'Auto-generated', 'genRealityKey': 'Generate Reality Keys (x25519)', 'shortIds': 'Short IDs', 'hex8': '8-digit hex', 'generate': '+ Generate', 'parhamx': 'ParhamX',
   'extDomain': 'External Domain', 'extPortCfg': 'External Port', 'extDomainPlace': 'External domain shown in the client config', 'network': 'Network', 'serviceName': 'Service Name', 'createInbound': 'Create Inbound', 'editInbound': 'Edit Inbound',
   'config': 'Config', 'copy': 'Copy', 'close': 'Close', 'copied': 'Config copied', 'noCfg': 'No config available', 'errCopy': 'Copy failed', 'delete': 'Delete', 'edit': 'Edit', 'unlimited': 'Unlimited', 'expired': 'Expired', 'daysUnit': ' days', 'usersCount': 'Users', 'secNetwork': 'Network', 'security': 'Security', 'expiry': 'Expiry', 'connTh': 'Conn',
@@ -362,6 +362,20 @@ var DASH_NET_HISTORY = {download: [], upload: []};
 function startLiveStats() { if (liveInterval) clearInterval(liveInterval); refreshLiveStats(); liveInterval = setInterval(refreshLiveStats, 4000); }
 function stopLiveStats() { if (liveInterval) { clearInterval(liveInterval); liveInterval = null; } }
 
+async function fillOnlineNow() {
+  var box = $id('online-now-list');
+  if (!box) return;
+  try {
+    var d = await api('/api/users');
+    var on = (d.users || []).filter(function (u) { return u.online; });
+    if (!on.length) { box.innerHTML = '<div class="empty">' + t('nobodyOnline') + '</div>'; return; }
+    box.innerHTML = on.map(function (u) {
+      var ips = (u.ips || []).join(', ') || '—';
+      return '<div class="online-row"><span class="online-dot on"></span><b>' + esc(u.username) + '</b><span dir="ltr">' + esc(ips) + '</span><span>' + (u.live_connections || 0) + '×</span></div>';
+    }).join('');
+  } catch (e) {}
+}
+
 async function loadDashboard() {
   try {
     var s = await api('/stats');
@@ -390,12 +404,14 @@ async function loadDashboard() {
     html += dashBandwidthColumn('download', t('download'));
     html += dashBandwidthColumn('upload', t('upload'));
     html += '</div></section>';
+    html += '<section class="panel"><div class="panel-h"><span class="glow">' + t('onlineNowTitle') + '</span></div><div id="online-now-list"><div class="empty">' + t('loading') + '</div></div></section>';
     $id('dashboard-content').innerHTML = html;
     DASH_HISTORY = {cpu: [], ram: [], swap: [], disk: []};
     DASH_IPS_VISIBLE = false;
     DASH_NET_PREVIOUS = null;
     DASH_NET_HISTORY = {download: [], upload: []};
     startLiveStats();
+    fillOnlineNow();
   } catch(e) { $id('dashboard-content').innerHTML = '<div class="empty">' + t('errLoadStats') + '</div>'; }
 }
 
@@ -533,6 +549,7 @@ async function refreshOnlineDots() {
   try {
     var d = await api('/api/users');
     (d.users || []).forEach(applyOnlineState);
+    fillOnlineNow();
   } catch (e) {}
 }
 var _onlineStreamStarted = false;

@@ -243,6 +243,19 @@
         <div class="expire-box"><span class="inf" id="expHour">∞</span><span class="lbl" data-i18n="hour">ساعت</span></div>
         <div class="expire-box"><span class="inf" id="expMin">∞</span><span class="lbl" data-i18n="min">دقیقه</span></div>
       </div>
+      <div class="days-bar-wrap" id="daysBarWrap" hidden>
+        <div class="days-bar-track"><div class="days-bar-fill" id="daysBarFill"></div></div>
+        <span class="days-bar-pct" id="daysBarPct"></span>
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="account-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15v3M12 10v8M17 6v12"/></svg>
+        <span data-i18n="usageChart">نمودار مصرف روزانه</span>
+        <span class="chart-today"><span data-i18n="todayUsage">امروز</span>: <b id="chartTodayVal" dir="ltr">0</b></span>
+      </div>
+      <canvas id="usageChart"></canvas>
     </div>
 
   </div>
