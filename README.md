@@ -441,3 +441,20 @@ http://IP_ВАШЕГО_СЕРВЕРА:8080/parham
     <a href="https://t.me/par1234mehr">Telegram Support</a>
   </p>
 </div>
+
+---
+
+## 💾 Railway Volume — دیتات پاک نمی‌شه / Keep your data across redeploys
+
+The panel stores **everything** — users, settings, inbounds, orders — in one
+state file: `parham_state.json` inside the data directory
+(`PARHAM_DATA_DIR`, default `/app/data` in Docker).
+
+On **Railway**, attach a volume so redeploys and restarts never lose it:
+
+1. Open your service → **Settings** → **Volumes** → **New Volume**
+2. Set the **mount path** to `/app/data`
+3. Redeploy. Done — the panel reads and writes its state on the volume.
+
+> روی Railway حتماً یه Volume با مسیر mount برابر `/app/data` وصل کن؛
+> همه کاربرا و تنظیماتت توی همون‌جا می‌مونه و با ریدیپلوی پاک نمی‌شه.

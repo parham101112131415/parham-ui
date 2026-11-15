@@ -2295,6 +2295,104 @@ func configNamePrefix(ib *Inbound) string {
 	return p
 }
 
+// ---------------------------------------------------------------------------
+// Multi-config bundle: a standard set of inbounds every user receives, so a
+// subscription always carries several working configs across protocols and
+// transports. Seeded once (settings flag); afterwards they are ordinary
+// inbounds — deleting one in the panel removes its configs for good.
+// ---------------------------------------------------------------------------
+var bundleInboundIDs = []string{
+	"bundle-vless-ws",
+	"bundle-vless-xhttp",
+	"bundle-vless-reality",
+	"bundle-shadowsocks",
+}
+
+func configTypeLabel(ib *Inbound) string {
+	proto := strings.ToLower(ib.Protocol)
+	sec := strings.ToLower(ib.Security)
+	switch {
+	case proto == "worker":
+		return "VLESS · WS · TLS"
+	case proto == "telegram":
+		return "MTProxy"
+	case proto == "shadowsocks":
+		return "Shadowsocks"
+	case proto == "wireguard":
+		return "WireGuard"
+	case proto == "reality" || sec == "reality":
+		if strings.ToLower(ib.Network) == "xhttp" {
+			return "VLESS · XHTTP · Reality"
+		}
+		return "VLESS · Reality"
+	}
+	switch strings.ToLower(ib.Network) {
+	case "xhttp":
+		return "VLESS · XHTTP · TLS"
+	case "grpc":
+		return "VLESS · gRPC · TLS"
+	case "tcp":
+		return "VLESS · TCP · TLS"
+	default:
+		return "VLESS · WS · TLS"
+	}
+}
+
+func ensureBundleInbounds() {
+	State.mu.Lock()
+	changed := false
+	if State.Inbounds == nil {
+		State.Inbounds = map[string]*Inbound{}
+	}
+	if seeded, _ := State.Settings["bundle_seeded"].(bool); !seeded {
+		now := time.Now().Format(time.RFC3339)
+		seed := []*Inbound{
+			{InboundID: "bundle-vless-ws", Name: "VLESS · WS · TLS", Protocol: "vless", InboundType: "transport", Port: 443, Network: "ws", Security: "tls", Fingerprint: "chrome", WSSettings: map[string]any{"path": "/ws/{uuid}"}, CreatedAt: now},
+			{InboundID: "bundle-vless-xhttp", Name: "VLESS · XHTTP · TLS", Protocol: "vless", InboundType: "transport", Port: 443, Network: "xhttp", Security: "tls", Fingerprint: "chrome", XHTTPSettings: map[string]any{"mode": "stream-up"}, CreatedAt: now},
+			{InboundID: "bundle-vless-reality", Name: "VLESS · Reality", Protocol: "reality", InboundType: "transport", Port: 8443, Network: "tcp", Security: "reality", SNI: "is1-ssl.mzstatic.com", Fingerprint: "chrome", RealitySettings: realityDefaults(nil), CreatedAt: now},
+			{InboundID: "bundle-shadowsocks", Name: "Shadowsocks", Protocol: "shadowsocks", InboundType: "transport", Port: 8388, Network: "tcp", Security: "none", ShadowsocksSettings: map[string]any{"method": "aes-256-gcm", "network": "tcp,udp"}, CreatedAt: now},
+		}
+		for _, ib := range seed {
+			if _, ok := State.Inbounds[ib.InboundID]; !ok {
+				State.Inbounds[ib.InboundID] = ib
+			}
+		}
+		State.Settings["bundle_seeded"] = true
+		changed = true
+	}
+	existing := make([]string, 0, len(bundleInboundIDs))
+	for _, bid := range bundleInboundIDs {
+		if _, ok := State.Inbounds[bid]; ok {
+			existing = append(existing, bid)
+		}
+	}
+	for _, u := range State.Users {
+		for _, bid := range existing {
+			found := false
+			for _, iid := range u.InboundIDs {
+				if iid == bid {
+					found = true
+					break
+				}
+			}
+			if !found {
+				u.InboundIDs = append(u.InboundIDs, bid)
+				changed = true
+			}
+		}
+		if u.ShadowsocksPassword == "" {
+			u.ShadowsocksPassword = generateToken(16)
+			changed = true
+		}
+	}
+	State.mu.Unlock()
+	if changed {
+		_ = saveState()
+		scheduleXrayApply()
+	}
+}
+
+
 // applyInboundQuery layers the inbound's advanced/optional client parameters on
 // top of the branch defaults. Advanced settings win, so any Xray config
 // parameter can be overridden from the UI without a rebuild.
@@ -2378,7 +2476,7 @@ func generateUserConfig(r *http.Request, u *User, inboundID string) string {
 	proto := strings.ToLower(ib.Protocol)
 	sec := strings.ToLower(ib.Security)
 	cfgUUID := u.ConfigUUID
-	remark := configNamePrefix(ib) + u.Username
+	remark := configNamePrefix(ib) + u.Username + " | " + configTypeLabel(ib)
 
 	if proto == "worker" {
 		wdom := ib.ExternalDomain
@@ -2428,6 +2526,9 @@ func generateUserConfig(r *http.Request, u *User, inboundID string) string {
 		extDomain := ib.ExternalDomain
 		if extDomain == "" {
 			extDomain = ib.Domain
+		}
+		if extDomain == "" {
+			extDomain = panelDomain
 		}
 		if extDomain == "" {
 			return ""
@@ -2534,6 +2635,9 @@ func generateUserConfig(r *http.Request, u *User, inboundID string) string {
 		if extDomain == "" {
 			extDomain = ib.Domain
 		}
+		if extDomain == "" {
+			extDomain = panelDomain
+		}
 		extPort := ib.ExternalPort
 		if extPort == 0 {
 			extPort = ib.Port
@@ -2569,6 +2673,9 @@ func generateUserConfig(r *http.Request, u *User, inboundID string) string {
 		extDomain := ib.ExternalDomain
 		if extDomain == "" {
 			extDomain = ib.Domain
+		}
+		if extDomain == "" {
+			extDomain = panelDomain
 		}
 		extPort := ib.ExternalPort
 		if extPort == 0 {
@@ -2703,6 +2810,7 @@ PersistentKeepalive = 25`,
 }
 
 func generateUserConfigs(r *http.Request, u *User) []string {
+	ensureBundleInbounds()
 	out := []string{}
 	seen := map[string]bool{}
 	for _, iid := range u.InboundIDs {
@@ -4798,6 +4906,7 @@ func handleToolsMyIP(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	initStorage()
+	ensureBundleInbounds()
 
 	port := os.Getenv("PANEL_PORT")
 	if port == "" {
