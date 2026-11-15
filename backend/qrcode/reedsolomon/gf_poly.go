@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 
-	bitset "whitepanel/qrcode/bitset"
+	bitset "parham/qrcode/bitset"
 )
 
 // gfPoly is a polynomial over GF(2^8).

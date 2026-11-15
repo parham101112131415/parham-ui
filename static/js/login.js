@@ -44,7 +44,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
         if (!check.ok || session.authenticated !== true) {
             throw new Error('ورود انجام شد اما نشست ورود ذخیره نشد. اتصال HTTPS و تنظیمات Cookie سرور را بررسی کنید.');
         }
-        window.location.replace('/white');
+        window.location.replace('/parham');
     } catch(ex) {
         errText.textContent = ex.message;
         errDiv.classList.add('show');

@@ -60,8 +60,8 @@ import (
 	"log"
 	"os"
 
-	bitset "whitepanel/qrcode/bitset"
-	reedsolomon "whitepanel/qrcode/reedsolomon"
+	bitset "parham/qrcode/bitset"
+	reedsolomon "parham/qrcode/reedsolomon"
 )
 
 // Encode a QR Code and return a raw PNG image.

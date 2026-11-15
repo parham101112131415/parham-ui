@@ -1,14 +1,16 @@
+/* One-time storage key migration: white-* -> parham-* (values preserved) */
+(function(){ try { ['lang','theme','accent','theme-v2'].forEach(function(k){ if (localStorage.getItem('parham-'+k) === null) { var ov = localStorage.getItem('white-'+k); if (ov !== null) localStorage.setItem('parham-'+k, ov); } }); if (localStorage.getItem('parham_audio') === null) { var oa = localStorage.getItem('white_audio'); if (oa !== null) localStorage.setItem('parham_audio', oa); } } catch(e) {} })();
 // ─── State ───
 var $ = qs => document.querySelector(qs);
 var $id = id => document.getElementById(id);
 var curCfg = '';
 var ALL_IB = [];
 var ALL_USERS = [];
-var selectedAccent = localStorage.getItem('white-accent') || 'red';
-var selectedTheme = localStorage.getItem('white-theme') || 'dark';
+var selectedAccent = localStorage.getItem('parham-accent') || 'red';
+var selectedTheme = localStorage.getItem('parham-theme') || 'dark';
 
 // ─── I18N (FA / EN) — abbreviated, full dict preserved ───
-var LANG = localStorage.getItem('white-lang') || 'fa';
+var LANG = localStorage.getItem('parham-lang') || 'fa';
 var I18N = { fa: {}, en: {} };
 
 Object.assign(I18N.fa, {
@@ -32,7 +34,7 @@ Object.assign(I18N.fa, {
   'cancel': 'انصراف', 'submitUser': 'ایجاد کاربر', 'creatingUser': 'در حال ایجاد...', 'saving': 'در حال ذخیره...', 'userCreated': 'با موفقیت ایجاد شد',
   'volEdit': 'حجم (GB - ۰=نامحدود)', 'daysEdit': 'روز اعتبار (۰=نامحدود)', 'status': 'وضعیت', 'active': 'فعال', 'inactive': 'غیرفعال', 'resetTraffic': 'بازنشانی ترافیک', 'saveChanges': 'ذخیره تغییرات',
   'inboundName': 'نام اینباند', 'port': 'پورت', 'securityType': 'نوع امنیت', 'realitySettings': 'تنظیمات Reality', 'autoGen': 'تولید خودکار', 'genRealityKey': 'تولید کلید Reality (x25519)',
-  'shortIds': 'شناسه‌های کوتاه', 'hex8': 'هگز ۸ رقمی — خالی = تصادفی', 'generate': '+ تولید', 'whitex': 'WhiteX',
+  'shortIds': 'شناسه‌های کوتاه', 'hex8': 'هگز ۸ رقمی — خالی = تصادفی', 'generate': '+ تولید', 'whitex': 'ParhamX',
   'extDomain': 'دامنه خارجی', 'extPortCfg': 'پورت خارجی', 'extDomainPlace': 'دامنه خارجی برای کانفیگ کلاینت',
   'network': 'شبکه', 'serviceName': 'نام سرویس', 'createInbound': 'ایجاد اینباند', 'editInbound': 'ویرایش اینباند',
   'config': 'کانفیگ', 'copy': 'کپی', 'close': 'بستن', 'copied': 'کانفیگ کپی شد', 'noCfg': 'کانفیگی موجود نیست', 'errCopy': 'خطا در کپی', 'delete': 'حذف', 'edit': 'ویرایش', 'unlimited': 'نامحدود', 'expired': 'منقضی', 'daysUnit': ' روز', 'usersCount': 'کاربران', 'secNetwork': 'شبکه', 'security': 'امنیت', 'expiry': 'انقضا', 'connTh': 'اتصال',
@@ -108,7 +110,7 @@ Object.assign(I18N.en, {
   'inboundsMulti': 'Inbounds (multi-select)', 'noInboundOpt': 'No inbounds available', 'inboundPickHint': 'Each inbound shows its own options.', 'workerCountries': 'Worker Countries', 'addCfIps': 'Add 10 configs with scanned Cloudflare IPs', 'addRailwayIps': 'Add 10 configs with scanned Railway IPs', 'realityNoExtra': 'Reality needs no extras.',
   'cancel': 'Cancel', 'submitUser': 'Create User', 'creatingUser': 'Creating...', 'saving': 'Saving...', 'userCreated': 'created successfully',
   'volEdit': 'Traffic (GB - 0=Unlimited)', 'daysEdit': 'Expiry days (0=Unlimited)', 'status': 'Status', 'active': 'Active', 'inactive': 'Inactive', 'resetTraffic': 'Reset traffic', 'saveChanges': 'Save Changes',
-  'inboundName': 'Inbound Name', 'port': 'Port', 'securityType': 'Security Type', 'realitySettings': 'Reality Settings', 'autoGen': 'Auto-generated', 'genRealityKey': 'Generate Reality Keys (x25519)', 'shortIds': 'Short IDs', 'hex8': '8-digit hex', 'generate': '+ Generate', 'whitex': 'WhiteX',
+  'inboundName': 'Inbound Name', 'port': 'Port', 'securityType': 'Security Type', 'realitySettings': 'Reality Settings', 'autoGen': 'Auto-generated', 'genRealityKey': 'Generate Reality Keys (x25519)', 'shortIds': 'Short IDs', 'hex8': '8-digit hex', 'generate': '+ Generate', 'whitex': 'ParhamX',
   'extDomain': 'External Domain', 'extPortCfg': 'External Port', 'extDomainPlace': 'External domain shown in the client config', 'network': 'Network', 'serviceName': 'Service Name', 'createInbound': 'Create Inbound', 'editInbound': 'Edit Inbound',
   'config': 'Config', 'copy': 'Copy', 'close': 'Close', 'copied': 'Config copied', 'noCfg': 'No config available', 'errCopy': 'Copy failed', 'delete': 'Delete', 'edit': 'Edit', 'unlimited': 'Unlimited', 'expired': 'Expired', 'daysUnit': ' days', 'usersCount': 'Users', 'secNetwork': 'Network', 'security': 'Security', 'expiry': 'Expiry', 'connTh': 'Conn',
   'confirmDeleteUser': 'Are you sure?', 'confirmDeleteInbound': 'Are you sure?', 'keysGenerated': 'Reality keys generated', 'errKeyGen': 'Key generation failed', 'shortIdGen': 'Short ID generated', 'shortIdNew': 'New Short ID generated',
@@ -177,7 +179,7 @@ function applyLang() {
 }
 function toggleLang() {
   LANG = LANG === 'fa' ? 'en' : 'fa';
-  localStorage.setItem('white-lang', LANG);
+  localStorage.setItem('parham-lang', LANG);
   applyLang();
   toast(t('dash'), 'ok');
 }
@@ -254,7 +256,7 @@ function loadTheme() {
 function setTheme(t) {
   selectedTheme = (t === 'light') ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', selectedTheme);
-  localStorage.setItem('white-theme', selectedTheme);
+  localStorage.setItem('parham-theme', selectedTheme);
   applyThemeUI();
 }
 function toggleThemeMode() {
@@ -273,7 +275,7 @@ function showApp() { $id('login-wrap').style.display = 'none'; $id('app-wrap').c
 async function doLogin() { /* handled by login page */ }
 async function doLogout() {
   try { await api('/api/logout', {method: 'POST'}); } catch(e) {}
-  localStorage.removeItem('white_session');
+  localStorage.removeItem('parham_session');
   window.location.href = '/login';
 }
 function updateGreeting() {
@@ -1093,7 +1095,7 @@ async function downloadBackup() {
     var cd = r.headers.get('Content-Disposition') || '';
     var match = cd.match(/filename="([^"]+)"/i);
     var dateStr = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-    a.download = match && match[1] ? match[1] : ('whitepanel-backup-' + dateStr + '.json');
+    a.download = match && match[1] ? match[1] : ('parham-backup-' + dateStr + '.json');
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
@@ -1193,8 +1195,8 @@ var iconReset = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" str
 var MUSIX_TRACKS = [];
 function musixPickTrack() { if (!MUSIX_TRACKS.length) return ''; return MUSIX_TRACKS[Math.floor(Math.random() * MUSIX_TRACKS.length)]; }
 function musixPlayRandom() { var p = $id('panel-audio-player'); if (!p) return; var url = musixPickTrack(); if (!url) return; if (p.getAttribute('src') !== url) { p.src = url; p.load(); } var lbl = $id('audio-file'); if (lbl) lbl.textContent = decodeURIComponent(url.split('/').pop()); p.play().catch(function(){}); }
-function togglePanelAudio() { var p = $id('panel-audio-player'); var sw = $id('audio-autoplay'); sw.classList.toggle('on'); var on = sw.classList.contains('on'); localStorage.setItem('white_audio', on ? '1' : '0'); if (on) musixPlayRandom(); else if (p) p.pause(); }
-(function initPanelAudio(){ var p = $id('panel-audio-player'); if (!p) return; p.volume = 0.3; var sw = $id('audio-autoplay'); if (!sw) return; var saved = localStorage.getItem('white_audio'); var on = saved === null ? true : saved !== '0'; var loading = false; if (saved === null) { try { localStorage.setItem('white_audio', '1'); } catch(e) {} } sw.classList.toggle('on', on); p.addEventListener('ended', function(){ if (sw.classList.contains('on')) musixPlayRandom(); }); function startAfterGesture() { if (!sw.classList.contains('on') || loading) return; loading = true; document.removeEventListener('click', startAfterGesture); document.removeEventListener('touchstart', startAfterGesture); document.removeEventListener('keydown', startAfterGesture); api('/api/musix').then(function(d) { MUSIX_TRACKS = (d.tracks || []).map(function(x){ return x.url; }); if (MUSIX_TRACKS.length && sw.classList.contains('on')) musixPlayRandom(); }).catch(function(){ loading = false; }); } document.addEventListener('click', startAfterGesture); document.addEventListener('touchstart', startAfterGesture); document.addEventListener('keydown', startAfterGesture); })();
+function togglePanelAudio() { var p = $id('panel-audio-player'); var sw = $id('audio-autoplay'); sw.classList.toggle('on'); var on = sw.classList.contains('on'); localStorage.setItem('parham_audio', on ? '1' : '0'); if (on) musixPlayRandom(); else if (p) p.pause(); }
+(function initPanelAudio(){ var p = $id('panel-audio-player'); if (!p) return; p.volume = 0.3; var sw = $id('audio-autoplay'); if (!sw) return; var saved = localStorage.getItem('parham_audio'); var on = saved === null ? true : saved !== '0'; var loading = false; if (saved === null) { try { localStorage.setItem('parham_audio', '1'); } catch(e) {} } sw.classList.toggle('on', on); p.addEventListener('ended', function(){ if (sw.classList.contains('on')) musixPlayRandom(); }); function startAfterGesture() { if (!sw.classList.contains('on') || loading) return; loading = true; document.removeEventListener('click', startAfterGesture); document.removeEventListener('touchstart', startAfterGesture); document.removeEventListener('keydown', startAfterGesture); api('/api/musix').then(function(d) { MUSIX_TRACKS = (d.tracks || []).map(function(x){ return x.url; }); if (MUSIX_TRACKS.length && sw.classList.contains('on')) musixPlayRandom(); }).catch(function(){ loading = false; }); } document.addEventListener('click', startAfterGesture); document.addEventListener('touchstart', startAfterGesture); document.addEventListener('keydown', startAfterGesture); })();
 
 function loadProxyCountries(){}
 
@@ -3091,8 +3093,8 @@ async function deleteSellPlan(id){if(!confirm('این Plan حذف شود؟'))ret
 function addBotJoinRow(item){var wrap=$id('bot-join-list');if(!wrap)return;item=item||{};var row=document.createElement('div');row.className='bot-join-row';row.innerHTML='<div class="f-g" style="margin:0"><label>Channel / Chat ID</label><input class="bot-join-chat" type="text" dir="ltr" placeholder="@channel یا -100123456789" value="'+escAttr(item.chat_id||item.channel||'')+'"></div><div class="f-g" style="margin:0"><label>Join Link</label><input class="bot-join-url" type="url" dir="ltr" placeholder="https://t.me/channel" value="'+escAttr(item.join_url||item.url||'')+'"></div><button class="btn-glass" type="button" onclick="this.parentElement.remove()">حذف</button>';wrap.appendChild(row);}
 function renderBotJoinRows(items){var wrap=$id('bot-join-list');if(!wrap)return;wrap.innerHTML='';(items||[]).forEach(addBotJoinRow);if(!items||!items.length)addBotJoinRow();}
 function getBotJoinPayload(){return Array.prototype.slice.call(document.querySelectorAll('#bot-join-list .bot-join-row')).map(function(row){return{chat_id:(row.querySelector('.bot-join-chat').value||'').trim(),join_url:(row.querySelector('.bot-join-url').value||'').trim()};}).filter(function(x){return x.chat_id;});}
-async function loadBot(){try{var d=await api('/api/bot/status');fillBotStatus(d);if($id('bot-token')&&!d.token_configured)$id('bot-token').value='';if($id('bot-domain'))$id('bot-domain').value=d.domain||(d.sell&&d.sell.domain)||'';var ch=d.channel||{},sell=d.sell||{};$id('bot-channel-enabled').checked=!!ch.enabled;$id('bot-channel').value=ch.channel||'';$id('bot-channel-interval').value=ch.interval_minutes||60;$id('bot-channel-prefix').value=ch.username_prefix||'white';$id('bot-channel-traffic').value=ch.traffic_limit_gb||0;$id('bot-channel-days').value=ch.expire_days||30;$id('bot-channel-replace').checked=ch.replace_previous!==false;await loadBotInbounds();selBotInbound($id('bot-channel-inbound'),ch.inbound_id||'');$id('bot-sell-enabled').checked=!!sell.enabled;var allAdmins=(d.admin_ids&&d.admin_ids.length)?d.admin_ids.join(', '):(sell.admin_chat_id||'');$id('bot-sell-admin').value=allAdmins;$id('bot-sell-support').value=sell.support_username||'';$id('bot-sell-support-text').value=sell.support_text||'💬 برای پشتیبانی با مدیر فروش تماس بگیرید.';$id('bot-sell-payment').value=sell.payment_url||'';$id('bot-sell-payment-details').value=sell.payment_details||'';renderBotJoinRows(sell.required_channels||[]);}catch(e){console.error(e);}}
-function botPayload(){return{token:($id('bot-token').value||'').trim(),domain:$id('bot-domain')?($id('bot-domain').value||'').trim():'',channel:{enabled:$id('bot-channel-enabled').checked,channel:($id('bot-channel').value||'').trim(),interval_minutes:parseInt($id('bot-channel-interval').value||60,10),username_prefix:($id('bot-channel-prefix').value||'white').trim(),traffic_limit_gb:parseFloat($id('bot-channel-traffic').value||0),expire_days:parseInt($id('bot-channel-days').value||0,10),inbound_id:$id('bot-channel-inbound').value||'',replace_previous:$id('bot-channel-replace').checked},sell:{enabled:$id('bot-sell-enabled').checked,admin_chat_id:($id('bot-sell-admin').value||'').trim(),support_username:($id('bot-sell-support').value||'').trim(),support_text:$id('bot-sell-support-text').value||'',payment_url:($id('bot-sell-payment').value||'').trim(),payment_details:$id('bot-sell-payment-details').value||'',required_channels:getBotJoinPayload(),welcome_text:'سلام 👋\nبرای استفاده از فروشگاه یکی از بخش‌های زیر را انتخاب کنید.'}};}
+async function loadBot(){try{var d=await api('/api/bot/status');fillBotStatus(d);if($id('bot-token')&&!d.token_configured)$id('bot-token').value='';if($id('bot-domain'))$id('bot-domain').value=d.domain||(d.sell&&d.sell.domain)||'';var ch=d.channel||{},sell=d.sell||{};$id('bot-channel-enabled').checked=!!ch.enabled;$id('bot-channel').value=ch.channel||'';$id('bot-channel-interval').value=ch.interval_minutes||60;$id('bot-channel-prefix').value=ch.username_prefix||'parham';$id('bot-channel-traffic').value=ch.traffic_limit_gb||0;$id('bot-channel-days').value=ch.expire_days||30;$id('bot-channel-replace').checked=ch.replace_previous!==false;await loadBotInbounds();selBotInbound($id('bot-channel-inbound'),ch.inbound_id||'');$id('bot-sell-enabled').checked=!!sell.enabled;var allAdmins=(d.admin_ids&&d.admin_ids.length)?d.admin_ids.join(', '):(sell.admin_chat_id||'');$id('bot-sell-admin').value=allAdmins;$id('bot-sell-support').value=sell.support_username||'';$id('bot-sell-support-text').value=sell.support_text||'💬 برای پشتیبانی با مدیر فروش تماس بگیرید.';$id('bot-sell-payment').value=sell.payment_url||'';$id('bot-sell-payment-details').value=sell.payment_details||'';renderBotJoinRows(sell.required_channels||[]);}catch(e){console.error(e);}}
+function botPayload(){return{token:($id('bot-token').value||'').trim(),domain:$id('bot-domain')?($id('bot-domain').value||'').trim():'',channel:{enabled:$id('bot-channel-enabled').checked,channel:($id('bot-channel').value||'').trim(),interval_minutes:parseInt($id('bot-channel-interval').value||60,10),username_prefix:($id('bot-channel-prefix').value||'parham').trim(),traffic_limit_gb:parseFloat($id('bot-channel-traffic').value||0),expire_days:parseInt($id('bot-channel-days').value||0,10),inbound_id:$id('bot-channel-inbound').value||'',replace_previous:$id('bot-channel-replace').checked},sell:{enabled:$id('bot-sell-enabled').checked,admin_chat_id:($id('bot-sell-admin').value||'').trim(),support_username:($id('bot-sell-support').value||'').trim(),support_text:$id('bot-sell-support-text').value||'',payment_url:($id('bot-sell-payment').value||'').trim(),payment_details:$id('bot-sell-payment-details').value||'',required_channels:getBotJoinPayload(),welcome_text:'سلام 👋\nبرای استفاده از فروشگاه یکی از بخش‌های زیر را انتخاب کنید.'}};}
 async function saveBotConfig(){try{var p=botPayload();if(!p.token){var st=await api('/api/bot/status');if(!st.token_configured)throw new Error('Telegram Bot API Key را وارد کنید');}await api('/api/bot/config',{method:'POST',body:p});await loadBot();toast('تنظیمات Bot ذخیره شد','ok');}catch(e){toast(e.message||'خطا در ذخیره تنظیمات','err');}}
 async function testBotConfig(){try{var p=botPayload();var d=await api('/api/bot/test',{method:'POST',body:{token:p.token,channel:p.channel.channel}});var msg='Bot: @'+(d.bot&&d.bot.username||'?');if(d.channel){msg+=' · Channel: '+(d.channel.username||d.channel.title||d.channel.id);if(!d.channel.is_admin)msg+=' · Bot admin نیست';}toast(msg,d.channel&&!d.channel.is_admin?'warn':'ok');}catch(e){toast(e.message||'Telegram test failed','err');}}
 async function runChannelBotNow(){try{await api('/api/bot/config',{method:'POST',body:botPayload()});var d=await api('/api/bot/channel/run',{method:'POST'});toast('کاربر '+((d.user||{}).username||'')+' ساخته و در Channel ارسال شد','ok');await loadBot();}catch(e){toast(e.message||'خطا در اجرای Channel Bot','err');}}

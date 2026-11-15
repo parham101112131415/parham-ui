@@ -49,7 +49,7 @@
     }
   };
 
-  var lang = localStorage.getItem("white-lang") || "fa";
+  var lang = localStorage.getItem("parham-lang") || "fa";
   var root = document.documentElement;
 
   function tr(k){ return (i18n[lang] && i18n[lang][k]) || k; }
@@ -91,7 +91,7 @@
 
   function applyLang(l){
     lang = l;
-    localStorage.setItem("white-lang", l);
+    localStorage.setItem("parham-lang", l);
     var t = i18n[l] || i18n.fa;
     document.documentElement.lang = l;
     document.documentElement.dir = l === "fa" ? "rtl" : "ltr";
@@ -109,7 +109,7 @@
     if (EXPIRE_TS !== null) renderCountdown();
   }
 
-  var savedTheme = localStorage.getItem("white-theme-v2");
+  var savedTheme = localStorage.getItem("parham-theme-v2");
   if (savedTheme === "dark"){ if (root.getAttribute("data-theme") !== "dark") root.setAttribute("data-theme","dark"); }
   else if (root.hasAttribute("data-theme")){ root.removeAttribute("data-theme"); }
 
@@ -118,12 +118,12 @@
   function applyThemeChange(){
     if (root.getAttribute("data-theme") === "dark"){
       root.removeAttribute("data-theme");
-      localStorage.setItem("white-theme-v2","light");
+      localStorage.setItem("parham-theme-v2","light");
       var meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.content = "#eef4fb";
     } else {
       root.setAttribute("data-theme","dark");
-      localStorage.setItem("white-theme-v2","dark");
+      localStorage.setItem("parham-theme-v2","dark");
       var meta2 = document.querySelector('meta[name="theme-color"]');
       if (meta2) meta2.content = "#01091a";
     }

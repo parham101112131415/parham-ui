@@ -1,5 +1,5 @@
 """
-Parham - Telegram Engine & Bot Automation
+Parham Panel - Telegram Engine & Bot Automation
 Handles:
 1. Customer Workflow: /start, Show Plans, Place Order, Send Receipt, Receive Config & QR
 2. Channel Bot: Periodic status and node health announcements
@@ -21,9 +21,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger("ParhamBot")
 
-PANEL_API_URL = os.environ.get("WHITE_PANEL_API_URL", "http://127.0.0.1:8080").rstrip("/")
-BOT_TOKEN = os.environ.get("WHITE_BOT_TOKEN", "")
-ADMIN_ID = os.environ.get("WHITE_ADMIN_ID", "")
+PANEL_API_URL = os.environ.get("PARHAM_PANEL_API_URL", os.environ.get("WHITE_PANEL_API_URL", "http://127.0.0.1:8080")).rstrip("/")
+BOT_TOKEN = os.environ.get("PARHAM_BOT_TOKEN", os.environ.get("WHITE_BOT_TOKEN", ""))
+ADMIN_ID = os.environ.get("PARHAM_ADMIN_ID", os.environ.get("WHITE_ADMIN_ID", ""))
 TG_API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
 # In-memory orders and states
@@ -31,7 +31,7 @@ ORDERS: Dict[str, Dict[str, Any]] = {}
 USER_STEPS: Dict[int, str] = {}
 
 class GoBackendClient:
-    """HTTP Client communicating directly with Parham Go Core"""
+    """HTTP Client communicating directly with Parham Panel Go Core"""
     def __init__(self, base_url: str):
         self.base_url = base_url
 
@@ -124,7 +124,7 @@ def main_keyboard():
 async def handle_start(chat_id: int, name: str):
     welcome_text = (
         f"سلام <b>{name}</b> عزیز! 🌟\n\n"
-        "به ربات رسمی <b>Parham</b> خوش آمدید.\n"
+        "به ربات رسمی <b>Parham Panel</b> خوش آمدید.\n"
         "از طریق منوی زیر می‌توانید اشتراک پرسرعت تهیه کنید، سرویس خود را مدیریت کنید و یا وضعیت سرورها را مشاهده نمایید."
     )
     await send_message(chat_id, welcome_text, main_keyboard())
@@ -161,7 +161,7 @@ async def handle_buy_plan(chat_id: int, plan_id: str, username: str):
         f"💰 مبلغ قابل پرداخت: <b>{int(selected['price_toman']):,} تومان</b>\n\n"
         "💳 شماره کارت جهت واریز:\n"
         "<code>6037-9975-0000-0000</code>\n"
-        "به نام: <i>مدیریت Parham</i>\n\n"
+        "به نام: <i>مدیریت Parham Panel</i>\n\n"
         "📸 لطفاً پس از واریز، <b>تصویر فیش یا شماره پیگیری</b> را ارسال کنید تا کانفیگ شما فوراً صادر شود."
     )
     await send_message(chat_id, card_info)
@@ -171,7 +171,7 @@ async def activate_and_deliver(chat_id: int, order: Dict[str, Any]):
     plan = order["plan"]
     uname = f"wp_{chat_id}_{int(time.time()%10000)}"
     
-    await send_message(chat_id, "⚡ درحال ساخت سرویس اختصاصی شما در سرورهای Parham...")
+    await send_message(chat_id, "⚡ درحال ساخت سرویس اختصاصی شما در سرورهای Parham Panel...")
     
     res = await backend_client.create_user_and_generate_config(
         username=uname,
@@ -205,11 +205,11 @@ async def activate_and_deliver(chat_id: int, order: Dict[str, Any]):
 
 async def bot_poll_loop():
     if not BOT_TOKEN:
-        logger.warning("WHITE_BOT_TOKEN is not set. Bot polling will not start.")
+        logger.warning("PARHAM_BOT_TOKEN is not set. Bot polling will not start.")
         return
 
     offset = 0
-    logger.info("Parham Telegram Bot service started polling...")
+    logger.info("Parham Panel Telegram Bot service started polling...")
 
     while True:
         try:
@@ -260,7 +260,7 @@ async def bot_poll_loop():
                         elif text == "🛍 خرید اشتراک":
                             await handle_plans(cid)
                         elif text == "📊 وضعیت سرورها":
-                            await send_message(cid, "🟢 کلیه سرورهای Parham فعال و پایدار هستند.")
+                            await send_message(cid, "🟢 کلیه سرورهای Parham Panel فعال و پایدار هستند.")
                         elif text == "📞 پشتیبانی":
                             await send_message(cid, "💬 جهت ارتباط با پشتیبانی به آیدی ادمین پیام دهید.")
 

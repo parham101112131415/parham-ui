@@ -72,7 +72,7 @@ COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh /app/webapp
 
 ENV PANEL_PORT=8080 \
-    WHITE_DATA_DIR=/app/data
+    PARHAM_DATA_DIR=/app/data
 
 EXPOSE 8080
 

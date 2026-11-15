@@ -6,7 +6,7 @@
 *.dylib
 webapp
 webapp_linux
-whitepanel
+parham
 
 # Environments & VirtualEnvs
 __pycache__/
@@ -21,7 +21,7 @@ data/
 *.pid
 *.log
 .env
-/etc/white-panel.env
+/etc/parham-panel.env
 
 # OS Files
 .DS_Store

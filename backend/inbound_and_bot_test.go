@@ -579,7 +579,7 @@ func TestBackupAndRestore(t *testing.T) {
 		t.Fatalf("Backup download expected 200, got %d", wBkp.Code)
 	}
 	cd := wBkp.Header().Get("Content-Disposition")
-	if !strings.Contains(cd, "whitepanel-backup-") {
+	if !strings.Contains(cd, "parham-backup-") {
 		t.Errorf("Expected backup filename in Content-Disposition, got: %s", cd)
 	}
 

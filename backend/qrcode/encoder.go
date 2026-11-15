@@ -7,7 +7,7 @@ import (
 	"errors"
 	"log"
 
-	bitset "whitepanel/qrcode/bitset"
+	bitset "parham/qrcode/bitset"
 )
 
 // Data encoding.

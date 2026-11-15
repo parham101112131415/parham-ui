@@ -2,25 +2,25 @@
 set -Eeuo pipefail
 
 # ============================================================
-# Parham Universal Installer / Manager
+# Parham Panel Universal Installer / Manager
 # ============================================================
 
-APP_DIR="${WHITE_APP_DIR:-/opt/WhitePanel}"
-REPO="${WHITE_REPO:-https://github.com/parham101112131415/parham-ui.git}"
-BRANCH="${WHITE_BRANCH:-main}"
+APP_DIR="${PARHAM_APP_DIR:-${WHITE_APP_DIR:-/opt/Parham}}"
+REPO="${PARHAM_REPO:-${WHITE_REPO:-https://github.com/parham101112131415/parham-ui.git}}"
+BRANCH="${PARHAM_BRANCH:-${WHITE_BRANCH:-main}}"
 
-INSTALLER_URL="${WHITE_INSTALLER_URL:-https://raw.githubusercontent.com/parham101112131415/parham-ui/main/start.sh}"
+INSTALLER_URL="${PARHAM_INSTALLER_URL:-${WHITE_INSTALLER_URL:-https://raw.githubusercontent.com/parham101112131415/parham-ui/main/start.sh}}"
 
-ENV_FILE="/etc/white-panel.env"
-SERVICE="white-panel"
+ENV_FILE="/etc/parham-panel.env"
+SERVICE="parham-panel"
 
 PORT="8080"
 
 VENV="$APP_DIR/.venv"
-PIDFILE="$APP_DIR/whitepanel.pid"
-LOGFILE="$APP_DIR/whitepanel.log"
+PIDFILE="$APP_DIR/parham.pid"
+LOGFILE="$APP_DIR/parham.log"
 
-CLI="/usr/local/bin/whitepanel"
+CLI="/usr/local/bin/parham"
 
 XRAY="$APP_DIR/xray/xray"
 MTPROXY="/usr/local/bin/mtproto-proxy"
@@ -28,10 +28,10 @@ MTPROXY="/usr/local/bin/mtproto-proxy"
 UV="/usr/local/bin/uv"
 
 # Pin uv to a known release.
-UV_VERSION="${WHITE_UV_VERSION:-0.12.9}"
+UV_VERSION="${PARHAM_UV_VERSION:-${WHITE_UV_VERSION:-0.12.9}}"
 
 # Xray version.
-XRAY_VERSION="${WHITE_XRAY_VERSION:-26.3.27}"
+XRAY_VERSION="${PARHAM_XRAY_VERSION:-${WHITE_XRAY_VERSION:-26.3.27}}"
 
 TMP_ROOT=""
 
@@ -47,7 +47,7 @@ IS_CODESPACE=0
 # ============================================================
 
 log() {
-    printf '[Parham] %s\n' "$*"
+    printf '[Parham Panel] %s\n' "$*"
 }
 
 ok() {
@@ -92,7 +92,7 @@ root() {
 
     local f
 
-    f="$(mktemp /tmp/whitepanel-root.XXXXXX)"
+    f="$(mktemp /tmp/parham-root.XXXXXX)"
 
     curl -fsSL \
         --retry 5 \
@@ -385,9 +385,9 @@ packages() {
 
 download_repo() {
 
-    TMP_ROOT="$(mktemp -d /tmp/whitepanel.XXXXXX)"
+    TMP_ROOT="$(mktemp -d /tmp/parham.XXXXXX)"
 
-    log "Downloading Parham..."
+    log "Downloading Parham Panel..."
 
     git clone \
         --depth 1 \
@@ -607,7 +607,7 @@ install_uv() {
     log "Downloading official uv binary..."
 
 
-    tmp="$(mktemp -d /tmp/whitepanel-uv.XXXXXX)"
+    tmp="$(mktemp -d /tmp/parham-uv.XXXXXX)"
 
     archive_path="$tmp/$archive"
 
@@ -956,11 +956,11 @@ EOF
 
 
     cat > "$APP_DIR/INSTALL-CREDENTIALS.txt" <<EOF
-WhitePanel
+Parham Panel
 ===========
 
 Local URL:
-http://127.0.0.1:8080/white
+http://127.0.0.1:8080/parham
 
 Listen Port:
 8080
@@ -1217,7 +1217,7 @@ create_service() {
 
     cat > "/etc/systemd/system/$SERVICE.service" <<EOF
 [Unit]
-Description=Parham
+Description=Parham Panel
 After=network-online.target
 Wants=network-online.target
 
@@ -1303,7 +1303,7 @@ start_panel() {
 
         if running; then
 
-            ok "Parham already running."
+            ok "Parham Panel already running."
 
             return 0
         fi
@@ -1332,13 +1332,13 @@ start_panel() {
 
     if running; then
 
-        ok "Parham is running."
+        ok "Parham Panel is running."
 
         return 0
     fi
 
 
-    printf '[ERROR] Parham failed to start.\n' >&2
+    printf '[ERROR] Parham Panel failed to start.\n' >&2
 
 
     if systemd_ok; then
@@ -1408,7 +1408,7 @@ stop_panel() {
     fi
 
 
-    ok "Parham stopped."
+    ok "Parham Panel stopped."
 }
 
 
@@ -1420,7 +1420,7 @@ status_panel() {
 
     echo
 
-    echo "Parham status"
+    echo "Parham Panel status"
     echo "------------------"
 
     echo "OS: $OS_NAME"
@@ -1539,12 +1539,12 @@ info_panel() {
     echo
 
     echo "================================================"
-    echo "                 WHITEPANEL"
+    echo "                 PARHAM PANEL"
     echo "================================================"
 
 
     # Panel port is intentionally fixed. Deployers may inject PORT, but
-    # WhitePanel always listens on 8080.
+    # Parham Panel always listens on 8080.
     local listen_port="8080"
 
     echo "Local URL: http://127.0.0.1:${listen_port}/white"
@@ -1597,15 +1597,15 @@ info_panel() {
 
     echo "Commands:"
 
-    echo "  whitepanel"
-    echo "  whitepanel info"
-    echo "  whitepanel status"
-    echo "  whitepanel start"
-    echo "  whitepanel stop"
-    echo "  whitepanel restart"
-    echo "  whitepanel update"
-    echo "  whitepanel logs"
-    echo "  whitepanel uninstall"
+    echo "  parham"
+    echo "  parham info"
+    echo "  parham status"
+    echo "  parham start"
+    echo "  parham stop"
+    echo "  parham restart"
+    echo "  parham update"
+    echo "  parham logs"
+    echo "  parham uninstall"
 
     echo
 
@@ -1646,7 +1646,7 @@ update_panel() {
 
     local f=""
 
-    f="$(mktemp /tmp/whitepanel-update.XXXXXX)"
+    f="$(mktemp /tmp/parham-update.XXXXXX)"
 
 
     curl \
@@ -1676,7 +1676,7 @@ uninstall_panel() {
 
     echo
 
-    echo "This will remove Parham."
+    echo "This will remove Parham Panel."
 
     echo
 
@@ -1724,7 +1724,7 @@ uninstall_panel() {
     rm -rf "$APP_DIR"
 
 
-    ok "Parham removed."
+    ok "Parham Panel removed."
 }
 
 
@@ -1739,10 +1739,10 @@ create_cli() {
 
 set -e
 
-APP="/opt/WhitePanel"
+APP="/opt/Parham"
 
 if [[ ! -f "$APP/start.sh" ]]; then
-    echo "Parham is not installed."
+    echo "Parham Panel is not installed."
     exit 1
 fi
 
@@ -1786,7 +1786,7 @@ case "${1:-menu}" in
 
     *)
         echo
-        echo "WhitePanel"
+        echo "Parham Panel"
         echo
         echo "1) Info"
         echo "2) Status"
@@ -1853,7 +1853,7 @@ EOF
 
     chmod 755 "$CLI"
 
-    ok "Global command installed: whitepanel"
+    ok "Global command installed: parham"
 }
 
 
@@ -1870,7 +1870,7 @@ install_panel() {
 
     echo
 
-    log "Installing Parham..."
+    log "Installing Parham Panel..."
 
     log "OS: $OS_NAME"
 
@@ -2029,7 +2029,7 @@ main() {
         *)
 
             echo
-            echo "Parham Universal Installer"
+            echo "Parham Panel Universal Installer"
             echo
             echo "Usage:"
             echo

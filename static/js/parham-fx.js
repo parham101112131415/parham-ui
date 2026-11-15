@@ -122,7 +122,7 @@
     }, true);
 
     /* ── modals (open/close) + toast (success/error/notify) ──
-       WhitePanel toggles a .show class on .modal elements and on #toast;
+       The panel toggles a .show class on .modal elements and on #toast;
        the toast's inline color carries its type (var(--red) / var(--green)). */
     var shownModals = new WeakSet();
     var toastShown = false;

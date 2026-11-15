@@ -6,7 +6,7 @@ package qrcode
 import (
 	"log"
 
-	bitset "whitepanel/qrcode/bitset"
+	bitset "parham/qrcode/bitset"
 )
 
 // Error detection/recovery capacity.

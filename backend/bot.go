@@ -254,7 +254,7 @@ func getBotChannelConfigLocked() map[string]any {
 		"enabled":                 false,
 		"channel":                 "",
 		"interval_minutes":        60,
-		"username_prefix":         "white",
+		"username_prefix":         "parham",
 		"traffic_limit_gb":        0.0,
 		"expire_days":             30,
 		"replace_previous":        true,
@@ -709,7 +709,7 @@ func executeChannelPost(r *http.Request) (*User, error) {
 
 	prefix := gs(channelCfg, "username_prefix")
 	if prefix == "" {
-		prefix = "white"
+		prefix = "parham"
 	}
 	trafficGB := gf(channelCfg, "traffic_limit_gb")
 	expireDays := gi(channelCfg, "expire_days")
@@ -1200,7 +1200,7 @@ func (bm *TelegramBotManager) sendWelcomeMenu(token string, chatID int64, name s
 	State.mu.RUnlock()
 
 	if welcome == "" {
-		welcome = fmt.Sprintf("سلام <b>%s</b> عزیز! 🌟\nبه ربات رسمی Parham خوش آمدید.\nجهت شروع یکی از گزینه‌های زیر را انتخاب فرمایید:", name)
+		welcome = fmt.Sprintf("سلام <b>%s</b> عزیز! 🌟\nبه ربات رسمی Parham Panel خوش آمدید.\nجهت شروع یکی از گزینه‌های زیر را انتخاب فرمایید:", name)
 	}
 
 	rows := [][]map[string]any{
@@ -1539,7 +1539,7 @@ func (bm *TelegramBotManager) handleAdminApprovalAction(token string, adminChatI
 	order.Status = "approved"
 	order.ApprovedBy = adminUser
 
-	// Create user in Parham
+	// Create user in Parham Panel
 	uname := fmt.Sprintf("wp_%d_%s", order.ChatID%10000, generateShortID()[:4])
 	trafficBytes := int64(order.TrafficGB * 1024 * 1024 * 1024)
 	expireDays := order.ExpireDays
@@ -1643,7 +1643,7 @@ func (bm *TelegramBotManager) handleAdminApprovalAction(token string, adminChatI
 // ----------------- Dedicated Admin Panel in Telegram -----------------
 
 func (bm *TelegramBotManager) sendAdminPanelMenu(token string, chatID int64) {
-	text := "👑 <b>پنل مدیریت هوشمند Parham</b>\n\n" +
+	text := "👑 <b>پنل مدیریت هوشمند Parham Panel</b>\n\n" +
 		"شما به عنوان ادمین مجاز وارد شدید. لطفاً یکی از بخش‌های زیر را انتخاب فرمایید:"
 
 	markup := map[string]any{
@@ -2015,7 +2015,7 @@ func (bm *TelegramBotManager) sendSupportInfo(token string, chatID int64) {
 		supportText = "💬 جهت هرگونه سوال، مشاوره یا راهنمایی در اتصال با پشتیبانی تماس بگیرید:"
 	}
 
-	msg := fmt.Sprintf("📞 <b>پشتیبانی Parham:</b>\n\n%s\n", supportText)
+	msg := fmt.Sprintf("📞 <b>پشتیبانی Parham Panel:</b>\n\n%s\n", supportText)
 	if supportUser != "" {
 		if !strings.HasPrefix(supportUser, "@") {
 			supportUser = "@" + supportUser

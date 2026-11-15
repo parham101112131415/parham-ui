@@ -4,7 +4,7 @@
 package qrcode
 
 import (
-	bitset "whitepanel/qrcode/bitset"
+	bitset "parham/qrcode/bitset"
 )
 
 type regularSymbol struct {

@@ -8,7 +8,7 @@ export PANEL_PORT="${PORT:-8080}"
 echo "Starting Application Service on port ${PANEL_PORT}..."
 
 # Launch Python Bot Worker in background if token is provided
-if [ -n "$WHITE_BOT_TOKEN" ]; then
+if [ -n "$PARHAM_BOT_TOKEN" ] || [ -n "$WHITE_BOT_TOKEN" ]; then
     echo "Initializing background worker..."
     python3 /app/bot/bot_service.py &
 fi

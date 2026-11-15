@@ -293,7 +293,9 @@ const sessionTTL = 7 * 24 * time.Hour
 // ============================================================================
 
 func initStorage() {
-	if env := os.Getenv("WHITE_DATA_DIR"); env != "" {
+	if env := os.Getenv("PARHAM_DATA_DIR"); env != "" {
+		State.DataDir = env
+	} else if env := os.Getenv("WHITE_DATA_DIR"); env != "" {
 		State.DataDir = env
 	}
 	_ = os.MkdirAll(State.DataDir, 0755)
@@ -305,8 +307,13 @@ func loadState() {
 	State.mu.Lock()
 	defer State.mu.Unlock()
 
-	file := filepath.Join(State.DataDir, "white_state.json")
+	file := filepath.Join(State.DataDir, "parham_state.json")
 	f, err := os.Open(file)
+	if err != nil {
+		if lf, lerr := os.Open(filepath.Join(State.DataDir, "white_state.json")); lerr == nil {
+			f, err = lf, nil
+		}
+	}
 	if err != nil {
 		State.Password = hashPassword("admin")
 		State.Settings["panel_api_key"] = generateToken(24)
@@ -326,7 +333,7 @@ func loadState() {
 			InboundID: "Node", Name: "Node", Protocol: "node",
 			InboundType: "node", System: true, CreatedAt: time.Now().Format(time.RFC3339),
 		}
-		log.Printf("[White Storage] Fresh state created at %s", file)
+		log.Printf("[Parham Storage] Fresh state created at %s", file)
 		return
 	}
 	defer f.Close()
@@ -359,7 +366,7 @@ func loadState() {
 		if State.Password == "" {
 			State.Password = hashPassword("admin")
 		}
-		log.Printf("[White Storage] Loaded: %d users, %d inbounds, %d nodes",
+		log.Printf("[Parham Storage] Loaded: %d users, %d inbounds, %d nodes",
 			len(State.Users), len(State.Inbounds), len(State.Nodes))
 	}
 }
@@ -368,7 +375,7 @@ func saveState() error {
 	State.mu.RLock()
 	defer State.mu.RUnlock()
 
-	file := filepath.Join(State.DataDir, "white_state.json")
+	file := filepath.Join(State.DataDir, "parham_state.json")
 	tmp := file + ".tmp"
 	f, err := os.Create(tmp)
 	if err != nil {
@@ -668,7 +675,7 @@ func validSession(token string) bool {
 }
 
 func checkAuth(r *http.Request) bool {
-	if c, err := r.Cookie("white_session"); err == nil && validSession(c.Value) {
+	if c, err := r.Cookie("parham_session"); err == nil && validSession(c.Value) {
 		return true
 	}
 	if apiKey := r.Header.Get("X-API-Key"); apiKey != "" {
@@ -710,7 +717,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	token := createSession()
 	http.SetCookie(w, &http.Cookie{
-		Name: "white_session", Value: token, Path: "/",
+		Name: "parham_session", Value: token, Path: "/",
 		HttpOnly: true, SameSite: http.SameSiteLaxMode,
 		MaxAge: int(sessionTTL.Seconds()),
 	})
@@ -718,12 +725,12 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleLogout(w http.ResponseWriter, r *http.Request) {
-	if c, err := r.Cookie("white_session"); err == nil {
+	if c, err := r.Cookie("parham_session"); err == nil {
 		sessionMu.Lock()
 		delete(sessions, c.Value)
 		sessionMu.Unlock()
 	}
-	http.SetCookie(w, &http.Cookie{Name: "white_session", Value: "", Path: "/", MaxAge: -1})
+	http.SetCookie(w, &http.Cookie{Name: "parham_session", Value: "", Path: "/", MaxAge: -1})
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 
@@ -3591,7 +3598,7 @@ func handleUserTestConfigs(w http.ResponseWriter, r *http.Request, id string) {
 // ============================================================================
 
 func findStaticDir() string {
-	candidates := []string{"./static", "../static", "/opt/whitepanel/static"}
+	candidates := []string{"./static", "../static", "/opt/parham/static", "/opt/whitepanel/static"}
 	for _, c := range candidates {
 		if st, err := os.Stat(filepath.Join(c, "sub.html")); err == nil && !st.IsDir() {
 			return c
@@ -4247,7 +4254,7 @@ func handleSettingsBackup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filename := fmt.Sprintf("whitepanel-backup-%s.json", now.Format("2006-01-02-15-04-05"))
+	filename := fmt.Sprintf("parham-backup-%s.json", now.Format("2006-01-02-15-04-05"))
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 	w.WriteHeader(http.StatusOK)
@@ -4580,7 +4587,7 @@ func main() {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
 		switch r.URL.Path {
-		case "/", "/white", "/dashboard":
+		case "/", "/parham", "/white", "/dashboard":
 			http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
 			return
 		case "/login":
@@ -4921,7 +4928,7 @@ func main() {
 	mux.HandleFunc("/api/tools/my-ip", requireAuth(handleToolsMyIP))
 
 	log.Printf("==================================================")
-	log.Printf("  Parham Go Engine v8.2 + Xray-core")
+	log.Printf("  Parham Panel Go Engine v8.2 + Xray-core")
 	log.Printf("  Listening on :%s", port)
 	log.Printf("  Admin:  http://localhost:%s/", port)
 	log.Printf("  Login:  http://localhost:%s/login", port)

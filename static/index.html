@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Parham</title>
+<title>Parham Panel Ultra</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <!-- Persian fonts: Vazirmatn (modern) + Estedad (display) -->
@@ -25,8 +25,8 @@
 <div class="login-wrap" id="login-wrap" style="display:none">
   <div class="login-card">
     <div class="login-header">
-      <img src="/static/white-logo.svg" alt="Parham" onerror="this.style.display='none'" style="width:96px;height:96px;margin-bottom:6px">
-      <div class="login-title">PARHAM</div>
+      <img src="/static/parham-logo.svg" alt="Parham" onerror="this.style.display='none'" style="width:96px;height:96px;margin-bottom:6px">
+      <div class="login-title">PARHAM PANEL</div>
       <div class="login-subtitle">High Performance Panel</div>
     </div>
     <div class="error-msg" id="login-err">
@@ -61,7 +61,7 @@
   <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sb-brand">
-      <img src="/static/white-logo.svg" alt="Parham" onerror="this.style.display='none'" style="width:56px;height:56px;flex-shrink:0">
+      <img src="/static/parham-logo.svg" alt="Parham" onerror="this.style.display='none'" style="width:56px;height:56px;flex-shrink:0">
       <div>
         <div class="sb-brand-t"><span>W</span>HITE</div>
         <div class="sb-brand-s">PANEL ULTRA</div>
@@ -166,7 +166,7 @@
         <span data-i18n="logout">خروج</span>
       </div>
     </nav>
-    <div class="sb-foot"><span class="dot"></span> Parham</div>
+    <div class="sb-foot"><span class="dot"></span> Parham Panel Ultra</div>
   </aside>
 
   <div class="main-area">
@@ -375,7 +375,7 @@
                   <label data-i18n="cfToken">Cloudflare API Token</label>
                   <div style="display:flex;gap:8px">
                     <input type="password" id="wk-token" dir="ltr" style="flex:1" autocomplete="off">
-                    <a class="btn btn-sm btn-g" href="https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22page%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22workers_kv_storage%22%2C%22type%22%3A%22edit%22%7D%5D&accountId=*&zoneId=all&name=Parham-Worker-Token" target="_blank" rel="noopener" style="text-decoration:none;white-space:nowrap"><span data-i18n="getToken">گرفتن توکن</span></a>
+                    <a class="btn btn-sm btn-g" href="https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22page%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22workers_kv_storage%22%2C%22type%22%3A%22edit%22%7D%5D&accountId=*&zoneId=all&name=ParhamPanel-Worker-Token" target="_blank" rel="noopener" style="text-decoration:none;white-space:nowrap"><span data-i18n="getToken">گرفتن توکن</span></a>
                   </div>
                 </div>
                 <div class="px-hint" style="font-size:10px;color:var(--txt2);margin-bottom:6px" data-i18n="workerPermissionsHint">توکن باید دست‌کم Pages:Write و Workers KV Storage:Edit و خواندن Account داشته باشد. Account ID خودکار شناسایی می‌شود.</div>
@@ -455,7 +455,7 @@
                   <div class="f-g"><label>لینک Channel</label><input id="bot-channel" type="text" dir="ltr" placeholder="https://t.me/mychannel یا @mychannel"></div>
                   <div class="f-r">
                     <div class="f-g"><label>زمان‌بندی (دقیقه)</label><input id="bot-channel-interval" type="number" min="1" max="10080" value="60" dir="ltr"></div>
-                    <div class="f-g"><label>پیشوند نام کاربر</label><input id="bot-channel-prefix" type="text" dir="ltr" value="white"></div>
+                    <div class="f-g"><label>پیشوند نام کاربر</label><input id="bot-channel-prefix" type="text" dir="ltr" value="parham"></div>
                   </div>
                   <div class="f-r">
                     <div class="f-g"><label>ترافیک هر کاربر (GB) — ۰ نامحدود</label><input id="bot-channel-traffic" type="number" min="0" step="0.1" value="0" dir="ltr"></div>
@@ -767,7 +767,7 @@
               <span class="glow"><span data-i18n="tm.title">Tunnel Management</span> · <span data-i18n="tm.server">Server</span></span>
               <button class="btn btn-p" type="button" onclick="tmOpenServerModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span data-i18n="tm.addServer">Add Server</span></button>
             </div>
-            <div class="px-hint" data-i18n="tm.serverHint">Each server is a real Parham Node. The API key is stored server-side only and is never sent to the browser.</div>
+            <div class="px-hint" data-i18n="tm.serverHint">Each server is a real Parham Panel Node. The API key is stored server-side only and is never sent to the browser.</div>
             <div class="tm-servers" id="tm-server-list"><div class="empty" data-i18n="loading">در حال بارگذاری...</div></div>
           </div>
         </div>
@@ -979,7 +979,7 @@
               <button type="button" class="spd-acc-head" onclick="spdToggleAcc('help-template',this)" aria-expanded="false"><span class="spd-acc-title"><strong data-i18n="helpTemplate">Template</strong></span><span class="material-symbols-outlined spd-acc-arrow">expand_more</span></button>
               <div class="spd-acc-body" id="acc-help-template">
                 <div class="px-hint" data-i18n="helpPromptHint">این Prompt منطق صفحه ساب فعلی را توضیح می‌دهد تا بتوانید آن را به هوش مصنوعی بدهید.</div>
-                <textarea id="help-template-text" readonly dir="ltr" spellcheck="false" style="width:100%;min-height:360px;margin:10px 0;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--txt);font:12px/1.6 monospace;white-space:pre-wrap;user-select:text;-webkit-user-select:text">You are modifying Parham's user subscription page, static/sub.html. First inspect the existing page and its server-side data contract. Preserve the established behavior unless the requested change requires otherwise.
+                <textarea id="help-template-text" readonly dir="ltr" spellcheck="false" style="width:100%;min-height:360px;margin:10px 0;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);color:var(--txt);font:12px/1.6 monospace;white-space:pre-wrap;user-select:text;-webkit-user-select:text">You are modifying Parham Panel's user subscription page, static/sub.html. First inspect the existing page and its server-side data contract. Preserve the established behavior unless the requested change requires otherwise.
 
 PAGE AND DATA CONTRACT
 - The page is served for a user's subscription UUID and reads the final path segment as uname. It fetches GET /api/sub/{encodeURIComponent(uname)} with cache: no-store.
@@ -1000,8 +1000,8 @@ PAGE BEHAVIOR
 - Keep event binding idempotent: dynamically rendered cards are recreated, so do not attach duplicate handlers. Existing code uses a _bound marker for this.
 
 LANGUAGE, THEME, AND LAYOUT
-- Language is shared with the main panel through localStorage key white-lang (fa or en). Every human-readable UI string, including dynamically-created buttons, empty states, titles, toasts, and errors, needs both Persian and English dictionary entries. applyLang must update text, placeholders, direction, and the visible language button.
-- Theme is shared through white-theme (dark or light) and data-theme on the root. Use the existing CSS variables for both themes; do not hard-code colors that break the light theme.
+- Language is shared with the main panel through localStorage key parham-lang (fa or en). Every human-readable UI string, including dynamically-created buttons, empty states, titles, toasts, and errors, needs both Persian and English dictionary entries. applyLang must update text, placeholders, direction, and the visible language button.
+- Theme is shared through parham-theme (dark or light) and data-theme on the root. Use the existing CSS variables for both themes; do not hard-code colors that break the light theme.
 - Preserve responsive mobile layout, RTL for Persian and LTR for English, accessible button types/labels, safe-area spacing, and reduced overflow on narrow screens. Keep selection disabled for decorative text only; inputs and the copyable subscription URL must remain selectable.
 - Keep the existing content structure and page identity. Do not copy the admin dashboard, expose private account fields, or mix this user page with the separate public group page at /p/{uuid_key}.
 
@@ -1114,7 +1114,7 @@ IMPLEMENTATION RULES
       </div>
       <button type="button" class="btn btn-sm btn-b" onclick="generateRealityKeysUI()" style="width:100%;margin-bottom:10px"><span data-i18n="genRealityKey">تولید کلید Reality (x25519)</span></button>
       <div class="f-g"><label data-i18n="shortIds">Short IDs</label><div style="display:flex;gap:6px"><input type="text" id="ib-shortids" value="" dir="ltr" data-i18n-placeholder="hex8" placeholder="هگز ۸ رقمی — خالی = تصادفی" style="flex:1"><button type="button" class="btn btn-sm" onclick="generateShortId()" style="white-space:nowrap"><span data-i18n="generate">+ تولید</span></button></div></div>
-      <div class="f-g"><label data-i18n="whitex">WhiteX</label><input type="text" id="ib-whitex" dir="ltr" placeholder="/" value="/"></div>
+      <div class="f-g"><label data-i18n="whitex">ParhamX</label><input type="text" id="ib-whitex" dir="ltr" placeholder="/" value="/"></div>
     </div>
     <div id="ib-tg-fields" class="hidden">
       <div class="divider"></div>

@@ -1,4 +1,4 @@
-module whitepanel
+module parham
 
 go 1.23
 
