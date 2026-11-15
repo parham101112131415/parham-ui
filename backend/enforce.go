@@ -102,6 +102,7 @@ func applyXrayTraffic() bool {
 	for _, u := range State.Users {
 		if add, ok := deltas[u.ConfigUUID]; ok && add > 0 {
 			u.TrafficUsedBytes += add
+			noteUserActivity(u.ConfigUUID)
 			changed = true
 		}
 	}

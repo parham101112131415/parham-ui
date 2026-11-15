@@ -30,7 +30,7 @@ Object.assign(I18N.fa, {
   'inboundsMulti': 'اینباندها (چندتایی)', 'noInboundOpt': 'اینباندی وجود ندارد', 'inboundPickHint': 'برای هر اینباند، گزینه‌های مخصوصش نمایش داده می‌شود.',
   'workerCountries': 'کشورهای چندمنطقه‌ای', 'addCfIps': 'افزودن ۱۰ کانفیگ با IPهای Cloudflare اسکن‌شده', 'addRailwayIps': 'افزودن ۱۰ کانفیگ با IPهای Railway اسکن‌شده', 'realityNoExtra': 'Reality گزینه اضافه‌ای ندارد — فقط کانفیگ اصلی Reality.',
   'cancel': 'انصراف', 'submitUser': 'ایجاد کاربر', 'creatingUser': 'در حال ایجاد...', 'saving': 'در حال ذخیره...', 'userCreated': 'با موفقیت ایجاد شد',
-  'volEdit': 'حجم (GB - ۰=نامحدود)', 'daysEdit': 'روز اعتبار (۰=نامحدود)', 'status': 'وضعیت', 'active': 'فعال', 'inactive': 'غیرفعال', 'resetTraffic': 'بازنشانی ترافیک', 'saveChanges': 'ذخیره تغییرات',
+  'volEdit': 'حجم (GB - ۰=نامحدود)', 'daysEdit': 'روز اعتبار (۰=نامحدود)', 'status': 'وضعیت', 'active': 'فعال', 'inactive': 'غیرفعال', 'onlineNow': 'آنلاین', 'offlineNow': 'آفلاین', 'resetTraffic': 'بازنشانی ترافیک', 'saveChanges': 'ذخیره تغییرات',
   'inboundName': 'نام اینباند', 'port': 'پورت', 'securityType': 'نوع امنیت', 'realitySettings': 'تنظیمات Reality', 'autoGen': 'تولید خودکار', 'genRealityKey': 'تولید کلید Reality (x25519)',
   'shortIds': 'شناسه‌های کوتاه', 'hex8': 'هگز ۸ رقمی — خالی = تصادفی', 'generate': '+ تولید', 'parhamx': 'ParhamX',
   'extDomain': 'دامنه خارجی', 'extPortCfg': 'پورت خارجی', 'extDomainPlace': 'دامنه خارجی برای کانفیگ کلاینت',
@@ -107,7 +107,7 @@ Object.assign(I18N.en, {
   'contactSub': 'Get in touch with me', 'createUser': 'Create New User', 'editUser': 'Edit User', 'username': 'Username', 'conn': 'Concurrent Connections', 'speedLimit': 'Speed limit (Mbps)', 'speedLimitHint': 'Combined WebSocket/XHTTP relay cap; 0 means unlimited.', 'volume': 'Traffic', 'unit': 'Unit', 'expire': 'Expiry', 'day': 'Day', 'month': 'Month',
   'inboundsMulti': 'Inbounds (multi-select)', 'noInboundOpt': 'No inbounds available', 'inboundPickHint': 'Each inbound shows its own options.', 'workerCountries': 'Worker Countries', 'addCfIps': 'Add 10 configs with scanned Cloudflare IPs', 'addRailwayIps': 'Add 10 configs with scanned Railway IPs', 'realityNoExtra': 'Reality needs no extras.',
   'cancel': 'Cancel', 'submitUser': 'Create User', 'creatingUser': 'Creating...', 'saving': 'Saving...', 'userCreated': 'created successfully',
-  'volEdit': 'Traffic (GB - 0=Unlimited)', 'daysEdit': 'Expiry days (0=Unlimited)', 'status': 'Status', 'active': 'Active', 'inactive': 'Inactive', 'resetTraffic': 'Reset traffic', 'saveChanges': 'Save Changes',
+  'volEdit': 'Traffic (GB - 0=Unlimited)', 'daysEdit': 'Expiry days (0=Unlimited)', 'status': 'Status', 'active': 'Active', 'inactive': 'Inactive', 'onlineNow': 'Online', 'offlineNow': 'Offline', 'resetTraffic': 'Reset traffic', 'saveChanges': 'Save Changes',
   'inboundName': 'Inbound Name', 'port': 'Port', 'securityType': 'Security Type', 'realitySettings': 'Reality Settings', 'autoGen': 'Auto-generated', 'genRealityKey': 'Generate Reality Keys (x25519)', 'shortIds': 'Short IDs', 'hex8': '8-digit hex', 'generate': '+ Generate', 'parhamx': 'ParhamX',
   'extDomain': 'External Domain', 'extPortCfg': 'External Port', 'extDomainPlace': 'External domain shown in the client config', 'network': 'Network', 'serviceName': 'Service Name', 'createInbound': 'Create Inbound', 'editInbound': 'Edit Inbound',
   'config': 'Config', 'copy': 'Copy', 'close': 'Close', 'copied': 'Config copied', 'noCfg': 'No config available', 'errCopy': 'Copy failed', 'delete': 'Delete', 'edit': 'Edit', 'unlimited': 'Unlimited', 'expired': 'Expired', 'daysUnit': ' days', 'usersCount': 'Users', 'secNetwork': 'Network', 'security': 'Security', 'expiry': 'Expiry', 'connTh': 'Conn',
@@ -512,9 +512,27 @@ function _userExp(u) {
   return exp === null ? t('unlimited') : exp <= 0 ? '<span style="color:var(--red)">' + t('expired') + '</span>' : exp + t('daysUnit');
 }
 function _userStatus(u) { return u.status === 'active' ? '<span class="badge badge-g">' + t('active') + '</span>' : '<span class="badge badge-r">' + t('inactive') + '</span>'; }
-function _userAccHead(u, idx) {
-  return '<button type="button" class="spd-acc-head" onclick="spdToggleAcc(\'ua-' + u.user_id + '\',this)" aria-expanded="false"><span class="spd-acc-title"><strong>' + esc(u.username) + '</strong></span><span class="spd-acc-badges">' + _userStatus(u) + '</span><span class="material-symbols-outlined spd-acc-arrow">expand_more</span></button>';
+function _userOnlineBadge(u) {
+  return u.online ? '<span class="badge badge-g" data-online-badge="' + u.user_id + '">● ' + t('onlineNow') + (u.live_connections ? ' · ' + u.live_connections : '') + '</span>' : '<span class="badge" data-online-badge="' + u.user_id + '">○ ' + t('offlineNow') + '</span>';
 }
+function _userAccHead(u, idx) {
+  return '<button type="button" class="spd-acc-head" onclick="spdToggleAcc(\'ua-' + u.user_id + '\',this)" aria-expanded="false"><span class="spd-acc-title"><span class="online-dot ' + (u.online ? 'on' : 'off') + '" data-online-dot="' + u.user_id + '"></span><strong>' + esc(u.username) + '</strong></span><span class="spd-acc-badges">' + _userOnlineBadge(u) + _userStatus(u) + '</span><span class="material-symbols-outlined spd-acc-arrow">expand_more</span></button>';
+}
+async function refreshOnlineDots() {
+  if (!$id('users-list')) return;
+  try {
+    var d = await api('/api/users');
+    var byId = {};
+    (d.users || []).forEach(function (u) { byId[u.user_id] = u; });
+    document.querySelectorAll('[data-online-dot]').forEach(function (dot) {
+      var u = byId[dot.getAttribute('data-online-dot')]; if (!u) return;
+      dot.className = 'online-dot ' + (u.online ? 'on' : 'off');
+      var b = document.querySelector('[data-online-badge="' + u.user_id + '"]');
+      if (b) { b.className = 'badge ' + (u.online ? 'badge-g' : ''); b.textContent = u.online ? ('● ' + t('onlineNow') + (u.live_connections ? ' · ' + u.live_connections : '')) : ('○ ' + t('offlineNow')); }
+    });
+  } catch (e) {}
+}
+setInterval(refreshOnlineDots, 15000);
 function _userAccBody(u) {
   var connTxt = u.concurrent_connections ? u.concurrent_connections : t('unlimited');
   var speedVal = parseFloat(u.speed_limit_mbps) || 0;

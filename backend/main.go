@@ -185,6 +185,88 @@ var (
 	userIPTracker   = make(map[string]map[string]time.Time)
 )
 
+// ---------------------------------------------------------------------------
+// Live connection + activity registry. Exact live relay connections (WS and
+// XHTTP) plus last-activity timestamps for every transport: relay bytes flow
+// through checkAndUse, Xray users report through the stats poller. Powers the
+// dashboard active-connections counter and the per-user online indicator.
+// ---------------------------------------------------------------------------
+var (
+	regMu            sync.Mutex
+	liveConns        = make(map[string]int)
+	userLastActivity = make(map[string]time.Time)
+)
+
+const onlineWindow = 3 * time.Minute
+
+func connOpened(uuid string) {
+	regMu.Lock()
+	liveConns[uuid]++
+	userLastActivity[uuid] = time.Now()
+	regMu.Unlock()
+}
+
+func connClosed(uuid string) {
+	regMu.Lock()
+	if liveConns[uuid] <= 1 {
+		delete(liveConns, uuid)
+	} else {
+		liveConns[uuid]--
+	}
+	regMu.Unlock()
+}
+
+func noteUserActivity(uuid string) {
+	regMu.Lock()
+	userLastActivity[uuid] = time.Now()
+	regMu.Unlock()
+}
+
+func userLiveConns(uuid string) int {
+	regMu.Lock()
+	defer regMu.Unlock()
+	return liveConns[uuid]
+}
+
+func userOnline(uuid string) bool {
+	regMu.Lock()
+	defer regMu.Unlock()
+	if liveConns[uuid] > 0 {
+		return true
+	}
+	if t, ok := userLastActivity[uuid]; ok {
+		return time.Since(t) < onlineWindow
+	}
+	return false
+}
+
+func userLastSeen(uuid string) any {
+	regMu.Lock()
+	defer regMu.Unlock()
+	if t, ok := userLastActivity[uuid]; ok {
+		return t.Format(time.RFC3339)
+	}
+	return nil
+}
+
+// activeConnectionTotal counts live relay connections plus Xray-only users
+// seen moving traffic inside the online window (one per such user).
+func activeConnectionTotal() int {
+	regMu.Lock()
+	defer regMu.Unlock()
+	total := 0
+	for _, c := range liveConns {
+		total += c
+	}
+	now := time.Now()
+	for uuid, t := range userLastActivity {
+		if liveConns[uuid] == 0 && now.Sub(t) < onlineWindow {
+			total++
+		}
+	}
+	return total
+}
+
 func getMaxIPPerUser() int {
 	State.mu.RLock()
 	defer State.mu.RUnlock()
@@ -1551,6 +1633,7 @@ func checkAndUse(configUUID string, n int64) bool {
 		return false
 	}
 	u.TrafficUsedBytes += n
+	noteUserActivity(configUUID)
 	return true
 }
 
@@ -1642,6 +1725,8 @@ func handleWSRelay(w http.ResponseWriter, r *http.Request, uuid string) {
 		return
 	}
 	defer target.Close()
+	connOpened(uuid)
+	defer connClosed(uuid)
 
 	if tcpConn, ok := target.(*net.TCPConn); ok {
 		_ = tcpConn.SetKeepAlive(true)
@@ -1734,6 +1819,9 @@ func handleWSRelay(w http.ResponseWriter, r *http.Request, uuid string) {
 		for {
 			n, err := target.Read(buf)
 			if n > 0 {
+				if !checkAndUse(uuid, int64(n)) {
+					return
+				}
 				chunk := buf[:n]
 				if firstChunk {
 					out := make([]byte, 2+n)
@@ -1764,6 +1852,7 @@ type xhttpSession struct {
 	tcpConn   net.Conn
 	downQueue chan []byte
 	closed    atomic.Bool
+	counted   bool
 	lastSeen  time.Time
 	seqBuf    map[int][]byte
 	nextSeq   int
@@ -1796,6 +1885,10 @@ func (s *xhttpSession) close() {
 	if s.closed.Swap(true) {
 		return
 	}
+	if s.counted {
+		s.counted = false
+		connClosed(s.uuid)
+	}
 	if s.tcpConn != nil {
 		s.tcpConn.Close()
 	}
@@ -1811,6 +1904,10 @@ func (s *xhttpSession) openTCP(h *vlessHeader) error {
 		return err
 	}
 	s.tcpConn = conn
+	if !s.counted {
+		s.counted = true
+		connOpened(s.uuid)
+	}
 	if len(h.Payload) > 0 {
 		conn.Write(h.Payload)
 	}
@@ -1824,6 +1921,10 @@ func (s *xhttpSession) pumpDownstream() {
 	for {
 		n, err := s.tcpConn.Read(buf)
 		if n > 0 {
+			if !checkAndUse(s.uuid, int64(n)) {
+				s.close()
+				return
+			}
 			chunk := make([]byte, n)
 			copy(chunk, buf[:n])
 			if first {
@@ -2528,9 +2629,12 @@ func handleStats(w http.ResponseWriter, r *http.Request) {
 	m := (uptimeSec % 3600) / 60
 	s := uptimeSec % 60
 	uptimeFmt := fmt.Sprintf("%02d:%02d:%02d", h, m, s)
+	activeConns := activeConnectionTotal()
 
 	writeJSON(w, http.StatusOK, map[string]any{
-		"active_connections":    0,
+		"active_connections":    activeConns,
+		"tcp_connections":       activeConns,
+		"udp_connections":       0,
 		"traffic_usage_gb":      usedGB,
 		"total_traffic_used_gb": usedGB,
 		"total_traffic_used_tb": mathRound2(usedGB / 1024.0),
@@ -3067,6 +3171,9 @@ func handleUsersList(w http.ResponseWriter, r *http.Request) {
 			"concurrent_connections": u.ConcurrentConnections,
 			"speed_limit_mbps":       u.SpeedLimitMbps,
 			"status":                 status, "server": u.Server,
+			"online":                 userOnline(u.ConfigUUID),
+			"live_connections":       userLiveConns(u.ConfigUUID),
+			"last_seen":              userLastSeen(u.ConfigUUID),
 			"inbound_id": u.InboundID, "inbound_ids": u.InboundIDs,
 			"proxy_ips": u.ProxyIPs, "proxy_ip_enabled": u.ProxyIPEnabled,
 			"custom_ip_type": u.CustomIPType, "created_at": u.CreatedAt,
