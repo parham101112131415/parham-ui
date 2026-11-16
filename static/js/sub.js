@@ -28,6 +28,8 @@
       secureReady:"اتصال امن شما آماده استفاده است", quickConnect:"اتصال سریع",
       quickImport:"اتصال سریع", qcTitle:"اتصال سریع با یک کلیک", themeLight:"روز", themeDark:"شب", usageChart:"نمودار مصرف",
       noConfig:"کانفیگی موجود نیست", gb:"گیگابایت", dailyAvg:"میانگین روزانه",
+      sum14:"مجموع ۱۴ روز", maxDay:"بیشترین روز", noUsageYet:"هنوز مصرفی ثبت نشده — نمودار از امروز پر می‌شه",
+      impHint:"برنامه باز نشد؟ اگه نصب نیست اول نصبش کن؛ اگه نصبه، لینک ساب کپی شده و توی برنامه از کلیپ‌بورد واردش کن.",
       navHome:"داشبورد", navConfigs:"کانفیگ‌ها"
     },
     en: {
@@ -45,6 +47,8 @@
       secureReady:"Your secure connection is ready", quickConnect:"Quick Connect",
       quickImport:"Quick Connect", qcTitle:"One-Tap Quick Connect", themeLight:"Light", themeDark:"Dark", usageChart:"Usage Chart",
       noConfig:"No configs", gb:"GB", dailyAvg:"Daily Avg",
+      sum14:"14-day total", maxDay:"Peak day", noUsageYet:"No usage recorded yet — the chart fills in from today",
+      impHint:"App didn't open? Install it first if missing; if installed, the sub link is copied — import it from the clipboard inside the app.",
       navHome:"Home", navConfigs:"Configs"
     }
   };
@@ -450,7 +454,11 @@
   var QC_NAME = "PARHAM";
   function qcPlay(q){ return "https://play.google.com/store/search?c=apps&q=" + encodeURIComponent(q); }
   function qcIos(q){ return "itms-apps://search.itunes.apple.com/WebObjects/MZSearch.woa/wa/search?media=software&term=" + encodeURIComponent(q); }
-  var uV2rayng  = function(s,n){ return "v2rayng://install-sub?url=" + encodeURIComponent(s) + "&name=" + encodeURIComponent(n); };
+  var uV2rayng  = function(s,n){ return "v2rayng://install-sub?url=" + encodeURIComponent(s) + "#" + encodeURIComponent(n); };
+  /* MahsaNG و PattNG اسکیم جدا ندارن (فقط v2rayng:// رو می‌شناسن و پارامتر name خونده نمی‌شه؛ اسم باید فرگمنت باشه).
+     برای اینکه دقیقاً خودِ همون برنامه باز بشه، از intent پکیج‌محور استفاده می‌شه؛ اسم ساب داخل خود url می‌ره. */
+  var uMahsa    = function(s,n){ return "intent://install-sub?url=" + encodeURIComponent(s + "#" + n) + "#Intent;scheme=v2rayng;package=com.MahsaNet.MahsaNG;S.browser_fallback_url=" + encodeURIComponent("https://play.google.com/store/search?c=apps&q=MahsaNG") + ";end"; };
+  var uPatt     = function(s,n){ return "intent://install-sub?url=" + encodeURIComponent(s + "#" + n) + "#Intent;scheme=v2rayng;package=com.patterniha.pattng;S.browser_fallback_url=" + encodeURIComponent("https://github.com/patterniha/PattNG/releases/latest") + ";end"; };
   var uHapp     = function(s){ return "happ://add/" + s; };
   var uHiddify  = function(s,n){ return "hiddify://import/" + s + "#" + encodeURIComponent(n); };
   var uV2box    = function(s,n){ return "v2box://install-sub?url=" + encodeURIComponent(s) + "&name=" + encodeURIComponent(n); };
@@ -459,23 +467,23 @@
   var uKaring   = function(s,n){ return "karing://install-config?url=" + encodeURIComponent(s) + "&name=" + encodeURIComponent(n); };
   var uNeko     = function(s,n){ return "sn://subscription?url=" + encodeURIComponent(s) + "&name=" + encodeURIComponent(n); };
   var uFoxray   = function(s,n){ return "foxray://yiguo.dev/sub/add/?url=" + encodeURIComponent(s) + "#" + encodeURIComponent(n); };
-  /* MahsaNG و PattNG فورک v2rayNG هستن و اسکیم خودشون رو ندارن؛ همون لینک v2rayNG رو می‌گیرن. */
+  /* (یادداشت اسکیم‌های MahsaNG/PattNG بالاتر، کنار uMahsa/uPatt است.) */
 
   /* i: آیکن، g: گرادیان رنگ، u: دیپ‌لینک، dl: لینک دانلود (در صورت نیاز لینک دقیق استور را جایگزین کنید) */
   var QC_APPS = {
     android: [
-      { n:"v2rayNG", i:"fa-shield-halved",        g:["#3b82f6","#1d4ed8"], u:uV2rayng, dl:"https://play.google.com/store/apps/details?id=com.v2ray.ang" },
       { n:"Happ",    i:"fa-bolt",                 g:["#a855f7","#6d28d9"], u:uHapp,    dl:"https://play.google.com/store/apps/details?id=com.happproxy" },
-      { n:"Hiddify", i:"fa-wand-magic-sparkles",  g:["#f59e0b","#d97706"], u:uHiddify, dl:"https://play.google.com/store/apps/details?id=app.hiddify.com" },
-      { n:"V2Box",   i:"fa-cube",                 g:["#14b8a6","#0f766e"], u:uV2box,   dl:"https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box" },
+      { n:"PattNG",  i:"fa-layer-group",          g:["#84cc16","#3f6212"], u:uPatt,    dl:"https://github.com/patterniha/PattNG/releases/latest" },
+      { n:"MahsaNG", i:"fa-star",                 g:["#06b6d4","#155e75"], u:uMahsa,   dl:qcPlay("MahsaNG") },
       { n:"Karing",  i:"fa-globe",                g:["#f43f5e","#881337"], u:uKaring,  dl:qcPlay("Karing") },
-      { n:"MahsaNG", i:"fa-star",                 g:["#06b6d4","#155e75"], u:uV2rayng, dl:qcPlay("MahsaNG") },
-      { n:"PattNG",  i:"fa-layer-group",          g:["#84cc16","#3f6212"], u:uV2rayng, dl:"https://github.com/patterniha/PattNG/releases/latest" },
-      { n:"NekoBox", i:"fa-cat",                  g:["#f97316","#7c2d12"], u:uNeko,    dl:"https://play.google.com/store/apps/details?id=moe.nb4a" }
+      { n:"Hiddify", i:"fa-wand-magic-sparkles",  g:["#f59e0b","#d97706"], u:uHiddify, dl:"https://play.google.com/store/apps/details?id=app.hiddify.com" },
+      { n:"NekoBox", i:"fa-cat",                  g:["#f97316","#7c2d12"], u:uNeko,    dl:"https://play.google.com/store/apps/details?id=moe.nb4a" },
+      { n:"V2Box",   i:"fa-cube",                 g:["#14b8a6","#0f766e"], u:uV2box,   dl:"https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box" },
+      { n:"v2rayNG", i:"fa-shield-halved",        g:["#3b82f6","#1d4ed8"], u:uV2rayng, dl:"https://play.google.com/store/apps/details?id=com.v2ray.ang" }
     ],
     ios: [
-      { n:"Streisand",    i:"fa-wind",   g:["#38bdf8","#0369a1"], u:uStreis, dl:"https://apps.apple.com/app/id6450534064" },
       { n:"Happ",         i:"fa-bolt",   g:["#a855f7","#6d28d9"], u:uHapp,   dl:"https://apps.apple.com/app/id6504287215" },
+      { n:"Streisand",    i:"fa-wind",   g:["#38bdf8","#0369a1"], u:uStreis, dl:"https://apps.apple.com/app/id6450534064" },
       { n:"V2Box",        i:"fa-cube",   g:["#14b8a6","#0f766e"], u:uV2box,  dl:"https://apps.apple.com/app/id6446814690" },
       { n:"Shadowrocket", i:"fa-rocket", g:["#fb7185","#be123c"], u:uShadow, dl:"https://apps.apple.com/app/id932747118" },
       { n:"Karing",       i:"fa-globe",  g:["#f43f5e","#881337"], u:uKaring, dl:qcIos("Karing") },
@@ -851,35 +859,130 @@
 
   function renderUsageChart(series){
     var cv = document.getElementById('usageChart');
-    if (!cv || !series || !series.length) return;
+    if (!cv) return;
+    series = series || [];
+    window.__usageSeries = series;
+    if (!cv._rzBound){
+      cv._rzBound = true;
+      var rzT = null;
+      window.addEventListener('resize', function(){
+        clearTimeout(rzT);
+        rzT = setTimeout(function(){ renderUsageChart(window.__usageSeries || []); }, 180);
+      });
+    }
+    var n = series.length;
+    var total = 0, maxV = 0, maxI = -1;
+    series.forEach(function(p, i){
+      var b = p.bytes || 0;
+      total += b;
+      if (b > maxV){ maxV = b; maxI = i; }
+    });
+    var lbl = document.getElementById('chartTodayVal');
+    if (lbl && n) lbl.textContent = fmtBytes(series[n - 1].bytes || 0);
+    var sumEl = document.getElementById('chartSum'); if (sumEl) sumEl.textContent = fmtBytes(total);
+    var avgEl = document.getElementById('chartAvg'); if (avgEl) avgEl.textContent = fmtBytes(n ? Math.round(total / n) : 0);
+    var maxEl = document.getElementById('chartMax'); if (maxEl) maxEl.textContent = fmtBytes(maxV);
+
     var dpr = window.devicePixelRatio || 1;
-    var W = cv.clientWidth || 320, H = 120;
+    var W = cv.clientWidth || 320, H = 168;
     cv.width = W * dpr; cv.height = H * dpr;
     var ctx = cv.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var max = 0;
-    series.forEach(function(p){ if ((p.bytes || 0) > max) max = p.bytes; });
-    var n = series.length, gap = 3, bw = (W - gap * (n + 1)) / n, base = H - 16;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = 'rgba(128,128,128,.35)';
-    ctx.fillRect(0, base, W, 1);
-    series.forEach(function(p, i){
-      var b = p.bytes || 0;
-      var h = max > 0 && b > 0 ? Math.max(3, (b / max) * (base - 18)) : 0;
-      var x = gap + i * (bw + gap), y = base - h;
-      if (b > 0) {
-        ctx.fillStyle = i === n - 1 ? '#ee3a3a' : 'rgba(238,58,58,.45)';
-        if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, bw, h, 2); ctx.fill(); }
-        else ctx.fillRect(x, y, bw, h);
+
+    var cs = getComputedStyle(document.documentElement);
+    var muted = (cs.getPropertyValue('--muted') || '').trim() || '#8a8a93';
+    var textC = (cs.getPropertyValue('--text') || '').trim() || '#333333';
+    var FONT = 'Vazirmatn, sans-serif';
+    var padR = 42, padL = 4, padT = 20, padB = 20;
+    var plotW = Math.max(40, W - padR - padL), plotH = H - padT - padB, base = padT + plotH;
+
+    function barPath(x, y, w, h, r){
+      r = Math.min(r, w / 2, h);
+      ctx.beginPath();
+      ctx.moveTo(x, y + h);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h);
+      ctx.closePath();
+    }
+
+    function draw(prog){
+      ctx.clearRect(0, 0, W, H);
+      /* خطوط راهنما + برچسب محور عمودی (سمت راست، هم‌جهت با صفحه) */
+      ctx.font = '9px ' + FONT;
+      for (var g = 0; g <= 3; g++){
+        var gy = padT + plotH - (plotH * g / 3);
+        ctx.strokeStyle = 'rgba(140,140,150,.16)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(padL + plotW, gy); ctx.stroke();
+        ctx.setLineDash([]);
+        if (maxV > 0){
+          ctx.fillStyle = muted; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+          ctx.fillText(fmtBytes(Math.round(maxV * g / 3)), padL + plotW + 5, gy);
+        }
       }
-      if (i % 2 === 0 || i === n - 1) {
-        ctx.fillStyle = 'rgba(140,140,150,.9)';
-        ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
-        ctx.fillText(String(p.date || '').slice(8), x + bw / 2, H - 4);
+      /* خط پایه */
+      ctx.strokeStyle = 'rgba(140,140,150,.35)';
+      ctx.beginPath(); ctx.moveTo(padL, base); ctx.lineTo(padL + plotW, base); ctx.stroke();
+      ctx.textBaseline = 'alphabetic';
+
+      if (!n || maxV <= 0){
+        /* حالت خالی: به‌جای کادر خالی، پیام واضح وسط نمودار */
+        series.forEach(function(p, i){
+          var gap0 = Math.max(3, plotW * 0.012), bw0 = (plotW - gap0 * (n + 1)) / Math.max(1, n);
+          var x0 = padL + gap0 + i * (bw0 + gap0);
+          ctx.fillStyle = 'rgba(140,140,150,.30)';
+          barPath(x0, base - 2, bw0, 2, 1); ctx.fill();
+        });
+        ctx.fillStyle = muted;
+        ctx.font = '11px ' + FONT; ctx.textAlign = 'center';
+        ctx.fillText(tr('noUsageYet'), padL + plotW / 2, padT + plotH / 2);
+        return;
       }
-    });
-    var lbl = document.getElementById('chartTodayVal');
-    if (lbl) lbl.textContent = fmtBytes(series[n - 1].bytes || 0);
+
+      var gap = Math.max(3, plotW * 0.012), bw = (plotW - gap * (n + 1)) / n;
+      series.forEach(function(p, i){
+        var b = p.bytes || 0;
+        var x = padL + gap + i * (bw + gap);
+        var today = i === n - 1;
+        if (b <= 0){
+          ctx.fillStyle = 'rgba(140,140,150,.35)';
+          barPath(x, base - 2, bw, 2, 1); ctx.fill();
+        } else {
+          var h = Math.max(3, (b / maxV) * plotH * prog);
+          var grad = ctx.createLinearGradient(0, base - h, 0, base);
+          if (today){ grad.addColorStop(0, '#ff6b5e'); grad.addColorStop(1, '#ee3a3a'); }
+          else { grad.addColorStop(0, 'rgba(255,107,94,.72)'); grad.addColorStop(1, 'rgba(238,58,58,.50)'); }
+          ctx.fillStyle = grad;
+          if (today){ ctx.save(); ctx.shadowColor = 'rgba(238,58,58,.45)'; ctx.shadowBlur = 10; }
+          barPath(x, base - h, bw, h, Math.min(5, bw / 2)); ctx.fill();
+          if (today) ctx.restore();
+          if (today || i === maxI){
+            ctx.fillStyle = textC;
+            ctx.font = '700 9px ' + FONT; ctx.textAlign = 'center';
+            ctx.fillText(fmtBytes(b), x + bw / 2, base - h - 5);
+          }
+        }
+        ctx.fillStyle = today ? '#ee3a3a' : muted;
+        ctx.font = (today ? '700 ' : '') + '8.5px ' + FONT; ctx.textAlign = 'center';
+        var lab = today ? tr('todayUsage') : faDigits(String(p.date || '').slice(8).replace(/^0/, ''));
+        ctx.fillText(lab, x + bw / 2, base + 13);
+      });
+    }
+
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || maxV <= 0){ draw(1); return; }
+    var t0 = null;
+    function step(ts){
+      if (!t0) t0 = ts;
+      var k = Math.min(1, (ts - t0) / 650);
+      draw(1 - Math.pow(1 - k, 3));
+      if (k < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
 
   /* ---------- کارت انتخاب زبان ---------- */
@@ -1154,22 +1257,78 @@
         showQR(getSubUrl(), "Subscription");
       });
     }
-    var btnV2ray = document.getElementById("btnImportV2ray");
-    if (btnV2ray && !btnV2ray._bound){
-      btnV2ray._bound = true;
-      btnV2ray.addEventListener("click", function(){
-        copyText(getSubUrl()).then(function(){ showToast(tr("toastSub")); })
-          .catch(function(){ showToast(tr("toastErr"), true); });
+    /* ---------- گرید کلاینت‌ها روی خودِ صفحه: هر دکمه مستقیم همون برنامه رو باز می‌کنه و ساب رو اضافه می‌کنه ---------- */
+    var NPV_APP = { n:"NPV", i:"fa-rocket", g:["#22c55e","#166534"], u:null, npv:true,
+      dl:"https://play.google.com/store/apps/details?id=com.napsternetlabs.napsternetv" };
+    function importAppsFor(p){
+      var list = (QC_APPS[p] || []).slice();
+      if (p === "android"){
+        var out = [];
+        list.forEach(function(a){ out.push(a); if (a.n === "MahsaNG") out.push(NPV_APP); });
+        return out;
+      }
+      return list;
+    }
+    var impHintTimer = null;
+    function hideImportHint(){ var h = document.getElementById("importHint"); if (h) h.hidden = true; }
+    function showImportHint(a){
+      var h = document.getElementById("importHint"); if (!h) return;
+      h.innerHTML = '<i class="fa-solid fa-circle-question"></i><span>' + esc(tr("impHint")) + '</span>' +
+        (a && a.dl ? '<a class="import-hint-dl" href="' + a.dl + '" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-download"></i>' + esc(a.n) + '</a>' : '');
+      h.hidden = false;
+    }
+    /* اگه چند ثانیه بعد هنوز همین صفحه جلوی چشمه، یعنی برنامه باز نشده */
+    function armImportHint(a){
+      clearTimeout(impHintTimer);
+      var left = false;
+      function mark(){ left = true; }
+      function cleanup(){
+        document.removeEventListener("visibilitychange", mark);
+        window.removeEventListener("pagehide", mark);
+        window.removeEventListener("blur", mark);
+      }
+      document.addEventListener("visibilitychange", mark);
+      window.addEventListener("pagehide", mark);
+      window.addEventListener("blur", mark);
+      impHintTimer = setTimeout(function(){
+        cleanup();
+        if (!left && !document.hidden) showImportHint(a);
+      }, 2200);
+    }
+    function importOpenApp(a){
+      var url = getSubUrl();
+      copyText(url).then(function(){ showToast(tr("toastSub")); }).catch(function(){});
+      hideImportHint();
+      if (a.npv){
+        /* NPV اسکیم ایمپورت نداره؛ خودش رو باز می‌کنیم، لینک هم کپی شده و آماده‌ی پیسته */
+        armImportHint(a);
+        try { window.location.href = "intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.napsternetlabs.napsternetv;S.browser_fallback_url=" + encodeURIComponent(a.dl) + ";end"; } catch(e){}
+      } else if (a.u){
+        armImportHint(a);
+        try { window.location.href = a.u(url, QC_NAME); } catch(e){}
+      } else {
+        showImportHint(a);
+      }
+    }
+    function renderImportGrid(){
+      var grid = document.getElementById("importGrid");
+      if (!grid) return;
+      var p = qcDetect();
+      var apps = importAppsFor(p);
+      grid.innerHTML = apps.map(function(a, idx){
+        return '<button type="button" class="import-app" data-i="' + idx + '" style="--g1:' + a.g[0] + ';--g2:' + a.g[1] + '">' +
+          '<span class="ia-ico"><i class="fa-solid ' + a.i + '"></i></span>' +
+          '<span class="ia-name">' + esc(a.n) + '</span>' +
+          '<i class="fa-solid fa-chevron-left ia-go"></i></button>';
+      }).join("");
+      grid.querySelectorAll(".import-app").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          var a = apps[parseInt(btn.getAttribute("data-i"), 10)];
+          if (a) importOpenApp(a);
+        });
       });
     }
-    var btnNpv = document.getElementById("btnImportNpv");
-    if (btnNpv && !btnNpv._bound){
-      btnNpv._bound = true;
-      btnNpv.addEventListener("click", function(){
-        copyText(getSubUrl()).then(function(){ showToast(tr("toastSub")); })
-          .catch(function(){ showToast(tr("toastErr"), true); });
-      });
-    }
+    renderImportGrid();
     var copyAllBtn = document.getElementById("copyAllConfigsBtn");
     if (copyAllBtn && !copyAllBtn._bound){
       copyAllBtn._bound = true;

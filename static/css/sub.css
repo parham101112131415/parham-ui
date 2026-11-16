@@ -2208,5 +2208,17 @@ html.theme-transition *::after{
 .days-bar-track{flex:1;height:8px;border-radius:99px;background:rgba(128,128,128,.25);overflow:hidden}
 .days-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#ee3a3a,#ff7a45);transition:width .6s ease}
 .days-bar-pct{font-size:12px;font-weight:700;direction:ltr}
-.chart-card canvas{width:100%;height:120px;display:block}
+.chart-card canvas{width:100%;height:168px;display:block}
+.import-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.import-app{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:13px;color:var(--btn-main-text);font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;background:var(--btn-main-bg);border:1px solid var(--btn-main-border);box-shadow:var(--btn-main-shadow);transition:transform .25s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden;text-align:start}
+.import-app:hover{transform:translateY(-2px)}
+.import-app .ia-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0;background:linear-gradient(135deg,var(--g1),var(--g2))}
+.import-app .ia-name{font-weight:800}
+.import-app .ia-go{margin-inline-start:auto;font-size:11px;opacity:.5}
+.import-hint{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;line-height:1.9;padding:10px 12px;border-radius:12px;background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.25);color:var(--text)}
+.import-hint[hidden]{display:none}
+.import-hint .import-hint-dl{display:inline-flex;align-items:center;gap:6px;font-weight:800;color:var(--bright);text-decoration:none}
+.chart-stats{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 8px}
+.chart-chip{font-size:11px;padding:5px 10px;border-radius:999px;background:var(--card2);border:1px solid rgba(140,140,150,.25);color:var(--muted)}
+.chart-chip b{color:var(--text);font-weight:800}
 .chart-today{margin-inline-start:auto;font-size:12px;opacity:.85}
