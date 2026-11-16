@@ -857,6 +857,25 @@
     document.getElementById('daysBarPct').textContent = faDigits(Math.round(pct)) + '٪';
   }
 
+  /* ---------- نمودار مصرف: ایریاچارت نرم گرادیانی (استایل ApexCharts) + اسکراب لمسی ---------- */
+  var chartState = { hover: -1, animDone: false, geom: null };
+  function chartDateObj(ds){
+    var p = String(ds || '').split('-');
+    if (p.length !== 3) return null;
+    return new Date(+p[0], +p[1] - 1, +p[2]);
+  }
+  function chartDayLabel(ds){
+    var d = chartDateObj(ds);
+    if (!d) return '';
+    try { return new Intl.DateTimeFormat(lang === 'fa' ? 'fa-IR' : 'en-US', { day: 'numeric' }).format(d); }
+    catch(e){ return String(ds || '').slice(8).replace(/^0/, ''); }
+  }
+  function chartFullDate(ds){
+    var d = chartDateObj(ds);
+    if (!d) return String(ds || '');
+    try { return new Intl.DateTimeFormat(lang === 'fa' ? 'fa-IR' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' }).format(d); }
+    catch(e){ return String(ds || ''); }
+  }
   function renderUsageChart(series){
     var cv = document.getElementById('usageChart');
     if (!cv) return;
@@ -871,11 +890,11 @@
       });
     }
     var n = series.length;
-    var total = 0, maxV = 0, maxI = -1;
-    series.forEach(function(p, i){
+    var total = 0, maxV = 0;
+    series.forEach(function(p){
       var b = p.bytes || 0;
       total += b;
-      if (b > maxV){ maxV = b; maxI = i; }
+      if (b > maxV) maxV = b;
     });
     var lbl = document.getElementById('chartTodayVal');
     if (lbl && n) lbl.textContent = fmtBytes(series[n - 1].bytes || 0);
@@ -891,96 +910,209 @@
 
     var cs = getComputedStyle(document.documentElement);
     var muted = (cs.getPropertyValue('--muted') || '').trim() || '#8a8a93';
-    var textC = (cs.getPropertyValue('--text') || '').trim() || '#333333';
     var FONT = 'Vazirmatn, sans-serif';
-    var padR = 42, padL = 4, padT = 20, padB = 20;
+    var ACCENT = '#ee3a3a';
+    var padL = 46, padR = 10, padT = 14, padB = 20;
     var plotW = Math.max(40, W - padR - padL), plotH = H - padT - padB, base = padT + plotH;
 
-    function barPath(x, y, w, h, r){
-      r = Math.min(r, w / 2, h);
+    var pts = series.map(function(p, i){
+      return {
+        x: padL + (n > 1 ? plotW * i / (n - 1) : plotW / 2),
+        y: base - (maxV > 0 ? (p.bytes || 0) / maxV * plotH : 0),
+        b: p.bytes || 0, date: p.date
+      };
+    });
+    chartState.geom = { pts: pts, padT: padT, base: base };
+
+    /* منحنی یکنواخت (مونوتون) — نرم ولی بدون اُورشوت از نقاط واقعی */
+    function traceLine(){
+      var m = pts.length;
+      if (!m) return;
+      ctx.moveTo(pts[0].x, pts[0].y);
+      if (m < 3){
+        for (var i = 1; i < m; i++) ctx.lineTo(pts[i].x, pts[i].y);
+        return;
+      }
+      var sl = [];
+      for (var j = 0; j < m - 1; j++) sl.push((pts[j + 1].y - pts[j].y) / (pts[j + 1].x - pts[j].x));
+      var tg = [sl[0]];
+      for (var k = 1; k < m - 1; k++) tg.push((sl[k - 1] + sl[k]) / 2);
+      tg.push(sl[m - 2]);
+      for (var q = 0; q < m - 1; q++){
+        if (Math.abs(sl[q]) < 1e-6){ tg[q] = 0; tg[q + 1] = 0; }
+        else {
+          var a = tg[q] / sl[q], b2 = tg[q + 1] / sl[q], s2 = a * a + b2 * b2;
+          if (s2 > 9){ var tau = 3 / Math.sqrt(s2); tg[q] = tau * a * sl[q]; tg[q + 1] = tau * b2 * sl[q]; }
+        }
+      }
+      for (var r = 0; r < m - 1; r++){
+        var p0 = pts[r], p1 = pts[r + 1], d = p1.x - p0.x;
+        ctx.bezierCurveTo(p0.x + d / 3, p0.y + tg[r] * d / 3, p1.x - d / 3, p1.y - tg[r + 1] * d / 3, p1.x, p1.y);
+      }
+    }
+    function rr(x, y, w, h, rad){
+      rad = Math.min(rad, w / 2, h / 2);
       ctx.beginPath();
-      ctx.moveTo(x, y + h);
-      ctx.lineTo(x, y + r);
-      ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.lineTo(x + w - r, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-      ctx.lineTo(x + w, y + h);
+      ctx.moveTo(x + rad, y);
+      ctx.lineTo(x + w - rad, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + rad);
+      ctx.lineTo(x + w, y + h - rad);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - rad, y + h);
+      ctx.lineTo(x + rad, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - rad);
+      ctx.lineTo(x, y + rad);
+      ctx.quadraticCurveTo(x, y, x + rad, y);
       ctx.closePath();
     }
 
     function draw(prog){
       ctx.clearRect(0, 0, W, H);
-      /* خطوط راهنما + برچسب محور عمودی (سمت راست، هم‌جهت با صفحه) */
-      ctx.font = '9px ' + FONT;
-      for (var g = 0; g <= 3; g++){
-        var gy = padT + plotH - (plotH * g / 3);
-        ctx.strokeStyle = 'rgba(140,140,150,.16)';
+      /* فقط ۳ خط راهنمای افقی نازک + برچسب محور — بدون خط عمودی و بدون کادر محور */
+      ctx.font = '9.5px ' + FONT;
+      for (var g = 0; g <= 2; g++){
+        var gy = padT + plotH - (plotH * g / 2);
+        ctx.strokeStyle = 'rgba(140,140,150,.14)';
         ctx.lineWidth = 1;
         ctx.setLineDash([3, 4]);
         ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(padL + plotW, gy); ctx.stroke();
         ctx.setLineDash([]);
         if (maxV > 0){
-          ctx.fillStyle = muted; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-          ctx.fillText(fmtBytes(Math.round(maxV * g / 3)), padL + plotW + 5, gy);
+          ctx.fillStyle = muted; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+          ctx.fillText(fmtBytes(Math.round(maxV * g / 2)), padL - 7, gy);
         }
       }
-      /* خط پایه */
-      ctx.strokeStyle = 'rgba(140,140,150,.35)';
+      ctx.strokeStyle = 'rgba(140,140,150,.30)';
       ctx.beginPath(); ctx.moveTo(padL, base); ctx.lineTo(padL + plotW, base); ctx.stroke();
       ctx.textBaseline = 'alphabetic';
 
       if (!n || maxV <= 0){
-        /* حالت خالی: به‌جای کادر خالی، پیام واضح وسط نمودار */
-        series.forEach(function(p, i){
-          var gap0 = Math.max(3, plotW * 0.012), bw0 = (plotW - gap0 * (n + 1)) / Math.max(1, n);
-          var x0 = padL + gap0 + i * (bw0 + gap0);
-          ctx.fillStyle = 'rgba(140,140,150,.30)';
-          barPath(x0, base - 2, bw0, 2, 1); ctx.fill();
-        });
         ctx.fillStyle = muted;
         ctx.font = '11px ' + FONT; ctx.textAlign = 'center';
         ctx.fillText(tr('noUsageYet'), padL + plotW / 2, padT + plotH / 2);
         return;
       }
 
-      var gap = Math.max(3, plotW * 0.012), bw = (plotW - gap * (n + 1)) / n;
-      series.forEach(function(p, i){
-        var b = p.bytes || 0;
-        var x = padL + gap + i * (bw + gap);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, padL + plotW * prog + 2, H);
+      ctx.clip();
+      /* فیل گرادیانی زیر منحنی: ۳۵٪ ← شفاف */
+      ctx.beginPath();
+      traceLine();
+      ctx.lineTo(pts[n - 1].x, base);
+      ctx.lineTo(pts[0].x, base);
+      ctx.closePath();
+      var grad = ctx.createLinearGradient(0, padT, 0, base);
+      grad.addColorStop(0, 'rgba(238,58,58,.35)');
+      grad.addColorStop(1, 'rgba(238,58,58,0)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+      /* خود خط: ۲٫۵ پیکسل، با برق خیلی ملایم */
+      ctx.beginPath();
+      traceLine();
+      ctx.strokeStyle = ACCENT;
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.save();
+      ctx.shadowColor = 'rgba(238,58,58,.35)'; ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+
+      /* نقطه‌ی امروز: هاله + دایره */
+      if (prog >= 1){
+        var tp = pts[n - 1];
+        ctx.beginPath(); ctx.arc(tp.x, tp.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(238,58,58,.18)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(tp.x, tp.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = ACCENT; ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+      }
+
+      /* برچسب‌های محور افقی: رقیق‌شده — اول، هر سه روز، و «امروز» */
+      ctx.font = '9px ' + FONT; ctx.textAlign = 'center';
+      pts.forEach(function(p, i){
         var today = i === n - 1;
-        if (b <= 0){
-          ctx.fillStyle = 'rgba(140,140,150,.35)';
-          barPath(x, base - 2, bw, 2, 1); ctx.fill();
-        } else {
-          var h = Math.max(3, (b / maxV) * plotH * prog);
-          var grad = ctx.createLinearGradient(0, base - h, 0, base);
-          if (today){ grad.addColorStop(0, '#ff6b5e'); grad.addColorStop(1, '#ee3a3a'); }
-          else { grad.addColorStop(0, 'rgba(255,107,94,.72)'); grad.addColorStop(1, 'rgba(238,58,58,.50)'); }
-          ctx.fillStyle = grad;
-          if (today){ ctx.save(); ctx.shadowColor = 'rgba(238,58,58,.45)'; ctx.shadowBlur = 10; }
-          barPath(x, base - h, bw, h, Math.min(5, bw / 2)); ctx.fill();
-          if (today) ctx.restore();
-          if (today || i === maxI){
-            ctx.fillStyle = textC;
-            ctx.font = '700 9px ' + FONT; ctx.textAlign = 'center';
-            ctx.fillText(fmtBytes(b), x + bw / 2, base - h - 5);
-          }
+        if (!today && i % 3 !== 0) return;
+        ctx.fillStyle = today ? ACCENT : muted;
+        ctx.font = (today ? '700 ' : '') + '9px ' + FONT;
+        ctx.fillText(today ? tr('todayUsage') : chartDayLabel(p.date), p.x, base + 14);
+      });
+
+      /* اسکراب: خط راهنمای عمودی + نقطه فعال + حباب تول‌تیپ */
+      var hov = chartState.hover;
+      if (hov >= 0 && hov < n && prog >= 1){
+        var hp = pts[hov];
+        ctx.strokeStyle = 'rgba(140,140,150,.45)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(hp.x, padT); ctx.lineTo(hp.x, base); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(hp.x, hp.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(238,58,58,.18)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(hp.x, hp.y, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = ACCENT; ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+
+        var t1 = chartFullDate(hp.date), t2 = fmtBytes(hp.b);
+        ctx.font = '700 12px ' + FONT;
+        var w2 = ctx.measureText(t2).width;
+        ctx.font = '9.5px ' + FONT;
+        var w1 = ctx.measureText(t1).width;
+        var bw = Math.max(w1, w2) + 18, bh = 42;
+        var bx = Math.min(Math.max(hp.x - bw / 2, 4), W - bw - 4);
+        var by = hp.y - bh - 12;
+        if (by < 2) by = hp.y + 14;
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,.25)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 3;
+        rr(bx, by, bw, bh, 9);
+        ctx.fillStyle = 'rgba(23,23,31,.94)';
+        ctx.fill();
+        ctx.restore();
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(255,255,255,.62)';
+        ctx.font = '9.5px ' + FONT;
+        ctx.fillText(t1, bx + bw / 2, by + 16);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 12px ' + FONT;
+        ctx.fillText(t2, bx + bw / 2, by + 33);
+      }
+    }
+
+    if (!cv._scrubBound){
+      cv._scrubBound = true;
+      function scrubTo(e){
+        var gm = chartState.geom;
+        if (!gm || !gm.pts.length) return;
+        var rect = cv.getBoundingClientRect();
+        var cx = (e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX) - rect.left;
+        var best = 0, bd = Infinity;
+        gm.pts.forEach(function(p, i){ var d = Math.abs(p.x - cx); if (d < bd){ bd = d; best = i; } });
+        if (chartState.hover !== best){
+          chartState.hover = best;
+          renderUsageChart(window.__usageSeries || []);
         }
-        ctx.fillStyle = today ? '#ee3a3a' : muted;
-        ctx.font = (today ? '700 ' : '') + '8.5px ' + FONT; ctx.textAlign = 'center';
-        var lab = today ? tr('todayUsage') : faDigits(String(p.date || '').slice(8).replace(/^0/, ''));
-        ctx.fillText(lab, x + bw / 2, base + 13);
+      }
+      cv.addEventListener('pointerdown', scrubTo);
+      cv.addEventListener('pointermove', function(e){ if (e.buttons || e.pointerType === 'touch') scrubTo(e); });
+      cv.addEventListener('pointerleave', function(e){
+        if (e.pointerType === 'mouse' && chartState.hover !== -1){
+          chartState.hover = -1;
+          renderUsageChart(window.__usageSeries || []);
+        }
       });
     }
 
     var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced || maxV <= 0){ draw(1); return; }
+    if (reduced || maxV <= 0 || chartState.animDone){ draw(1); return; }
+    chartState.animDone = true;
     var t0 = null;
     function step(ts){
       if (!t0) t0 = ts;
-      var k = Math.min(1, (ts - t0) / 650);
+      var k = Math.min(1, (ts - t0) / 550);
       draw(1 - Math.pow(1 - k, 3));
       if (k < 1) requestAnimationFrame(step);
+      else draw(1);
     }
     requestAnimationFrame(step);
   }
