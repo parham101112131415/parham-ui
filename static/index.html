@@ -1040,7 +1040,7 @@ IMPLEMENTATION RULES
   <form onsubmit="submitCreateUser(event)">
     <div class="f-r">
       <div class="f-g"><label data-i18n="username">نام کاربری</label><input type="text" id="cu-name" placeholder="خالی = تصادفی"></div>
-      <div class="f-g"><label data-i18n="conn">اتصال همزمان</label><input type="number" id="cu-conn" placeholder="∞ نامحدود"></div>
+      <div class="f-g"><label data-i18n="conn">حداکثر آی‌پی</label><input type="number" id="cu-conn" min="0" placeholder="۰ = نامحدود"><div class="px-hint" data-i18n="connHint">اگه از این تعداد آی‌پی بیشتر به کانفیگ وصل بشن، اتصال آی‌پی اضافه همون لحظه قطع می‌شه؛ صفر یعنی نامحدود.</div></div>
       <div class="f-g speed-limit-field"><label data-i18n="speedLimit">محدودیت سرعت (Mbps)</label><input type="number" id="cu-speed" min="0" step="0.1" value="0"><div class="px-hint" data-i18n="speedLimitHint">سقف مجموع سرعت اتصال‌های رله‌شده WebSocket/XHTTP؛ صفر یعنی نامحدود.</div></div>
     </div>
     <div class="f-r">
@@ -1068,7 +1068,7 @@ IMPLEMENTATION RULES
     <div class="f-g"><label data-i18n="username">نام کاربری</label><input type="text" id="eu-name" required></div>
     <div class="f-g"><label data-i18n="volEdit">حجم (GB - ۰=نامحدود)</label><input type="number" id="eu-vol" value="20"></div>
     <div class="f-g"><label data-i18n="daysEdit">روز اعتبار (۰=نامحدود)</label><input type="number" id="eu-exp" value="30"></div>
-    <div class="f-g"><label data-i18n="conn">اتصال همزمان</label><input type="number" id="eu-conn" value="0" placeholder="۰=نامحدود"></div>
+    <div class="f-g"><label data-i18n="conn">حداکثر آی‌پی</label><input type="number" id="eu-conn" value="0" min="0" placeholder="۰ = نامحدود"><div class="px-hint" data-i18n="connHint">اگه از این تعداد آی‌پی بیشتر به کانفیگ وصل بشن، اتصال آی‌پی اضافه همون لحظه قطع می‌شه؛ صفر یعنی نامحدود.</div></div>
     <div class="f-g speed-limit-field"><label data-i18n="speedLimit">محدودیت سرعت (Mbps)</label><input type="number" id="eu-speed" min="0" step="0.1" value="0"><div class="px-hint" data-i18n="speedLimitHint">سقف مجموع سرعت اتصال‌های رله‌شده WebSocket/XHTTP؛ صفر یعنی نامحدود.</div></div>
     <div class="f-g"><label data-i18n="status">وضعیت</label><select id="eu-status"><option value="active" data-i18n="active">فعال</option><option value="inactive" data-i18n="inactive">غیرفعال</option></select></div>
     <div class="f-g" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="eu-reset" style="width:auto"><label style="margin:0" data-i18n="resetTraffic">بازنشانی ترافیک</label></div>

@@ -98,11 +98,7 @@ func ipLimitAllowed(r *http.Request, uuid string) bool {
 	if u == nil {
 		return true
 	}
-	maxIP := u.ConcurrentConnections
-	if maxIP <= 0 {
-		maxIP = getMaxIPPerUser()
-	}
-	return recordUserIP(uuid, extractRemoteIP(r), maxIP)
+	return recordUserIP(uuid, extractRemoteIP(r), userIPLimit(u))
 }
 
 func userCurrentIPs(uuid string) []string {

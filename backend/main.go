@@ -487,16 +487,14 @@ func recordUserIP(uuid, clientIP string, maxAllowed int) bool {
 		}
 	}
 
-	if maxAllowed <= 0 {
-		maxAllowed = 5
-	}
-
 	if _, exists := ips[clientIP]; exists {
 		ips[clientIP] = now
 		return true
 	}
 
-	if len(ips) >= maxAllowed {
+	// maxAllowed <= 0 means unlimited IPs: track the address (for the
+	// used-IPs reporting) but never reject.
+	if maxAllowed > 0 && len(ips) >= maxAllowed {
 		var oldestIP string
 		var oldestTime time.Time
 		first := true
@@ -516,6 +514,36 @@ func recordUserIP(uuid, clientIP string, maxAllowed int) bool {
 
 	ips[clientIP] = now
 	return true
+}
+
+// userIPLimit is the per-user IP cap exactly as the admin set it in the
+// create/edit form («حداکثر آی‌پی», the concurrent_connections field): a
+// positive value caps how many distinct IPs may use the config at once and
+// connections from IPs beyond the cap are dropped on the spot — the 3X-UI
+// limitIp model. 0 means unlimited, as the form promises. (A hidden global
+// fallback used to silently turn 0 into 5; removed so the field means what
+// it says.)
+func userIPLimit(u *User) int {
+	if u == nil || u.ConcurrentConnections <= 0 {
+		return 0
+	}
+	return u.ConcurrentConnections
+}
+
+// touchUserIP refreshes an already-admitted IP's last-seen time. Long-lived
+// WS streams only pass the admission check once at connect; touching keeps
+// an actively-connected device from looking stale to the IP cap.
+func touchUserIP(uuid, clientIP string) {
+	if clientIP == "" || clientIP == "127.0.0.1" {
+		return
+	}
+	userIPTrackerMu.Lock()
+	defer userIPTrackerMu.Unlock()
+	if ips, ok := userIPTracker[uuid]; ok {
+		if _, exists := ips[clientIP]; exists {
+			ips[clientIP] = time.Now()
+		}
+	}
 }
 
 func extractRemoteIP(r *http.Request) string {
@@ -1878,10 +1906,7 @@ func handleWSRelay(w http.ResponseWriter, r *http.Request, uuid string) {
 	}
 
 	clientIP := extractRemoteIP(r)
-	maxIP := u.ConcurrentConnections
-	if maxIP <= 0 {
-		maxIP = getMaxIPPerUser()
-	}
+	maxIP := userIPLimit(u)
 	if !recordUserIP(uuid, clientIP, maxIP) {
 		log.Printf("[Security] User %s exceeded max concurrent IPs (%d). Connection dropped from %s", u.Username, maxIP, clientIP)
 		return
@@ -1934,6 +1959,7 @@ func handleWSRelay(w http.ResponseWriter, r *http.Request, uuid string) {
 		for {
 			select {
 			case <-ticker.C:
+				touchUserIP(uuid, clientIP)
 				wsWriteMu.Lock()
 				err := conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(5*time.Second))
 				wsWriteMu.Unlock()
@@ -4011,9 +4037,6 @@ func handleAPISub(w http.ResponseWriter, r *http.Request, rawUUID string) {
 		status = "expired"
 	}
 	maxIP := cp.ConcurrentConnections
-	if maxIP == 0 {
-		maxIP = getMaxIPPerUser()
-	}
 	var createdTS int64
 	if t, err := time.Parse(time.RFC3339, cp.CreatedAt); err == nil {
 		createdTS = t.Unix()

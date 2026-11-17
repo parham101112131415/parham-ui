@@ -75,3 +75,50 @@ func TestThrottleRespectsLimit(t *testing.T) {
 	}
 	_ = strings.TrimSpace // keep strings import if unused elsewhere
 }
+
+func TestIPLimitSemantics(t *testing.T) {
+	const id = "zz-ip-test-uuid"
+	userIPTrackerMu.Lock()
+	delete(userIPTracker, id)
+	userIPTrackerMu.Unlock()
+	defer func() {
+		userIPTrackerMu.Lock()
+		delete(userIPTracker, id)
+		userIPTrackerMu.Unlock()
+	}()
+
+	// userIPLimit: 0/unset = unlimited, positive = that cap.
+	if got := userIPLimit(&User{ConcurrentConnections: 0}); got != 0 {
+		t.Fatalf("userIPLimit(0) = %d, want 0 (unlimited)", got)
+	}
+	if got := userIPLimit(&User{ConcurrentConnections: 2}); got != 2 {
+		t.Fatalf("userIPLimit(2) = %d, want 2", got)
+	}
+	if got := userIPLimit(nil); got != 0 {
+		t.Fatalf("userIPLimit(nil) = %d, want 0", got)
+	}
+
+	// Cap of 1: first IP admitted, its reconnects admitted, second IP cut.
+	if !recordUserIP(id, "10.0.0.1", 1) {
+		t.Fatal("first IP must be admitted")
+	}
+	if !recordUserIP(id, "10.0.0.1", 1) {
+		t.Fatal("same IP reconnect must be admitted")
+	}
+	if recordUserIP(id, "10.0.0.2", 1) {
+		t.Fatal("second IP beyond cap 1 must be rejected")
+	}
+	// Unlimited (0): any number of IPs admitted.
+	if !recordUserIP(id, "10.0.0.2", 0) {
+		t.Fatal("unlimited must admit a new IP")
+	}
+	if !recordUserIP(id, "10.0.0.3", 0) {
+		t.Fatal("unlimited must admit another new IP")
+	}
+	// touchUserIP keeps an admitted IP fresh and ignores unknown ones.
+	touchUserIP(id, "10.0.0.1")
+	touchUserIP(id, "10.9.9.9")
+	if got := len(userCurrentIPs(id)); got != 3 {
+		t.Fatalf("tracked IPs = %d, want 3", got)
+	}
+}
