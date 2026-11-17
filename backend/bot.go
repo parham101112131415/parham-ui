@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"sync"
@@ -786,7 +787,7 @@ func executeChannelPost(r *http.Request) (*User, error) {
 
 	subURL := ""
 	if panelDomain != "" {
-		subURL = fmt.Sprintf("https://%s/sub/%s", panelDomain, u.ConfigUUID)
+		subURL = fmt.Sprintf("https://%s/sub/%s", panelDomain, url.PathEscape(u.Username))
 	}
 
 	trafficLabel := "نامحدود"
@@ -1595,7 +1596,7 @@ func (bm *TelegramBotManager) handleAdminApprovalAction(token string, adminChatI
 
 	subURL := ""
 	if panelDomain != "" {
-		subURL = fmt.Sprintf("https://%s/sub/%s", panelDomain, u.ConfigUUID)
+		subURL = fmt.Sprintf("https://%s/sub/%s", panelDomain, url.PathEscape(u.Username))
 	}
 
 	// Send to customer
@@ -1731,7 +1732,7 @@ func (bm *TelegramBotManager) handleAdminCreateUser(token string, chatID int64, 
 
 	subURL := ""
 	if panelDomain != "" {
-		subURL = fmt.Sprintf("https://%s/sub/%s", panelDomain, u.ConfigUUID)
+		subURL = fmt.Sprintf("https://%s/sub/%s", panelDomain, url.PathEscape(u.Username))
 	}
 
 	msg := fmt.Sprintf("✅ <b>اکانت جدید با موفقیت ایجاد شد!</b>\n\n"+
@@ -1962,7 +1963,7 @@ func (bm *TelegramBotManager) sendUserAccountInfo(token string, chatID int64) {
 
 		subURL := ""
 		if panelDomain != "" {
-			subURL = fmt.Sprintf("https://%s/sub/%s", panelDomain, u.ConfigUUID)
+			subURL = fmt.Sprintf("https://%s/sub/%s", panelDomain, url.PathEscape(u.Username))
 		}
 
 		msg += fmt.Sprintf("🔹 <b>اشتراک %d:</b> <code>%s</code>\n"+

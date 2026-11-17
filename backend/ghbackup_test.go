@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestGitBlobSHA(t *testing.T) {
@@ -90,5 +93,82 @@ func TestBackupRestoreRoundTrip(t *testing.T) {
 	// Garbage input must be rejected, not applied.
 	if status, _ := restoreBackupBytes([]byte("{nope")); status == 200 {
 		t.Fatalf("invalid JSON restore should fail")
+	}
+}
+
+// The migration guarantee parham asked for: after a backup → import cycle
+// on a fresh deployment, the username-form subscription link
+// (/sub/<username>) resolves, and the user's used traffic and expiry come
+// back EXACTLY as they were — never reset.
+func TestSubByUsernameAndUsagePreserved(t *testing.T) {
+	const usedBytes = int64(197 * 1024 * 1024) // his example: 197 MB used
+	const expireAt = "2027-06-01T00:00:00Z"
+	const cfgUUID = "923e2bed-b2eb-8d0f-7cd8-9d3c9f5bb7d6"
+
+	State.mu.Lock()
+	oldUsers, oldInbounds, oldNodes := State.Users, State.Inbounds, State.Nodes
+	oldPlans, oldSettings, oldPassword, oldDir := State.BotPlans, State.Settings, State.Password, State.DataDir
+	State.Users = map[string]*User{
+		"u1": {
+			UserID: "u1", Username: "parhamtest", ConfigUUID: cfgUUID, Status: "active",
+			TrafficUsedBytes: usedBytes, TrafficLimitBytes: 0, ExpireAt: expireAt,
+			UsageHistory:      map[string]int64{"2026-11-17": 1048576},
+			UsageSampledBytes: usedBytes,
+		},
+	}
+	State.Settings = map[string]any{}
+	State.DataDir = t.TempDir()
+	State.mu.Unlock()
+	defer func() {
+		State.mu.Lock()
+		State.Users, State.Inbounds, State.Nodes = oldUsers, oldInbounds, oldNodes
+		State.BotPlans, State.Settings, State.Password, State.DataDir = oldPlans, oldSettings, oldPassword, oldDir
+		State.mu.Unlock()
+	}()
+
+	data, err := buildBackupBytes()
+	if err != nil {
+		t.Fatalf("buildBackupBytes: %v", err)
+	}
+
+	// Simulate the fresh deployment: nothing exists, then the backup lands.
+	State.mu.Lock()
+	State.Users = map[string]*User{}
+	State.mu.Unlock()
+	if status, payload := restoreBackupBytes(data); status != 200 || payload["ok"] != true {
+		t.Fatalf("restore status=%d payload=%v", status, payload)
+	}
+
+	State.mu.RLock()
+	u := State.Users["u1"]
+	State.mu.RUnlock()
+	if u == nil {
+		t.Fatalf("user missing after restore")
+	}
+	if u.TrafficUsedBytes != usedBytes {
+		t.Fatalf("used traffic reset or changed: got %d, want %d", u.TrafficUsedBytes, usedBytes)
+	}
+	if u.TrafficLimitBytes != 0 || u.ExpireAt != expireAt {
+		t.Fatalf("limit/expiry changed: limit=%d expire=%q", u.TrafficLimitBytes, u.ExpireAt)
+	}
+	if u.UsageHistory["2026-11-17"] != 1048576 || u.UsageSampledBytes != usedBytes {
+		t.Fatalf("usage history changed: %v sampled=%d", u.UsageHistory, u.UsageSampledBytes)
+	}
+
+	expT, _ := time.Parse(time.RFC3339, expireAt)
+	wantInfo := fmt.Sprintf("upload=0; download=%d; total=%d; expire=%d", usedBytes, int64(0), expT.Unix())
+
+	// The username-form link must serve the subscription with the exact
+	// same usage/expiry figures; the old UUID form must keep working too.
+	for _, id := range []string{"parhamtest", cfgUUID} {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/sub/"+id, nil)
+		handleSubPlainText(rec, req, id)
+		if rec.Code != 200 {
+			t.Fatalf("/sub/%s status = %d, want 200", id, rec.Code)
+		}
+		if got := rec.Header().Get("Subscription-Userinfo"); got != wantInfo {
+			t.Fatalf("/sub/%s userinfo = %q, want %q", id, got, wantInfo)
+		}
 	}
 }

@@ -3487,7 +3487,7 @@ func handleUsersList(w http.ResponseWriter, r *http.Request) {
 			"custom_ip_type": u.CustomIPType, "created_at": u.CreatedAt,
 			"config_url":       fmt.Sprintf("https://%s/api/users/%s/config", host, u.UserID),
 			"qr_url":           fmt.Sprintf("https://%s/api/users/%s/qr", host, u.UserID),
-			"subscription_url": fmt.Sprintf("https://%s/sub/%s", host, u.ConfigUUID),
+			"subscription_url": fmt.Sprintf("https://%s/sub/%s", host, url.PathEscape(u.Username)),
 			"node_configs":     u.NodeConfigs, "node_sync_state": u.NodeSyncState,
 			"node_traffic": u.NodeTraffic, "node_traffic_used_bytes": u.NodeTrafficUsedBytes,
 		}
@@ -3637,7 +3637,7 @@ func handleUserCreate(w http.ResponseWriter, r *http.Request) {
 		"ok": true, "user": u, "user_id": userID,
 		"config_url":       fmt.Sprintf("https://%s/api/users/%s/config", host, userID),
 		"qr_url":           fmt.Sprintf("https://%s/api/users/%s/qr", host, userID),
-		"subscription_url": fmt.Sprintf("https://%s/sub/%s", host, cfgUUID),
+		"subscription_url": fmt.Sprintf("https://%s/sub/%s", host, url.PathEscape(u.Username)),
 	}
 	if len(inboundIDs) > 0 {
 		resp["config"] = generateUserConfig(r, u, inboundIDs[0])
@@ -3674,7 +3674,7 @@ func handleUserGet(w http.ResponseWriter, r *http.Request, id string) {
 		"config":           generateUserConfig(r, &cp, cp.InboundID),
 		"config_url":       fmt.Sprintf("https://%s/api/users/%s/config", host, cp.UserID),
 		"qr_url":           fmt.Sprintf("https://%s/api/users/%s/qr", host, cp.UserID),
-		"subscription_url": fmt.Sprintf("https://%s/sub/%s", host, cp.ConfigUUID),
+		"subscription_url": fmt.Sprintf("https://%s/sub/%s", host, url.PathEscape(cp.Username)),
 	})
 }
 
@@ -3851,7 +3851,7 @@ func handleUserConfigGet(w http.ResponseWriter, r *http.Request, id string) {
 		"config":           generateUserConfig(r, &cp, primary),
 		"config_url":       fmt.Sprintf("https://%s/api/users/%s/config", host, id),
 		"qr_url":           fmt.Sprintf("https://%s/api/users/%s/qr", host, id),
-		"subscription_url": fmt.Sprintf("https://%s/sub/%s", host, cp.ConfigUUID),
+		"subscription_url": fmt.Sprintf("https://%s/sub/%s", host, url.PathEscape(cp.Username)),
 	})
 }
 
@@ -3871,7 +3871,7 @@ func handleUserSubscriptionGet(w http.ResponseWriter, r *http.Request, id string
 	writeJSON(w, http.StatusOK, map[string]any{
 		"ok": true, "user_id": id, "username": cp.Username,
 		"subscription_uuid": cp.SubscriptionUUID,
-		"subscription_url":  fmt.Sprintf("https://%s/sub/%s", host, cp.ConfigUUID),
+		"subscription_url":  fmt.Sprintf("https://%s/sub/%s", host, url.PathEscape(cp.Username)),
 		"configs":           configs,
 	})
 }
@@ -3889,7 +3889,7 @@ func handleUserQR(w http.ResponseWriter, r *http.Request, id string) {
 	State.mu.RUnlock()
 
 	host := discoveredHost(r)
-	subURL := fmt.Sprintf("https://%s/sub/%s", host, cp.ConfigUUID)
+	subURL := fmt.Sprintf("https://%s/sub/%s", host, url.PathEscape(cp.Username))
 
 	qrContent := subURL
 	qrType := r.URL.Query().Get("type")
@@ -4084,7 +4084,7 @@ func handleAPISub(w http.ResponseWriter, r *http.Request, rawUUID string) {
 		"expire_days": expireDays, "expire_at_ts": expireAtTs,
 		"max_ip_per_user": maxIP, "used_ips": len(userCurrentIPs(cp.ConfigUUID)),
 		"usage_history": usageHistorySeries(cp.UsageHistory, 14), "created_at_ts": createdTS,
-		"configs": configs, "subscription_url": "/sub/" + cp.ConfigUUID,
+		"configs": configs, "subscription_url": "/sub/" + url.PathEscape(cp.Username),
 		"protocol": cp.Protocol, "transport_type": cp.TransportType, "path": cp.Path,
 	})
 }
@@ -4220,7 +4220,7 @@ func handleSubQR(w http.ResponseWriter, r *http.Request, rawUUID string) {
 	State.mu.RUnlock()
 
 	host := discoveredHost(r)
-	qrContent := fmt.Sprintf("https://%s/sub/%s", host, cp.ConfigUUID)
+	qrContent := fmt.Sprintf("https://%s/sub/%s", host, url.PathEscape(cp.Username))
 
 	if cfgStr := r.URL.Query().Get("cfg"); cfgStr != "" {
 		if idx, err := strconv.Atoi(cfgStr); err == nil && idx >= 0 {
@@ -5367,7 +5367,7 @@ func main() {
 	log.Printf("  Listening on :%s", port)
 	log.Printf("  Admin:  http://localhost:%s/", port)
 	log.Printf("  Login:  http://localhost:%s/login", port)
-	log.Printf("  Sub:    http://localhost:%s/sub/{uuid}", port)
+	log.Printf("  Sub:    http://localhost:%s/sub/{username}", port)
 	log.Printf("  Link:   http://localhost:%s/link/{uuid}", port)
 	log.Printf("  WS:     ws://.../ws/{uuid}")
 	log.Printf("  XHTTP:  .../xhttp-siz10/{mode}/{uuid}/{session_id}")

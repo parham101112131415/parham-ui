@@ -733,7 +733,7 @@ async function viewSub(configUuid) {
   try {
     var d = await api('/api/sub/' + encodeURIComponent(configUuid));
     var uuid = (d && d.config_uuid) || configUuid;
-    var subUrl = (d && d.subscription_url) ? d.subscription_url : (window.location.origin + '/sub/' + uuid);
+    var subUrl = (d && d.subscription_url) ? d.subscription_url : (window.location.origin + '/sub/' + encodeURIComponent((d && d.username) || uuid));
     if (!subUrl.startsWith('http://') && !subUrl.startsWith('https://')) {
       subUrl = window.location.origin + subUrl;
     }
@@ -745,7 +745,8 @@ async function viewSub(configUuid) {
     }
   } catch (e) {
     console.error(e);
-    var fallback = window.location.origin + '/sub/' + configUuid;
+    var fUser = (typeof ALL_USERS !== 'undefined' ? ALL_USERS : []).find(function(u) { return u && (u.config_uuid === configUuid || u.subscription_uuid === configUuid); });
+    var fallback = window.location.origin + '/sub/' + encodeURIComponent(fUser ? fUser.username : configUuid);
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(fallback);
       toast('لینک سابسکریپشن کپی شد', 'ok');
@@ -762,7 +763,7 @@ function viewQR(userId) {
   curQrUserId = String(userId);
   var user = ALL_USERS.find(function(u) { return String(u.user_id) === String(userId); });
   curQrConfigUuid = user && (user.config_uuid || user.subscription_uuid || user.uuid || '');
-  qrSubscriptionUrl = (user && user.subscription_url) ? user.subscription_url : (curQrConfigUuid ? window.location.origin + '/sub/' + encodeURIComponent(curQrConfigUuid) : '');
+  qrSubscriptionUrl = (user && user.subscription_url) ? user.subscription_url : (user && user.username ? window.location.origin + '/sub/' + encodeURIComponent(user.username) : (curQrConfigUuid ? window.location.origin + '/sub/' + encodeURIComponent(curQrConfigUuid) : ''));
   setQrType('sub');
   openModal('mod-qr');
 }
