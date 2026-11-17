@@ -266,7 +266,7 @@ function setAccent() {}
 
 async function checkAuth() {
   try { var r = await api('/api/me'); if (r.authenticated) { showApp(); return; } } catch(e) {}
-  window.location.href = '/login';
+  window.location.href = '/parham';
 }
 function showLogin() { $id('login-wrap').style.display = 'flex'; $id('app-wrap').classList.remove('active'); }
 function showApp() { $id('login-wrap').style.display = 'none'; $id('app-wrap').classList.add('active'); loadAll(); updateGreeting(); }
@@ -274,7 +274,7 @@ async function doLogin() { /* handled by login page */ }
 async function doLogout() {
   try { await api('/api/logout', {method: 'POST'}); } catch(e) {}
   localStorage.removeItem('parham_session');
-  window.location.href = '/login';
+  window.location.href = '/parham';
 }
 function updateGreeting() {
   var h = new Date().getHours(), g = h < 12 ? t('goodMorning') : h < 17 ? t('goodNoon') : t('goodEvening');

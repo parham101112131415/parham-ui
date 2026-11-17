@@ -5017,15 +5017,20 @@ func main() {
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
-		switch r.URL.Path {
-		case "/", "/parham", "/dashboard":
-			http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
-			return
-		case "/login":
-			http.ServeFile(w, r, filepath.Join(staticDir, "login.html"))
+		// The panel lives ONLY under /parham. The bare root (and every other
+		// unmatched path) answers a plain 404 so the domain reveals nothing:
+		// nobody reaches the panel without knowing the /parham suffix.
+		// Unauthenticated /parham requests get the login page at the same
+		// URL; authenticated ones get the panel itself.
+		if r.URL.Path == "/parham" {
+			if checkAuth(r) {
+				http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
+			} else {
+				http.ServeFile(w, r, filepath.Join(staticDir, "login.html"))
+			}
 			return
 		}
-		fileServer.ServeHTTP(w, r)
+		http.NotFound(w, r)
 	})
 
 	mux.HandleFunc("/api/login", handleLogin)
