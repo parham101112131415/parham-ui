@@ -44,7 +44,7 @@ Object.assign(I18N.fa, {
   'backupDownloaded': 'بکاپ دانلود شد', 'restoreDone': 'بازیابی انجام شد', 'restoreFailed': 'بازیابی ناموفق', 'restoreUploading': 'در حال آپلود و بازیابی...',
   'panelUpdate': 'بروزرسانی پنل', 'updatePanel': 'بروزرسانی', 'confirmUpdate': 'پنل از GitHub بروزرسانی شود؟', 'updateStarted': 'بروزرسانی شروع شد...', 'updateDone': 'بروزرسانی کامل شد — پنل را ری‌استارت کنید', 'updateFailed': 'بروزرسانی ناموفق بود', 'updateRunning': 'در حال بروزرسانی...',
   'panelUpdateHint': 'با زدن این دکمه، آخرین نسخه ریپو از GitHub دریافت و روی سرور نصب می‌شود (Parham). بعد از اتمام، پنل را در Railway ری‌استارت کنید تا نسخه جدید اعمال شود.',
-  'backupRestore': 'بکاپ و بازیابی', 'backup': 'بکاپ', 'restore': 'ریستور', 'backupRestoreHint': 'بکاپ کامل شامل: کاربران، لینک‌ها، اینباندها، اسکن‌ها، تنظیمات، رمز، گروه‌ها و تنظیمات Worker.',
+  'backupRestore': 'بکاپ و بازیابی', 'backup': 'بکاپ', 'restore': 'ریستور', 'backupRestoreHint': 'بکاپ کامل شامل: کاربران، لینک‌ها، اینباندها، اسکن‌ها، تنظیمات، رمز، گروه‌ها و تنظیمات Worker.', 'ghBackup': 'بکاپ خودکار گیت‌هاب', 'ghBackupHint': 'هر یک ساعت، بکاپ کامل پنل به‌صورت یک فایل واحد (parham-backup.json) توی ریپوی خصوصی گیت‌هاب ذخیره و جایگزین نسخه قبلی می‌شود؛ هیچ‌وقت بیشتر از یک فایل ساخته نمی‌شود. توکن باید فقط به همان ریپو دسترسی Contents (خواندن و نوشتن) داشته باشد.', 'ghAutoHourly': 'بکاپ خودکار ساعتی', 'ghSave': 'ذخیره تنظیمات', 'ghRunNow': 'همین حالا بکاپ بگیر', 'ghImport': 'ایمپورت از لینک گیت‌هاب', 'ghImportHint': 'لینک فایل بکاپ داخل ریپو را بده (لینک raw فایل parham-backup.json)؛ پنل خودش فایل را می‌گیرد و همه‌چیز را جایگزین می‌کند.', 'importLink': 'ایمپورت',
   'autoconfig': 'پیکربندی خودکار', 'tunnel': 'تونل', 'qrCode': 'کد QR',
   'acAutoBtn': 'خودکار', 'acHint': 'اسکن کامل خودکار: پینگ دامنه‌ها → انتخاب Railway/Cloudflare → اسکن IP → تست دامنه‌های TCP → اسکن SNI → پینگ نهایی پنل.',
   'acEnterDomain': 'لطفاً دامنه پنل را وارد کنید', 'acPingingDomains': 'در حال گرفتن پینگ از دامنه‌ها...', 'acYourDomain': 'دامنه شما', 'acPickDomain': 'دامنه را انتخاب کنید:',
@@ -119,7 +119,7 @@ Object.assign(I18N.en, {
   'backupDownloaded': 'Backup downloaded', 'restoreDone': 'Restore completed', 'restoreFailed': 'Restore failed', 'restoreUploading': 'Uploading...',
   'panelUpdate': 'Panel Update', 'updatePanel': 'Update', 'confirmUpdate': 'Update from GitHub?', 'updateStarted': 'Update started...', 'updateDone': 'Update finished', 'updateFailed': 'Update failed', 'updateRunning': 'Updating...',
   'panelUpdateHint': 'Pulls the latest repo from GitHub and installs it on the server (Parham). Restart the panel on Railway after completion.',
-  'backupRestore': 'Backup & Restore', 'backup': 'Backup', 'restore': 'Restore', 'backupRestoreHint': 'Full backup includes users, links, inbounds, scans, settings, password, groups, and Worker config.',
+  'backupRestore': 'Backup & Restore', 'backup': 'Backup', 'restore': 'Restore', 'backupRestoreHint': 'Full backup includes users, links, inbounds, scans, settings, password, groups, and Worker config.', 'ghBackup': 'Automatic GitHub Backup', 'ghBackupHint': 'Every hour, the full panel backup is stored as a single file (parham-backup.json) in a private GitHub repo, replacing the previous one — never more than one file. The token needs Contents read & write access to that repo only.', 'ghAutoHourly': 'Hourly automatic backup', 'ghSave': 'Save settings', 'ghRunNow': 'Back up now', 'ghImport': 'Import from GitHub link', 'ghImportHint': 'Paste the link of the backup file inside the repo (the raw link of parham-backup.json); the panel fetches it and replaces everything.', 'importLink': 'Import',
   'autoconfig': 'Auto Config', 'tunnel': 'Tunnel', 'qrCode': 'QR Code',
   'acAutoBtn': 'Auto', 'acHint': 'Full automatic scan: ping domains → pick Railway/Cloudflare → IP scan → TCP test → SNI scan → final panel ping.', 'acEnterDomain': 'Please enter the panel domain', 'acPingingDomains': 'Pinging domains...', 'acYourDomain': 'Your domain', 'acPickDomain': 'Pick a domain:', 'acScanningRailway': 'Scanning Railway IPs...', 'acScanningCf': 'Scanning Cloudflare IPs...', 'acTcpTesting': 'Testing TCP domains...', 'acSniTesting': 'Testing SNIs...', 'acFinalPing': 'Final ping...', 'acDone': 'Auto scan complete ✓',
   'tunnelNotReady': 'Create a Worker first.', 'tunnelPath': 'Connect path', 'workerPing': 'Server → Worker ping', 'tunnelKv': 'Dedicated Tunnel KV', 'tunnelInboundPath': 'Inbound (TLS WS)', 'tunnelCreate': 'Create Tunnel Inbound', 'tunnelCreated': 'Tunnel inbound created',
@@ -1021,7 +1021,86 @@ function loadSettings() {
       if (el) el.value = (s && s.config_name_prefix) ? s.config_name_prefix : '';
     }).catch(function() {});
   } catch(e) {}
+  loadGHBackupSettings();
   checkPanelUpdate();
+}
+function renderGHBackupStatus(s) {
+  var box = $id('gh-backup-status');
+  if (!box || !s) return;
+  if (s.last_at) {
+    box.textContent = (LANG === 'en' ? 'Last GitHub backup: ' : 'آخرین بکاپ گیت‌هاب: ') + s.last_at + (s.last_result ? ' — ' + s.last_result : '');
+  } else {
+    box.textContent = LANG === 'en' ? 'No GitHub backup has run yet.' : 'هنوز بکاپی روی گیت‌هاب گرفته نشده.';
+  }
+}
+function loadGHBackupSettings() {
+  try {
+    api('/api/settings/gh-backup').then(function(s) {
+      if (!s) return;
+      var repo = $id('set-gh-repo'); if (repo) repo.value = s.repo || '';
+      var tok = $id('set-gh-token'); if (tok) tok.value = s.token_set ? (s.token_mask || '') : '';
+      var sw = $id('set-gh-enabled');
+      if (sw) { sw.classList.toggle('on', !!s.enabled); sw.setAttribute('aria-checked', s.enabled ? 'true' : 'false'); }
+      renderGHBackupStatus(s);
+    }).catch(function() {});
+  } catch(e) {}
+}
+async function saveGHBackupSettings() {
+  var repo = (($id('set-gh-repo') || {}).value || '').trim();
+  var tok = (($id('set-gh-token') || {}).value || '').trim();
+  var sw = $id('set-gh-enabled');
+  var enabled = !!(sw && sw.classList.contains('on'));
+  try {
+    var s = await api('/api/settings/gh-backup', {method: 'POST', body: {gh_repo: repo, gh_token: tok, gh_enabled: enabled}});
+    var tokEl = $id('set-gh-token'); if (tokEl && s && s.token_set) tokEl.value = s.token_mask || '';
+    renderGHBackupStatus(s);
+    toast(LANG === 'en' ? 'Saved' : 'ذخیره شد', 'ok');
+  } catch(e) { toast(e.message, 'err'); }
+}
+async function runGHBackupNow() {
+  try {
+    toast(LANG === 'en' ? 'Backing up to GitHub...' : 'در حال بکاپ روی گیت‌هاب...', 'warn');
+    var r = await api('/api/settings/gh-backup/run', {method: 'POST', body: {}});
+    if (r && r.status) renderGHBackupStatus(r.status);
+    toast(LANG === 'en' ? 'GitHub backup done' : 'بکاپ روی گیت‌هاب ذخیره شد', 'ok');
+  } catch(e) { toast(e.message, 'err'); loadGHBackupSettings(); }
+}
+async function restoreFromGHLink() {
+  var inp = $id('restore-url');
+  var link = ((inp && inp.value) || '').trim();
+  if (!link) { toast(LANG === 'en' ? 'Paste the backup file link first' : 'اول لینک فایل بکاپ رو بذار', 'err'); return; }
+  if (!confirm('آیا از بازیابی اطلاعات اطمینان دارید؟ تمام کاربران، اینباندها و تنظیمات با اطلاعات این فایل بکاپ جایگزین خواهند شد.')) return;
+  var logBox = $id('restore-log');
+  if (logBox) {
+    logBox.style.display = 'block';
+    logBox.style.color = 'var(--txt, #ddd)';
+    logBox.textContent = 'در حال گرفتن فایل بکاپ از لینک...';
+  }
+  try {
+    var res = await api('/api/settings/restore-url', {method: 'POST', body: {url: link}});
+    var rinfo = (res && res.restored) || {};
+    if (logBox) {
+      logBox.style.color = '#38ef7d';
+      logBox.textContent = '✅ بکاپ با موفقیت بازیابی شد!\n' +
+        '• کاربران بازیابی‌شده: ' + (rinfo.users !== undefined ? rinfo.users : '—') + '\n' +
+        '• اینباندهای بازیابی‌شده: ' + (rinfo.inbounds !== undefined ? rinfo.inbounds : '—') + '\n' +
+        '• نودهای بازیابی‌شده: ' + (rinfo.nodes !== undefined ? rinfo.nodes : '—') + '\n' +
+        '• پلن‌های ربات: ' + (rinfo.bot_plans !== undefined ? rinfo.bot_plans : '—');
+    }
+    toast('بکاپ با موفقیت بازیابی شد! پنل در حال بارگذاری مجدد...', 'ok');
+    setTimeout(function() {
+      if (typeof loadAll === 'function') loadAll();
+      if (typeof loadUsers === 'function') loadUsers();
+      if (typeof loadInbounds === 'function') loadInbounds();
+      if (typeof loadNodes === 'function') loadNodes();
+    }, 800);
+  } catch(e) {
+    if (logBox) {
+      logBox.style.color = 'var(--red, #ff4d4f)';
+      logBox.textContent = '❌ خطا در بازیابی بکاپ: ' + (e.message || 'لینک نامعتبر است');
+    }
+    toast('خطا در بازیابی بکاپ: ' + (e.message || ''), 'err');
+  }
 }
 async function saveConfigPrefix() {
   var el = $id('set-config-prefix');

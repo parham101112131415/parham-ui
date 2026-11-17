@@ -4602,7 +4602,9 @@ func handleSettingsUpdate(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 
-func handleSettingsBackup(w http.ResponseWriter, r *http.Request) {
+// buildBackupBytes renders the complete panel backup (the exact payload
+// GET /api/settings/backup downloads) as indented JSON.
+func buildBackupBytes() ([]byte, error) {
 	State.mu.RLock()
 	totalUsers := len(State.Users)
 	totalInbounds := len(State.Inbounds)
@@ -4661,14 +4663,21 @@ func handleSettingsBackup(w http.ResponseWriter, r *http.Request) {
 			"password_hash": pwdHash,
 		},
 	}
-
 	body, err := json.MarshalIndent(payload, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+func handleSettingsBackup(w http.ResponseWriter, r *http.Request) {
+	body, err := buildBackupBytes()
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]any{"ok": false, "detail": "failed to encode backup"})
 		return
 	}
 
-	filename := fmt.Sprintf("parham-backup-%s.json", now.Format("2006-01-02-15-04-05"))
+	filename := fmt.Sprintf("parham-backup-%s.json", time.Now().Format("2006-01-02-15-04-05"))
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 	w.WriteHeader(http.StatusOK)
@@ -4709,15 +4718,22 @@ func handleSettingsRestore(w http.ResponseWriter, r *http.Request) {
 		jsonBytes = b
 	}
 
+	status, payload := restoreBackupBytes(jsonBytes)
+	writeJSON(w, status, payload)
+}
+
+// restoreBackupBytes validates backup bytes (the wrapped ParhamPanel format
+// produced by buildBackupBytes, or a raw parham_state.json) and swaps the
+// whole panel state: users, inbounds, nodes, bot plans, settings, password.
+// It returns the HTTP status and JSON payload the restore endpoints answer with.
+func restoreBackupBytes(jsonBytes []byte) (int, map[string]any) {
 	if len(jsonBytes) == 0 {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "detail": "محتوای بکاپ خالی است"})
-		return
+		return http.StatusBadRequest, map[string]any{"ok": false, "detail": "محتوای بکاپ خالی است"}
 	}
 
 	var root map[string]any
 	if err := json.Unmarshal(jsonBytes, &root); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "detail": "فایل ارسالی JSON معتبر نیست: " + err.Error()})
-		return
+		return http.StatusBadRequest, map[string]any{"ok": false, "detail": "فایل ارسالی JSON معتبر نیست: " + err.Error()}
 	}
 
 	stateMap := root
@@ -4890,7 +4906,7 @@ func handleSettingsRestore(w http.ResponseWriter, r *http.Request) {
 	// Reapply Xray configuration
 	xrayApply()
 
-	writeJSON(w, http.StatusOK, map[string]any{
+	return http.StatusOK, map[string]any{
 		"ok":  true,
 		"msg": "بکاپ با موفقیت و به طور کامل بازیابی شد",
 		"restored": map[string]any{
@@ -4899,7 +4915,7 @@ func handleSettingsRestore(w http.ResponseWriter, r *http.Request) {
 			"nodes":     restoredNodesCount,
 			"bot_plans": restoredPlansCount,
 		},
-	})
+	}
 }
 
 func handleNotifications(w http.ResponseWriter, r *http.Request) {
@@ -5333,6 +5349,9 @@ func main() {
 	}))
 	mux.HandleFunc("/api/settings/backup", requireAuth(handleSettingsBackup))
 	mux.HandleFunc("/api/settings/restore", requireAuth(handleSettingsRestore))
+	mux.HandleFunc("/api/settings/restore-url", requireAuth(handleSettingsRestoreURL))
+	mux.HandleFunc("/api/settings/gh-backup", requireAuth(handleGHBackupConfig))
+	mux.HandleFunc("/api/settings/gh-backup/run", requireAuth(handleGHBackupRun))
 	mux.HandleFunc("/api/change-password", requireAuth(handleChangePassword))
 	mux.HandleFunc("/api/panel-api-key", requireAuth(handlePanelApiKey))
 	mux.HandleFunc("/api/me/generate-key", requireAuth(handlePanelApiKey))

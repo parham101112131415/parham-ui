@@ -326,7 +326,8 @@ func maybeDailyBackup() {
 }
 
 // ---------------------------------------------------------------------------
-// Jobs loop: history sampling + admin alerts + daily backup.
+// Jobs loop: history sampling + admin alerts + daily backup + hourly
+// GitHub backup.
 // ---------------------------------------------------------------------------
 func panelJobsLoop() {
 	time.Sleep(30 * time.Second)
@@ -334,6 +335,7 @@ func panelJobsLoop() {
 		sampleUsageHistory()
 		checkAdminAlerts()
 		maybeDailyBackup()
+		maybeGitHubBackup()
 		time.Sleep(5 * time.Minute)
 	}
 }

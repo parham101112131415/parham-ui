@@ -590,6 +590,31 @@
                 </div>
                 <input type="file" id="restore-file" accept=".json" style="display:none" onchange="uploadRestore(this)">
                 <pre id="restore-log" dir="ltr" style="display:none;margin-top:10px;padding:10px;border-radius:8px;background:var(--bg2,#111);color:var(--orange);font-size:11px;max-height:150px;overflow-y:auto;white-space:pre-wrap;font-family:monospace"></pre>
+                <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px">
+                  <div class="panel-h"><span class="glow" data-i18n="ghBackup">بکاپ خودکار گیت‌هاب</span></div>
+                  <div class="px-hint" data-i18n="ghBackupHint">هر یک ساعت، بکاپ کامل پنل به‌صورت یک فایل واحد (parham-backup.json) توی ریپوی خصوصی گیت‌هاب ذخیره و جایگزین نسخه قبلی می‌شود؛ هیچ‌وقت بیشتر از یک فایل ساخته نمی‌شود. توکن باید فقط به همان ریپو دسترسی Contents (خواندن و نوشتن) داشته باشد.</div>
+                  <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+                    <input type="text" id="set-gh-repo" dir="ltr" placeholder="parham101112131415/parham-panel-backup">
+                    <input type="password" id="set-gh-token" dir="ltr" placeholder="GitHub token (Contents: Read and write)">
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px">
+                    <span data-i18n="ghAutoHourly">بکاپ خودکار ساعتی</span>
+                    <button type="button" class="ios-switch" id="set-gh-enabled" role="switch" aria-checked="false" onclick="this.classList.toggle('on');this.setAttribute('aria-checked',this.classList.contains('on'))"></button>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:10px">
+                    <button class="btn btn-g" style="flex:1" type="button" onclick="saveGHBackupSettings()"><span data-i18n="ghSave">ذخیره تنظیمات</span></button>
+                    <button class="btn btn-p" style="flex:1" type="button" onclick="runGHBackupNow()"><span data-i18n="ghRunNow">همین حالا بکاپ بگیر</span></button>
+                  </div>
+                  <div id="gh-backup-status" style="font-size:11px;color:var(--txt2);margin-top:8px;line-height:1.8"></div>
+                </div>
+                <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px">
+                  <div class="panel-h"><span class="glow" data-i18n="ghImport">ایمپورت از لینک گیت‌هاب</span></div>
+                  <div class="px-hint" data-i18n="ghImportHint">لینک فایل بکاپ داخل ریپو را بده (لینک raw فایل parham-backup.json)؛ پنل خودش فایل را می‌گیرد و همه‌چیز را جایگزین می‌کند.</div>
+                  <div style="display:flex;gap:8px;margin-top:10px">
+                    <input type="text" id="restore-url" dir="ltr" placeholder="https://raw.githubusercontent.com/.../parham-backup.json" style="flex:1">
+                    <button class="btn btn-p" type="button" onclick="restoreFromGHLink()"><span data-i18n="importLink">ایمپورت</span></button>
+                  </div>
+                </div>
               </div>
               <div class="settings-inner-block">
                 <div class="panel-h"><span class="glow">پیشوند کانفیگ</span></div>
