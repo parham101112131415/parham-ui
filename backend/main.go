@@ -190,33 +190,55 @@ var (
 )
 
 // ---------------------------------------------------------------------------
-// Live connection + activity registry. Exact live relay connections (WS and
-// XHTTP) plus last-activity timestamps for every transport: relay bytes flow
+// Live connection + activity registry. Live relay streams (WS and XHTTP)
+// plus last-activity timestamps for every transport: relay bytes flow
 // through checkAndUse, Xray users report through the stats poller. Powers the
 // dashboard active-connections counter and the per-user online indicator.
+// NOTE: the counter shown to the admin counts DISTINCT CLIENT IPs per user,
+// not raw streams — one phone opens dozens of tunnel streams (one per app /
+// destination) but is a single connection in the admin's sense, exactly how
+// 3X-UI's IP-based online logic reads. Raw stream counts stay internal and
+// only drive the online/offline state.
 // ---------------------------------------------------------------------------
 var (
 	regMu            sync.Mutex
 	liveConns        = make(map[string]int)
+	liveIPs          = make(map[string]map[string]int)
 	userLastActivity = make(map[string]time.Time)
 )
 
 const onlineWindow = 3 * time.Minute
 
-func connOpened(uuid string) {
+func connOpened(uuid, ip string) {
 	regMu.Lock()
 	liveConns[uuid]++
+	m := liveIPs[uuid]
+	if m == nil {
+		m = make(map[string]int)
+		liveIPs[uuid] = m
+	}
+	m[ip]++
 	userLastActivity[uuid] = time.Now()
 	regMu.Unlock()
 	go broadcastOnline(uuid)
 }
 
-func connClosed(uuid string) {
+func connClosed(uuid, ip string) {
 	regMu.Lock()
 	if liveConns[uuid] <= 1 {
 		delete(liveConns, uuid)
 	} else {
 		liveConns[uuid]--
+	}
+	if m := liveIPs[uuid]; m != nil {
+		if m[ip] <= 1 {
+			delete(m, ip)
+		} else {
+			m[ip]--
+		}
+		if len(m) == 0 {
+			delete(liveIPs, uuid)
+		}
 	}
 	regMu.Unlock()
 	go broadcastOnline(uuid)
@@ -237,10 +259,12 @@ func noteUserActivity(uuid string) {
 	}
 }
 
+// userLiveConns is the number shown in the panel: distinct client IPs with
+// at least one live relay stream for this user right now.
 func userLiveConns(uuid string) int {
 	regMu.Lock()
 	defer regMu.Unlock()
-	return liveConns[uuid]
+	return len(liveIPs[uuid])
 }
 
 func userOnline(uuid string) bool {
@@ -264,18 +288,19 @@ func userLastSeen(uuid string) any {
 	return nil
 }
 
-// activeConnectionTotal counts live relay connections plus Xray-only users
-// seen moving traffic inside the online window (one per such user).
+// activeConnectionTotal sums the per-user distinct-IP counts, plus one for
+// each Xray-only user seen moving traffic inside the online window (they
+// have no relay streams to take an IP from).
 func activeConnectionTotal() int {
 	regMu.Lock()
 	defer regMu.Unlock()
 	total := 0
-	for _, c := range liveConns {
-		total += c
+	for _, m := range liveIPs {
+		total += len(m)
 	}
 	now := time.Now()
 	for uuid, t := range userLastActivity {
-		if liveConns[uuid] == 0 && now.Sub(t) < onlineWindow {
+		if len(liveIPs[uuid]) == 0 && now.Sub(t) < onlineWindow {
 			total++
 		}
 	}
@@ -1868,8 +1893,8 @@ func handleWSRelay(w http.ResponseWriter, r *http.Request, uuid string) {
 		return
 	}
 	defer target.Close()
-	connOpened(uuid)
-	defer connClosed(uuid)
+	connOpened(uuid, clientIP)
+	defer connClosed(uuid, clientIP)
 
 	if tcpConn, ok := target.(*net.TCPConn); ok {
 		_ = tcpConn.SetKeepAlive(true)
@@ -1994,6 +2019,7 @@ func handleWSRelay(w http.ResponseWriter, r *http.Request, uuid string) {
 type xhttpSession struct {
 	mu        sync.Mutex
 	uuid      string
+	ip        string
 	tcpConn   net.Conn
 	downQueue chan []byte
 	closed    atomic.Bool
@@ -2032,7 +2058,7 @@ func (s *xhttpSession) close() {
 	}
 	if s.counted {
 		s.counted = false
-		connClosed(s.uuid)
+		connClosed(s.uuid, s.ip)
 	}
 	if s.tcpConn != nil {
 		s.tcpConn.Close()
@@ -2051,7 +2077,7 @@ func (s *xhttpSession) openTCP(h *vlessHeader) error {
 	s.tcpConn = conn
 	if !s.counted {
 		s.counted = true
-		connOpened(s.uuid)
+		connOpened(s.uuid, s.ip)
 	}
 	if len(h.Payload) > 0 {
 		conn.Write(h.Payload)
@@ -2091,14 +2117,14 @@ func (s *xhttpSession) pumpDownstream() {
 	}
 }
 
-func getOrCreateXHTTPSession(sessionID, uuid string) *xhttpSession {
+func getOrCreateXHTTPSession(sessionID, uuid, ip string) *xhttpSession {
 	if v, ok := xhttpSessions.Load(sessionID); ok {
 		s := v.(*xhttpSession)
 		s.lastSeen = time.Now()
 		return s
 	}
 	s := &xhttpSession{
-		uuid: uuid, downQueue: make(chan []byte, 256),
+		uuid: uuid, ip: ip, downQueue: make(chan []byte, 256),
 		lastSeen: time.Now(), seqBuf: make(map[int][]byte),
 	}
 	xhttpSessions.Store(sessionID, s)
@@ -2115,7 +2141,7 @@ func handleXHTTPDownlink(w http.ResponseWriter, r *http.Request, mode, uuid, ses
 		http.Error(w, "unknown mode", 404)
 		return
 	}
-	sess := getOrCreateXHTTPSession(sessionID, uuid)
+	sess := getOrCreateXHTTPSession(sessionID, uuid, extractRemoteIP(r))
 	w.Header().Set("Content-Type", "application/grpc")
 	w.Header().Set("Cache-Control", "no-store")
 	w.Header().Set("X-Accel-Buffering", "no")
@@ -2149,7 +2175,7 @@ func handleXHTTPStreamUp(w http.ResponseWriter, r *http.Request, uuid, sessionID
 		http.Error(w, "ip limit", http.StatusForbidden)
 		return
 	}
-	sess := getOrCreateXHTTPSession(sessionID, uuid)
+	sess := getOrCreateXHTTPSession(sessionID, uuid, extractRemoteIP(r))
 	defer r.Body.Close()
 	buf := make([]byte, 32*1024)
 	var headerBuf []byte
@@ -2217,7 +2243,7 @@ func handleXHTTPPacketUp(w http.ResponseWriter, r *http.Request, uuid, sessionID
 		http.Error(w, "ip limit", http.StatusForbidden)
 		return
 	}
-	sess := getOrCreateXHTTPSession(sessionID, uuid)
+	sess := getOrCreateXHTTPSession(sessionID, uuid, extractRemoteIP(r))
 	body, _ := io.ReadAll(r.Body)
 	if len(body) == 0 {
 		writeJSON(w, 200, map[string]any{"ok": true})

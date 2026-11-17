@@ -22,21 +22,33 @@ func TestRegistryOnlineLogic(t *testing.T) {
 	if got := activeConnectionTotal(); got != 1 {
 		t.Fatalf("total should be 1 (activity user), got %d", got)
 	}
-	// live connections take over the count
-	connOpened(id)
-	connOpened(id)
+	// live connections are counted per distinct client IP, not per stream:
+	// one phone opens many streams but is a single connection.
+	connOpened(id, "1.2.3.4")
+	connOpened(id, "1.2.3.4")
+	if got := userLiveConns(id); got != 1 {
+		t.Fatalf("live conns = %d, want 1 (same IP, two streams)", got)
+	}
+	if got := activeConnectionTotal(); got != 1 {
+		t.Fatalf("total should be 1 (distinct IP, not streams or 1+activity), got %d", got)
+	}
+	connOpened(id, "5.6.7.8")
 	if got := userLiveConns(id); got != 2 {
-		t.Fatalf("live conns = %d, want 2", got)
+		t.Fatalf("live conns = %d, want 2 (two IPs)", got)
 	}
 	if got := activeConnectionTotal(); got != 2 {
-		t.Fatalf("total should be 2 live conns (not 2+activity), got %d", got)
+		t.Fatalf("total should be 2 distinct IPs, got %d", got)
 	}
-	connClosed(id)
+	connClosed(id, "1.2.3.4")
+	if got := userLiveConns(id); got != 2 {
+		t.Fatalf("live conns = %d, want 2 (one stream of first IP still open)", got)
+	}
+	connClosed(id, "1.2.3.4")
 	if got := userLiveConns(id); got != 1 {
 		t.Fatalf("live conns = %d, want 1", got)
 	}
-	connClosed(id)
-	connClosed(id) // extra close must not go negative
+	connClosed(id, "5.6.7.8")
+	connClosed(id, "5.6.7.8") // extra close must not go negative
 	if got := userLiveConns(id); got != 0 {
 		t.Fatalf("live conns = %d, want 0", got)
 	}
