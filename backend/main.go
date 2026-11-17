@@ -4999,6 +4999,8 @@ func main() {
 		port = "8080"
 	}
 	staticDir := "./static"
+	// The bat-cave game served (with a 404 status) on every non-panel path.
+	notFoundPage, _ := os.ReadFile(filepath.Join(staticDir, "notfound.html"))
 
 	go func() {
 		if err := ensureXray(); err != nil {
@@ -5017,17 +5019,26 @@ func main() {
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache, must-revalidate")
-		// The panel lives ONLY under /parham. The bare root (and every other
-		// unmatched path) answers a plain 404 so the domain reveals nothing:
-		// nobody reaches the panel without knowing the /parham suffix.
-		// Unauthenticated /parham requests get the login page at the same
-		// URL; authenticated ones get the panel itself.
+		// The panel lives ONLY under /parham: nobody reaches it without
+		// knowing the /parham suffix. Unauthenticated /parham requests get
+		// the login page at the same URL; authenticated ones get the panel
+		// itself. Every other unmatched path answers 404 with the bat-cave
+		// game page: the status stays 404 and nothing about the panel is
+		// revealed, but a visitor who finds the domain gets a game instead
+		// of a dead end. (API, sub and tunnel routes are registered
+		// separately on the mux and never reach this handler.)
 		if r.URL.Path == "/parham" {
 			if checkAuth(r) {
 				http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
 			} else {
 				http.ServeFile(w, r, filepath.Join(staticDir, "login.html"))
 			}
+			return
+		}
+		if len(notFoundPage) > 0 {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.WriteHeader(http.StatusNotFound)
+			_, _ = w.Write(notFoundPage)
 			return
 		}
 		http.NotFound(w, r)
