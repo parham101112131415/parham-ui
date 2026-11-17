@@ -591,13 +591,19 @@ function _userRow(u) { return '<div class="spd-acc">' + _userAccHead(u) + _userA
 async function resetUserTraffic(uid) { if (!confirm(t('resetTraffic'))) return; try { await api('/api/users/' + uid + '/reset', {method: 'PATCH'}); toast(t('toast.userUpdated'), 'ok'); loadUsers(); } catch(e) { toast(e.message, 'err'); } }
 if (window.matchMedia) { window.matchMedia('(max-width: 640px)').addListener(function(m) { if ($id('users-list') && ALL_USERS.length) renderUsers(); }); }
 
-// The auto-disable tick only exists when an IP cap is set: it appears the
+// The auto-disable switch only exists when an IP cap is set: it appears the
 // moment the «حداکثر آی‌پی» field holds a non-zero number and hides at 0.
 function syncIPKillRow(prefix) {
   var n = parseInt($id(prefix + '-conn').value) || 0;
   var row = $id(prefix + '-ipkill-row');
   if (row) row.style.display = n > 0 ? 'flex' : 'none';
 }
+function toggleIPKill(btn) {
+  btn.classList.toggle('on');
+  btn.setAttribute('aria-checked', btn.classList.contains('on') ? 'true' : 'false');
+}
+function ipKillOn(prefix) { var b = $id(prefix + '-ipkill'); return !!(b && b.classList.contains('on')); }
+function setIPKill(prefix, on) { var b = $id(prefix + '-ipkill'); if (!b) return; b.classList.toggle('on', !!on); b.setAttribute('aria-checked', on ? 'true' : 'false'); }
 ['cu', 'eu'].forEach(function(p) {
   var inp = $id(p + '-conn');
   if (inp) inp.addEventListener('input', function() { syncIPKillRow(p); });
@@ -608,7 +614,7 @@ async function openCreateUser() {
   if (ALL_IB.some(function(ib) { return (ib.protocol || '').toLowerCase() === 'worker'; })) { try { await ensureWorkerPool(); } catch(e) {} }
   populateInboundSelects();
   $id('cu-name').value = ''; $id('cu-vol').value = ''; $id('cu-vol-u').value = 'GB'; $id('cu-exp').value = ''; $id('cu-exp-u').value = 'days'; $id('cu-conn').value = ''; $id('cu-speed').value = '0';
-  $id('cu-ipkill').checked = false; syncIPKillRow('cu');
+  setIPKill('cu', false); syncIPKillRow('cu');
   openModal('mod-user');
 }
 async function submitCreateUser(e) {
@@ -626,7 +632,7 @@ async function submitCreateUser(e) {
   try {
     var r = await api('/api/users', {method: 'POST', body: {
       username: $id('cu-name').value, traffic_limit_gb: vu === 'GB' ? v : v / 1024, expire_days: eu === 'months' ? ex * 30 : ex,
-      concurrent_connections: parseInt($id('cu-conn').value) || 0, disable_on_ip_overflow: $id('cu-ipkill').checked, speed_limit_mbps: parseFloat($id('cu-speed').value) || 0,
+      concurrent_connections: parseInt($id('cu-conn').value) || 0, disable_on_ip_overflow: ipKillOn('cu'), speed_limit_mbps: parseFloat($id('cu-speed').value) || 0,
       inbound_ids: inbound_ids, proxy_countries: allCountries, proxy_country: firstCountry, proxy_ip_enabled: !!allCountries.length,
       custom_ip_inbounds: { cf: cfIds, railway: rwIds }
     }});
@@ -688,7 +694,7 @@ async function editUser(uid) {
   $id('eu-exp').value = u.expire_at ? Math.ceil((new Date(u.expire_at) - new Date()) / 86400000) : 0;
   $id('eu-status').value = u.status || 'active';
   $id('eu-conn').value = (u.concurrent_connections != null ? u.concurrent_connections : 0);
-  $id('eu-ipkill').checked = !!u.disable_on_ip_overflow; syncIPKillRow('eu');
+  setIPKill('eu', !!u.disable_on_ip_overflow); syncIPKillRow('eu');
   $id('eu-speed').value = (u.speed_limit_mbps != null ? u.speed_limit_mbps : 0);
   renderEditInboundPicker(u);
   openModal('mod-edit-user');
@@ -701,7 +707,7 @@ async function submitEditUser(e) {
   try {
     await api('/api/users/' + uid, {method: 'PATCH', body: {
       username: $id('eu-name').value, traffic_limit_gb: $id('eu-vol').value ? parseFloat($id('eu-vol').value) : 0,
-      expire_days: parseInt($id('eu-exp').value) || 0, concurrent_connections: parseInt($id('eu-conn').value) || 0, disable_on_ip_overflow: $id('eu-ipkill').checked,
+      expire_days: parseInt($id('eu-exp').value) || 0, concurrent_connections: parseInt($id('eu-conn').value) || 0, disable_on_ip_overflow: ipKillOn('eu'),
       speed_limit_mbps: parseFloat($id('eu-speed').value) || 0, status: $id('eu-status').value,
       reset_traffic: $id('eu-reset') ? $id('eu-reset').checked : false,
       inbound_ids: selectedEditInboundIds(), proxy_countries: allEuCountries, proxy_country: allEuCountries[0] || ''
