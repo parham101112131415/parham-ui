@@ -122,3 +122,50 @@ func TestIPLimitSemantics(t *testing.T) {
 		t.Fatalf("tracked IPs = %d, want 3", got)
 	}
 }
+
+func TestDisableOnIPOverflow(t *testing.T) {
+	State.mu.Lock()
+	oldUsers := State.Users
+	State.Users = map[string]*User{}
+	victim := &User{UserID: "zz-kill", Username: "victim", ConfigUUID: "zz-kill-uuid", Status: "active", ConcurrentConnections: 1, DisableOnIPOverflow: true}
+	State.Users[victim.UserID] = victim
+	State.mu.Unlock()
+	defer func() {
+		State.mu.Lock()
+		State.Users = oldUsers
+		State.mu.Unlock()
+	}()
+
+	// Flag on + non-zero cap: overflow deactivates, and it stays deactivated.
+	disableUserForIPOverflow(victim)
+	if victim.Status != "disabled" {
+		t.Fatalf("status = %q, want disabled after overflow", victim.Status)
+	}
+	if isActiveUser(victim) {
+		t.Fatal("disabled user must fail isActiveUser (live streams die via checkAndUse)")
+	}
+	disableUserForIPOverflow(victim) // repeat calls are no-ops, never reactivate
+	if victim.Status != "disabled" {
+		t.Fatalf("status = %q, want still disabled", victim.Status)
+	}
+
+	// Flag off: overflow only rejects the new connection, user stays active.
+	State.mu.Lock()
+	calm := &User{UserID: "zz-calm", Username: "calm", ConfigUUID: "zz-calm-uuid", Status: "active", ConcurrentConnections: 1, DisableOnIPOverflow: false}
+	State.Users[calm.UserID] = calm
+	State.mu.Unlock()
+	disableUserForIPOverflow(calm)
+	if calm.Status != "active" {
+		t.Fatalf("flag-off user status = %q, want active", calm.Status)
+	}
+
+	// Cap 0 (unlimited): the option is inert even with the flag on.
+	State.mu.Lock()
+	free := &User{UserID: "zz-free", Username: "free", ConfigUUID: "zz-free-uuid", Status: "active", ConcurrentConnections: 0, DisableOnIPOverflow: true}
+	State.Users[free.UserID] = free
+	State.mu.Unlock()
+	disableUserForIPOverflow(free)
+	if free.Status != "active" {
+		t.Fatalf("cap-0 user status = %q, want active", free.Status)
+	}
+}

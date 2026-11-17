@@ -94,6 +94,7 @@ type User struct {
 	TrafficUsedBytes      int64               `json:"traffic_used_bytes"`
 	ExpireAt              string              `json:"expire_at"`
 	ConcurrentConnections int                 `json:"concurrent_connections"`
+	DisableOnIPOverflow   bool                `json:"disable_on_ip_overflow,omitempty"`
 	SpeedLimitMbps        float64             `json:"speed_limit_mbps"`
 	UsageHistory          map[string]int64    `json:"usage_history,omitempty"`
 	UsageSampledBytes     int64               `json:"usage_sampled_bytes"`
@@ -528,6 +529,33 @@ func userIPLimit(u *User) int {
 		return 0
 	}
 	return u.ConcurrentConnections
+}
+
+// disableUserForIPOverflow auto-deactivates a user at the exact moment a
+// connection from an IP beyond their cap is refused — but only when the
+// user has the «غیرفعال‌سازی خودکار» option on AND a non-zero IP cap.
+// Deactivation is the panel's normal disabled status: isActiveUser fails
+// everywhere, so new connections are refused and live relay streams die on
+// their next chunk (checkAndUse), and Xray is re-applied without the user.
+// It is sticky: nothing re-activates the user automatically — only the
+// admin's manual toggle does.
+func disableUserForIPOverflow(u *User) {
+	if u == nil || !u.DisableOnIPOverflow || userIPLimit(u) <= 0 {
+		return
+	}
+	State.mu.Lock()
+	live := State.Users[u.UserID]
+	if live == nil || live.Status != "active" {
+		State.mu.Unlock()
+		return
+	}
+	live.Status = "disabled"
+	name, uuid := live.Username, live.ConfigUUID
+	State.mu.Unlock()
+	saveState()
+	scheduleXrayApply()
+	go broadcastOnline(uuid)
+	log.Printf("[Security] User %s auto-disabled: connections exceeded the IP limit", name)
 }
 
 // touchUserIP refreshes an already-admitted IP's last-seen time. Long-lived
@@ -1909,6 +1937,7 @@ func handleWSRelay(w http.ResponseWriter, r *http.Request, uuid string) {
 	maxIP := userIPLimit(u)
 	if !recordUserIP(uuid, clientIP, maxIP) {
 		log.Printf("[Security] User %s exceeded max concurrent IPs (%d). Connection dropped from %s", u.Username, maxIP, clientIP)
+		disableUserForIPOverflow(u)
 		return
 	}
 
@@ -3446,6 +3475,7 @@ func handleUsersList(w http.ResponseWriter, r *http.Request) {
 			"traffic_used_fmt":  formatBytes(u.TrafficUsedBytes),
 			"traffic_percent":   trafficPct, "expire_at": u.ExpireAt,
 			"concurrent_connections": u.ConcurrentConnections,
+			"disable_on_ip_overflow": u.DisableOnIPOverflow,
 			"speed_limit_mbps":       u.SpeedLimitMbps,
 			"status":                 status, "server": u.Server,
 			"online":                 userOnline(u.ConfigUUID),
@@ -3541,6 +3571,7 @@ func handleUserCreate(w http.ResponseWriter, r *http.Request) {
 		TrafficLimitBytes:     int64(trafficGB * 1073741824),
 		ExpireAt:              expireAt,
 		ConcurrentConnections: gi(body, "concurrent_connections"),
+		DisableOnIPOverflow:   gb(body, "disable_on_ip_overflow"),
 		SpeedLimitMbps:        gf(body, "speed_limit_mbps"),
 		Status:                "active", Server: gs(body, "server"),
 		Path: path, InboundID: primaryIID, InboundIDs: inboundIDs,
@@ -3675,6 +3706,9 @@ func handleUserUpdate(w http.ResponseWriter, r *http.Request, id string) {
 	}
 	if _, ok := body["concurrent_connections"]; ok {
 		u.ConcurrentConnections = gi(body, "concurrent_connections")
+	}
+	if _, ok := body["disable_on_ip_overflow"]; ok {
+		u.DisableOnIPOverflow = gb(body, "disable_on_ip_overflow")
 	}
 	if _, ok := body["speed_limit_mbps"]; ok {
 		u.SpeedLimitMbps = gf(body, "speed_limit_mbps")

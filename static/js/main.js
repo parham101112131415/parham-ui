@@ -26,7 +26,7 @@ Object.assign(I18N.fa, {
   'appearance': 'تنظیمات ظاهری', 'themeMode': 'حالت نمایش', 'dark': 'تاریک', 'light': 'روشن', 'lightMode': 'حالت روشن فعال شد', 'darkMode': 'حالت تاریک فعال شد',
   'panelMusic': 'موسیقی پنل', 'bgMusic': 'موسیقی پس‌زمینه', 'toggleMusic': 'روشن/خاموش', 'changePassword': 'تغییر رمز عبور', 'curPass': 'رمز فعلی', 'newPass': 'رمز جدید', 'changePassBtn': 'تغییر رمز',
   'contactSub': 'برای پشتیبانی و همکاری با من در ارتباط باشید',
-  'createUser': 'ایجاد کاربر جدید', 'editUser': 'ویرایش کاربر', 'username': 'نام کاربری', 'conn': 'حداکثر آی‌پی', 'connHint': 'اگه از این تعداد آی‌پی بیشتر به کانفیگ وصل بشن، اتصال آی‌پی اضافه همون لحظه قطع می‌شه؛ صفر یعنی نامحدود.', 'speedLimit': 'محدودیت سرعت (Mbps)', 'speedLimitHint': 'سقف مجموع سرعت اتصال‌های رله‌شده WebSocket/XHTTP؛ صفر یعنی نامحدود.', 'volume': 'حجم', 'unit': 'واحد', 'expire': 'اعتبار', 'day': 'روز', 'month': 'ماه',
+  'createUser': 'ایجاد کاربر جدید', 'editUser': 'ویرایش کاربر', 'username': 'نام کاربری', 'conn': 'حداکثر آی‌پی', 'connHint': 'اگه از این تعداد آی‌پی بیشتر به کانفیگ وصل بشن، اتصال آی‌پی اضافه همون لحظه قطع می‌شه؛ صفر یعنی نامحدود.', 'ipKill': 'غیرفعال‌سازی خودکار با رد شدن از سقف آی‌پی', 'speedLimit': 'محدودیت سرعت (Mbps)', 'speedLimitHint': 'سقف مجموع سرعت اتصال‌های رله‌شده WebSocket/XHTTP؛ صفر یعنی نامحدود.', 'volume': 'حجم', 'unit': 'واحد', 'expire': 'اعتبار', 'day': 'روز', 'month': 'ماه',
   'inboundsMulti': 'اینباندها (چندتایی)', 'noInboundOpt': 'اینباندی وجود ندارد', 'inboundPickHint': 'برای هر اینباند، گزینه‌های مخصوصش نمایش داده می‌شود.',
   'workerCountries': 'کشورهای چندمنطقه‌ای', 'addCfIps': 'افزودن ۱۰ کانفیگ با IPهای Cloudflare اسکن‌شده', 'addRailwayIps': 'افزودن ۱۰ کانفیگ با IPهای Railway اسکن‌شده', 'realityNoExtra': 'Reality گزینه اضافه‌ای ندارد — فقط کانفیگ اصلی Reality.',
   'cancel': 'انصراف', 'submitUser': 'ایجاد کاربر', 'creatingUser': 'در حال ایجاد...', 'saving': 'در حال ذخیره...', 'userCreated': 'با موفقیت ایجاد شد',
@@ -104,7 +104,7 @@ Object.assign(I18N.en, {
   'scnRailwayTip': 'Live scan of announced Railway ranges.', 'scnTcpTip': 'Enter a domain; its IP and TCP ping are reported live.', 'addDomain': 'Add Domain', 'checkDomains': 'Check Domains', 'checking': 'Checking...', 'checkingDomains': 'Checking domains...',
   'appearance': 'Appearance', 'themeMode': 'Display Mode', 'dark': 'Dark', 'light': 'Light', 'lightMode': 'Light mode enabled', 'darkMode': 'Dark mode enabled',
   'panelMusic': 'Panel Music', 'bgMusic': 'Background Music', 'toggleMusic': 'On/Off', 'changePassword': 'Change Password', 'curPass': 'Current Password', 'newPass': 'New Password', 'changePassBtn': 'Change Password',
-  'contactSub': 'Get in touch with me', 'createUser': 'Create New User', 'editUser': 'Edit User', 'username': 'Username', 'conn': 'Max IPs', 'connHint': 'Connections from IPs beyond this count are dropped immediately; 0 means unlimited.', 'speedLimit': 'Speed limit (Mbps)', 'speedLimitHint': 'Combined WebSocket/XHTTP relay cap; 0 means unlimited.', 'volume': 'Traffic', 'unit': 'Unit', 'expire': 'Expiry', 'day': 'Day', 'month': 'Month',
+  'contactSub': 'Get in touch with me', 'createUser': 'Create New User', 'editUser': 'Edit User', 'username': 'Username', 'conn': 'Max IPs', 'connHint': 'Connections from IPs beyond this count are dropped immediately; 0 means unlimited.', 'ipKill': 'Auto-disable user when the IP limit is exceeded', 'speedLimit': 'Speed limit (Mbps)', 'speedLimitHint': 'Combined WebSocket/XHTTP relay cap; 0 means unlimited.', 'volume': 'Traffic', 'unit': 'Unit', 'expire': 'Expiry', 'day': 'Day', 'month': 'Month',
   'inboundsMulti': 'Inbounds (multi-select)', 'noInboundOpt': 'No inbounds available', 'inboundPickHint': 'Each inbound shows its own options.', 'workerCountries': 'Worker Countries', 'addCfIps': 'Add 10 configs with scanned Cloudflare IPs', 'addRailwayIps': 'Add 10 configs with scanned Railway IPs', 'realityNoExtra': 'Reality needs no extras.',
   'cancel': 'Cancel', 'submitUser': 'Create User', 'creatingUser': 'Creating...', 'saving': 'Saving...', 'userCreated': 'created successfully',
   'volEdit': 'Traffic (GB - 0=Unlimited)', 'daysEdit': 'Expiry days (0=Unlimited)', 'status': 'Status', 'active': 'Active', 'inactive': 'Inactive', 'onlineNow': 'Online', 'offlineNow': 'Offline', 'onlineNowTitle': 'Online now', 'nobodyOnline': 'Nobody is online', 'resetTraffic': 'Reset traffic', 'saveChanges': 'Save Changes',
@@ -591,12 +591,24 @@ function _userRow(u) { return '<div class="spd-acc">' + _userAccHead(u) + _userA
 async function resetUserTraffic(uid) { if (!confirm(t('resetTraffic'))) return; try { await api('/api/users/' + uid + '/reset', {method: 'PATCH'}); toast(t('toast.userUpdated'), 'ok'); loadUsers(); } catch(e) { toast(e.message, 'err'); } }
 if (window.matchMedia) { window.matchMedia('(max-width: 640px)').addListener(function(m) { if ($id('users-list') && ALL_USERS.length) renderUsers(); }); }
 
+// The auto-disable tick only exists when an IP cap is set: it appears the
+// moment the «حداکثر آی‌پی» field holds a non-zero number and hides at 0.
+function syncIPKillRow(prefix) {
+  var n = parseInt($id(prefix + '-conn').value) || 0;
+  var row = $id(prefix + '-ipkill-row');
+  if (row) row.style.display = n > 0 ? 'flex' : 'none';
+}
+['cu', 'eu'].forEach(function(p) {
+  var inp = $id(p + '-conn');
+  if (inp) inp.addEventListener('input', function() { syncIPKillRow(p); });
+});
 async function openCreateUser() {
   cuInboundState = { picks: {}, countries: {} };
   await ensureInbounds();
   if (ALL_IB.some(function(ib) { return (ib.protocol || '').toLowerCase() === 'worker'; })) { try { await ensureWorkerPool(); } catch(e) {} }
   populateInboundSelects();
   $id('cu-name').value = ''; $id('cu-vol').value = ''; $id('cu-vol-u').value = 'GB'; $id('cu-exp').value = ''; $id('cu-exp-u').value = 'days'; $id('cu-conn').value = ''; $id('cu-speed').value = '0';
+  $id('cu-ipkill').checked = false; syncIPKillRow('cu');
   openModal('mod-user');
 }
 async function submitCreateUser(e) {
@@ -614,7 +626,7 @@ async function submitCreateUser(e) {
   try {
     var r = await api('/api/users', {method: 'POST', body: {
       username: $id('cu-name').value, traffic_limit_gb: vu === 'GB' ? v : v / 1024, expire_days: eu === 'months' ? ex * 30 : ex,
-      concurrent_connections: parseInt($id('cu-conn').value) || 0, speed_limit_mbps: parseFloat($id('cu-speed').value) || 0,
+      concurrent_connections: parseInt($id('cu-conn').value) || 0, disable_on_ip_overflow: $id('cu-ipkill').checked, speed_limit_mbps: parseFloat($id('cu-speed').value) || 0,
       inbound_ids: inbound_ids, proxy_countries: allCountries, proxy_country: firstCountry, proxy_ip_enabled: !!allCountries.length,
       custom_ip_inbounds: { cf: cfIds, railway: rwIds }
     }});
@@ -676,6 +688,7 @@ async function editUser(uid) {
   $id('eu-exp').value = u.expire_at ? Math.ceil((new Date(u.expire_at) - new Date()) / 86400000) : 0;
   $id('eu-status').value = u.status || 'active';
   $id('eu-conn').value = (u.concurrent_connections != null ? u.concurrent_connections : 0);
+  $id('eu-ipkill').checked = !!u.disable_on_ip_overflow; syncIPKillRow('eu');
   $id('eu-speed').value = (u.speed_limit_mbps != null ? u.speed_limit_mbps : 0);
   renderEditInboundPicker(u);
   openModal('mod-edit-user');
@@ -688,7 +701,7 @@ async function submitEditUser(e) {
   try {
     await api('/api/users/' + uid, {method: 'PATCH', body: {
       username: $id('eu-name').value, traffic_limit_gb: $id('eu-vol').value ? parseFloat($id('eu-vol').value) : 0,
-      expire_days: parseInt($id('eu-exp').value) || 0, concurrent_connections: parseInt($id('eu-conn').value) || 0,
+      expire_days: parseInt($id('eu-exp').value) || 0, concurrent_connections: parseInt($id('eu-conn').value) || 0, disable_on_ip_overflow: $id('eu-ipkill').checked,
       speed_limit_mbps: parseFloat($id('eu-speed').value) || 0, status: $id('eu-status').value,
       reset_traffic: $id('eu-reset') ? $id('eu-reset').checked : false,
       inbound_ids: selectedEditInboundIds(), proxy_countries: allEuCountries, proxy_country: allEuCountries[0] || ''

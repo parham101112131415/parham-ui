@@ -98,7 +98,11 @@ func ipLimitAllowed(r *http.Request, uuid string) bool {
 	if u == nil {
 		return true
 	}
-	return recordUserIP(uuid, extractRemoteIP(r), userIPLimit(u))
+	if recordUserIP(uuid, extractRemoteIP(r), userIPLimit(u)) {
+		return true
+	}
+	disableUserForIPOverflow(u)
+	return false
 }
 
 func userCurrentIPs(uuid string) []string {
