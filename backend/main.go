@@ -5041,6 +5041,39 @@ func handleToolsMyIP(w http.ResponseWriter, r *http.Request) {
 // ROUTER
 // ============================================================================
 
+// servePanelPage serves the panel at /parham: the panel shell when the
+// request carries a valid session, the login page otherwise. Both documents
+// share ONE URL, so they are written from memory with no-store headers and
+// conditional requests are never honored. http.ServeFile answers an
+// If-Modified-Since revalidation with 304 when the file it picked is older
+// than the browser's cached copy — and a browser that cached login.html at
+// /parham (whose mtime is >= index.html's) then kept the cached login form
+// forever: a correct password "refreshed" straight back to the form with no
+// error while a wrong password errored normally (the 2026-11-17 lockout —
+// the password itself was never wrong). Writing the bytes directly makes a
+// 304 impossible: every /parham response carries the document that matches
+// the request's actual auth state.
+func servePanelPage(w http.ResponseWriter, r *http.Request, loginPage, indexPage []byte, staticDir string) {
+	authed := checkAuth(r)
+	if authed && len(indexPage) > 0 || !authed && len(loginPage) > 0 {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("Cache-Control", "private, no-store")
+		w.Header().Set("Vary", "Cookie")
+		if authed {
+			_, _ = w.Write(indexPage)
+		} else {
+			_, _ = w.Write(loginPage)
+		}
+		return
+	}
+	// Startup read failed: fall back to serving from disk.
+	if authed {
+		http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
+	} else {
+		http.ServeFile(w, r, filepath.Join(staticDir, "login.html"))
+	}
+}
+
 func main() {
 	initStorage()
 	removeBundleInbounds()
@@ -5055,6 +5088,11 @@ func main() {
 	staticDir := "./static"
 	// The bat-cave game served (with a 404 status) on every non-panel path.
 	notFoundPage, _ := os.ReadFile(filepath.Join(staticDir, "notfound.html"))
+	// The two documents served at /parham (login page / panel shell) are
+	// also held in memory: see servePanelPage for why they must never go
+	// through http.ServeFile's conditional-request handling.
+	loginPage, _ := os.ReadFile(filepath.Join(staticDir, "login.html"))
+	indexPage, _ := os.ReadFile(filepath.Join(staticDir, "index.html"))
 
 	go func() {
 		if err := ensureXray(); err != nil {
@@ -5082,11 +5120,7 @@ func main() {
 		// of a dead end. (API, sub and tunnel routes are registered
 		// separately on the mux and never reach this handler.)
 		if r.URL.Path == "/parham" {
-			if checkAuth(r) {
-				http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
-			} else {
-				http.ServeFile(w, r, filepath.Join(staticDir, "login.html"))
-			}
+			servePanelPage(w, r, loginPage, indexPage, staticDir)
 			return
 		}
 		if len(notFoundPage) > 0 {
