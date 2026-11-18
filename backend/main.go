@@ -605,6 +605,28 @@ func initStorage() {
 	_ = os.MkdirAll(State.DataDir, 0755)
 	seedScannerFiles()
 	loadState()
+	applyEnvPasswordReset()
+}
+
+// applyEnvPasswordReset is the break-glass admin password reset: when the
+// PARHAM_RESET_PASSWORD environment variable is set, the stored admin
+// password hash is overwritten with a hash of that value at startup and
+// saved, so the operator can always regain access no matter what hash the
+// state file holds or how it got there. The variable must be removed after
+// use — while it is set, every restart resets the password to it again.
+func applyEnvPasswordReset() {
+	v := os.Getenv("PARHAM_RESET_PASSWORD")
+	if v == "" {
+		return
+	}
+	State.mu.Lock()
+	State.Password = hashPassword(v)
+	State.mu.Unlock()
+	if err := saveState(); err != nil {
+		log.Printf("[Parham Auth] PARHAM_RESET_PASSWORD reset could not be saved: %v", err)
+		return
+	}
+	log.Printf("[Parham Auth] Admin password reset from PARHAM_RESET_PASSWORD env")
 }
 
 func loadState() {
