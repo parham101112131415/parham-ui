@@ -2926,15 +2926,116 @@ func generateUserConfigs(r *http.Request, u *User) []string {
 	removeBundleInbounds()
 	out := []string{}
 	seen := map[string]bool{}
+	add := func(cfg string) {
+		if cfg != "" && !seen[cfg] {
+			seen[cfg] = true
+			out = append(out, cfg)
+		}
+	}
 	for _, iid := range u.InboundIDs {
 		if isNodeControlInbound(iid) {
 			continue
 		}
 		cfg := generateUserConfig(r, u, iid)
-		if cfg != "" && !seen[cfg] {
-			seen[cfg] = true
-			out = append(out, cfg)
+		add(cfg)
+		if cfg == "" {
+			continue
 		}
+		// Opt-in extras from the create-user switches («افزودن ۱۰ کانفیگ با
+		// IPهای اسکن‌شده»): for each flagged source, append one variant of
+		// this inbound's own config per saved scanned IP (max 10 per
+		// source). The main config above is emitted first and stays
+		// byte-identical — the variants only swap the link's address for a
+		// clean IP; uuid, port, path and the host/sni parameters are
+		// untouched, so they reach the same inbound through the clean IP.
+		// Until 2026-11-18 the stored flag was never read anywhere, so the
+		// switch could never add anything.
+		for _, kind := range []string{"cf", "railway"} {
+			if !customIPInboundEnabled(u, iid, kind) {
+				continue
+			}
+			n := 0
+			for _, ip := range readLineFile(scannerIPFile(kind)) {
+				if n >= 10 {
+					break
+				}
+				if v := configWithScannedIP(cfg, ip); v != "" {
+					add(v)
+					n++
+				}
+			}
+		}
+	}
+	return out
+}
+
+// customIPInboundEnabled reports whether the create-user switch for the
+// given scanned-IP source (cf / railway) was turned on for this inbound.
+func customIPInboundEnabled(u *User, inboundID, kind string) bool {
+	if u == nil || u.CustomIPInbounds == nil {
+		return false
+	}
+	for _, id := range u.CustomIPInbounds[kind] {
+		if id == inboundID {
+			return true
+		}
+	}
+	return false
+}
+
+// configWithScannedIP returns a copy of a generated config link with the
+// server address replaced by a scanned clean IP and the display name
+// suffixed with that IP («<name> · <ip>») so every variant is distinct in
+// clients. Only the authority host changes. Returns "" when the entry is
+// not a usable IP or the link has no replaceable address (e.g. t.me proxy
+// links, which carry no @authority).
+func configWithScannedIP(cfg, ip string) string {
+	ip = strings.TrimSpace(ip)
+	// Scanner entries are bare IPs; tolerate an ip:port entry by keeping
+	// only the host part — the config's own port wins.
+	if h, p, err := net.SplitHostPort(ip); err == nil && p != "" {
+		ip = h
+	}
+	if net.ParseIP(ip) == nil {
+		return ""
+	}
+	scheme := strings.Index(cfg, "://")
+	if scheme < 0 {
+		return ""
+	}
+	at := strings.Index(cfg[scheme+3:], "@")
+	if at < 0 {
+		return ""
+	}
+	authStart := scheme + 3 + at + 1
+	if authStart >= len(cfg) {
+		return ""
+	}
+	// The authority ends at the port colon, the path, the query or the
+	// fragment — whichever comes first. Bracketed IPv6 literals end
+	// after their ']'.
+	authEnd := len(cfg)
+	if cfg[authStart] == '[' {
+		if rb := strings.Index(cfg[authStart:], "]"); rb >= 0 {
+			authEnd = authStart + rb + 1
+		}
+	} else {
+		for i := authStart; i < len(cfg); i++ {
+			if c := cfg[i]; c == ':' || c == '/' || c == '?' || c == '#' {
+				authEnd = i
+				break
+			}
+		}
+	}
+	out := cfg[:authStart] + ip + cfg[authEnd:]
+	if h := strings.LastIndex(out, "#"); h >= 0 {
+		name, err := url.QueryUnescape(out[h+1:])
+		if err != nil {
+			name = out[h+1:]
+		}
+		out = out[:h+1] + escRemark(name+" · "+ip)
+	} else {
+		out += "#" + escRemark(ip)
 	}
 	return out
 }
