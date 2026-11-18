@@ -712,6 +712,28 @@ func hashPassword(pwd string) string {
 	return hex.EncodeToString(h[:])
 }
 
+// Legacy salt from before the Parham rebrand (changed in fc5d40f). A state
+// file created by a pre-rebrand build — or restored from a backup made by
+// one — stores its password hash under this salt, so the current hash alone
+// can never match even when the password itself never changed.
+func hashPasswordLegacy(pwd string) string {
+	h := sha256.Sum256([]byte(pwd + "white-panel-secret-key-v2"))
+	return hex.EncodeToString(h[:])
+}
+
+// passwordMatches reports whether pwd matches the stored hash, and whether
+// it matched only under the legacy salt (the caller should then upgrade the
+// stored hash to the current salt).
+func passwordMatches(pwd, stored string) (bool, bool) {
+	if subtle.ConstantTimeCompare([]byte(hashPassword(pwd)), []byte(stored)) == 1 {
+		return true, false
+	}
+	if subtle.ConstantTimeCompare([]byte(hashPasswordLegacy(pwd)), []byte(stored)) == 1 {
+		return true, true
+	}
+	return false, false
+}
+
 func generateUUID() string {
 	b := make([]byte, 16)
 	rand.Read(b)
@@ -1008,11 +1030,21 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	State.mu.RLock()
 	currentHash := State.Password
 	State.mu.RUnlock()
-	if subtle.ConstantTimeCompare([]byte(hashPassword(password)), []byte(currentHash)) != 1 {
+	ok, legacy := passwordMatches(password, currentHash)
+	if !ok {
 		writeJSON(w, http.StatusUnauthorized, map[string]any{
 			"ok": false, "detail": "رمز عبور اشتباه است", "error": "رمز عبور اشتباه است",
 		})
 		return
+	}
+	if legacy {
+		// Stored hash predates the rebrand salt change: accept the password
+		// and transparently re-hash it under the current salt.
+		State.mu.Lock()
+		State.Password = hashPassword(password)
+		State.mu.Unlock()
+		_ = saveState()
+		log.Printf("[Parham Auth] Password hash upgraded from legacy salt")
 	}
 	token := createSession()
 	http.SetCookie(w, &http.Cookie{
@@ -1061,7 +1093,7 @@ func handleChangePassword(w http.ResponseWriter, r *http.Request) {
 	State.mu.RLock()
 	currentHash := State.Password
 	State.mu.RUnlock()
-	if subtle.ConstantTimeCompare([]byte(hashPassword(cur)), []byte(currentHash)) != 1 {
+	if ok, _ := passwordMatches(cur, currentHash); !ok {
 		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "detail": "رمز فعلی اشتباه است"})
 		return
 	}
